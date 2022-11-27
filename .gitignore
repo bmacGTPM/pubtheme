@@ -19,6 +19,7 @@
 
 # RStudio files
 .Rproj.user/
+.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -40,4 +41,4 @@ vignettes/*.pdf
 
 # Other
 tmp/
-img/Title in Upper Lower.jpg
+img/
