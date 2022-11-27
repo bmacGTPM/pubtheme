@@ -27,10 +27,10 @@ theme_pub(
 
 \item{facet}{Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.}
 
-\item{colors}{Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement.}
+\item{colors}{Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement. This assumes you have installed the package `orgthemes`}
 }
 \value{
-When used in conjunction with ggplot, it returns a plot formatted using the sn theme.
+When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
 }
 \description{
 A ggplot theme for making publication quality visualizations with options for organization-specific colors and logos.

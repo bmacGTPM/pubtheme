@@ -17,8 +17,8 @@ library(grid)
 #' @param base_line_size base size for line elements. Default is `base_size*.35/36`, and should typically not be changed.
 #' @param base_rect_size base size for rect elements. Default is `base_size*.35/36`, and should typically not be changed.
 #' @param facet Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.
-#' @param colors Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement.
-#' @return When used in conjunction with ggplot, it returns a plot formatted using the sn theme.
+#' @param colors Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement. This assumes you have installed the package `orgthemes`
+#' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
 #' @import tidyverse
 #' @import ggplot2
 #' @import scales
@@ -43,12 +43,12 @@ theme_pub <- function (type='line',
   ## Use the 0.35 conversion for points to mm here for geom_text.
   ## Necessary because geom_text and themes define font sizes differently.
   ## save default settings, then update defaults, then return to old settings at the end of the
-  update_geom_defaults("point"  , list(size=  8*base_size/36, color=sntextgray))
-  update_geom_defaults("line"   , list(size=  3*base_size/36, color=sntextgray))
-  update_geom_defaults("smooth" , list(size=  3*base_size/36, color=sntextgray))
-  update_geom_defaults("segment", list(size=  3*base_size/36, color=sntextgray))
-  update_geom_defaults("text"   , list(size=.35*base_size   , color=sntextgray, family=base_family))
-  update_geom_defaults("bar"    , list(                       color=sntextgray)) ## does width even work?
+  update_geom_defaults("point"  , list(size=  8*base_size/36, color=pubtextgray))
+  update_geom_defaults("line"   , list(size=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("smooth" , list(size=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("segment", list(size=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("text"   , list(size=.35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("bar"    , list(                       color=pubtextgray)) ## does width even work?
 
   ## this changes the default scale_size range
   ## unfortunately scale_size() still needed to be called.
@@ -62,25 +62,23 @@ theme_pub <- function (type='line',
   #if(colors == 'cmu'    ){pal =   pal} # not yet implemented
 
   ## redefine default color palettes
-  options(ggplot2.continuous.colour = function() scale_colour_gradient(low=snlightgray, high=snblue)) ## use different blue
-  options(ggplot2.continuous.fill   = function() scale_colour_gradient(low=snlightgray, high=snblue)) ## use different blue
+  options(ggplot2.continuous.colour = function() scale_colour_gradient(low=publightgray, high=pubblue)) ## use different blue
+  options(ggplot2.continuous.fill   = function() scale_colour_gradient(low=publightgray, high=pubblue)) ## use different blue
   options(ggplot2.discrete.colour   = pal)
   options(ggplot2.discrete.fill     = pal)
   #options(ggplot2.continuous.size   = function() scale_size_continuous(limits=c(5, 10))) ## don't think this is an option
 
-
-
-  th = theme(line = element_line(colour = sntextgray,
+  th = theme(line = element_line(colour = pubtextgray,
                                  size = base_line_size,
                                  linetype = 1,
                                  lineend = "butt"),
-             rect = element_rect(fill = snbackgray,
+             rect = element_rect(fill = pubbackgray,
                                  colour = NA,
                                  size = base_rect_size,
                                  linetype = 1),
              text = element_text(family = base_family,
                                  face = "plain",
-                                 colour = sntextgray,
+                                 colour = pubtextgray,
                                  size = base_size,
                                  lineheight = 0.9,
                                  hjust = 0.5, vjust = 0.5, angle = 0,
@@ -102,7 +100,7 @@ theme_pub <- function (type='line',
              axis.text.y       = element_text(margin = margin(r = 20*px, unit='in'), hjust = 1),
              axis.text.y.left  = NULL,
              axis.text.y.right = element_text(margin = margin(l = 20*px, unit='in'), hjust = 0),
-             axis.ticks = element_line(colour = sntextgray),
+             axis.ticks = element_line(colour = pubtextgray),
              axis.ticks.x        = NULL,
              axis.ticks.x.top    = NULL,
              axis.ticks.x.bottom = NULL,
@@ -144,7 +142,7 @@ theme_pub <- function (type='line',
              legend.box.margin     = margin(0, 0, 50*px, -140*px, "in"),
              legend.box.background = element_blank(),
              legend.box.spacing    = NULL,
-             panel.background = element_rect(fill=snbackgray, color=NA),
+             panel.background = element_rect(fill=pubbackgray, color=NA),
              panel.border     = element_blank(),
              panel.spacing = unit(50*px, "in"),
              panel.spacing.x = NULL,
@@ -153,15 +151,15 @@ theme_pub <- function (type='line',
              panel.grid.major   = NULL,
              panel.grid.minor   = element_blank(),
              panel.grid.major.x = element_blank(),
-             panel.grid.major.y = element_line(colour = snlightgray),
+             panel.grid.major.y = element_line(colour = publightgray),
              panel.grid.minor.x = NULL,
              panel.grid.minor.y = NULL,
              panel.ontop        = FALSE,
              plot.background = element_rect(),
-             plot.title    = element_text(size = 50/36*base_size, hjust = 0, vjust = 1, margin = margin(0,0,b = 70*px, 0, unit='in'), color=sndarkgray, face='bold'),
+             plot.title    = element_text(size = 50/36*base_size, hjust = 0, vjust = 1, margin = margin(0,0,b = 70*px, 0, unit='in'), color=pubdarkgray, face='bold'),
              plot.title.position = 'plot',
-             plot.subtitle = element_text(size = 42/36*base_size, hjust = 0, vjust = 1, margin = margin(-40*px,0,b = 70*px, 50*px, unit='in'), color=snmediumgray), ## black is not an option
-             plot.caption  = element_text(size = 33/36*base_size, hjust = 0, vjust = 1, margin = margin(50*px, 0, 0, 0, 'in'), color=snmediumgray),
+             plot.subtitle = element_text(size = 42/36*base_size, hjust = 0, vjust = 1, margin = margin(-40*px,0,b = 70*px, 50*px, unit='in'), color=pubmediumgray), ## black is not an option
+             plot.caption  = element_text(size = 33/36*base_size, hjust = 0, vjust = 1, margin = margin(50*px, 0, 0, 0, 'in'), color=pubmediumgray),
              plot.caption.position = 'plot',
              plot.tag      = element_text(size =       base_size, hjust = 0.5, vjust = 0.5),
              plot.tag.position = "topleft",
@@ -175,7 +173,7 @@ theme_pub <- function (type='line',
              strip.placement    = "outside",
              strip.placement.x  = NULL,
              strip.placement.y  = NULL,
-             strip.text = element_text(colour = sntextgray, size = base_size,
+             strip.text = element_text(colour = pubtextgray, size = base_size,
                                        margin = margin(20*px, 20*px, 20*px, 20*px, unit='in')),
              strip.text.x = NULL,
              strip.text.y = element_text(angle = -90),
@@ -186,7 +184,7 @@ theme_pub <- function (type='line',
 
   ## Change the base theme based on the type of plot specified by the user.
   ## Use of axis.ticks.length = unit(0, "pt") is that the blank ticks don't take up whitespace
-  if(type=='scatter'){th = th + theme(panel.grid.major.x = element_line(colour = snlightgray))}
+  if(type=='scatter'){th = th + theme(panel.grid.major.x = element_line(colour = publightgray))}
   if(type=='line'   ){th = th}
   if(type=='bar'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
@@ -204,8 +202,8 @@ theme_pub <- function (type='line',
                                       strip.background = element_blank(),
                                       axis.title.x.top   = element_text(margin = margin(t = -6*px, b = 30*px, unit='in'), vjust = 0),
                                       panel.grid.major = element_blank())}
-  if(facet==T       ){th = th + theme(panel.border = element_rect(color=sntextgray, fill=NA),
-                                      strip.background   = element_rect(color=sntextgray, fill=snlightgray))}
+  if(facet==T       ){th = th + theme(panel.border = element_rect(color=pubtextgray, fill=NA),
+                                      strip.background   = element_rect(color=pubtextgray, fill=publightgray))}
 
   return(th)
 }
