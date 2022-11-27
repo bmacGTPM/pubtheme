@@ -36,7 +36,6 @@ Load the package using
 
 ``` r
 library(pubtheme)
-source('R/colors.r')
 ```
 
 as usual. The theme will change some of your ggplot defaults the first
