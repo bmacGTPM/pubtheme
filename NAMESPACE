@@ -2,6 +2,13 @@
 
 export(restore.ggplot.defaults)
 export(theme_pub)
+exportPattern("##")
+exportPattern("^[[:alpha:]]+")
+exportPattern(all)
+exportPattern(colors)
+exportPattern(exports)
+exportPattern(like)
+exportPattern(objects)
 import(ggplot2)
 import(scales)
 import(tidyverse)

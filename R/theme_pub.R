@@ -23,6 +23,7 @@ library(grid)
 #' @import ggplot2
 #' @import scales
 #' @export
+#' @exportPattern "^[[:alpha:]]+" ## exports all objects like colors
 #' @examples
 #' #See `https://github.com/bmacGTPM/pubtheme` for examples.
 
