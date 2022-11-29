@@ -570,11 +570,12 @@ g = ggplot(dg, aes(x=0, y=date, color=name))+
        caption  = "Optional caption, giving additional info or Twitter handle",
        x = '',
        y = '')+
-  scale_x_continuous(limits=c(0, 5))+
+  scale_x_continuous(limits=c(0, 5), expand=c(0,0))+
   scale_y_continuous(trans=c('reverse2'), 
                      breaks=as.numeric(breaks), 
                      labels=format(breaks, '%b %d, %Y'), 
                      expand=c(.1, .1))+ ## expand in case more room is needed
+  coord_cartesian(clip='off')+
   theme_pub(type='timeline', base_size=12)
   
 g
