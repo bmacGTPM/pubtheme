@@ -3,6 +3,7 @@
 #' A density plot that is a modified version of GGally::ggally_density that has more transparent filled areas under the density lines. 
 #' @param data The `data` as in `ggplot`
 #' @param mapping The `mapping` as in `ggplot` 
+#' @param ... Additional arguments
 #' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
 #' @import ggplot2
 #' @examples
