@@ -1,13 +1,3 @@
-library(tidyverse)
-library(scales)
-library(png)
-library(gtable)
-library(ggplotify)
-library(gridExtra)
-library(grid)
-
-#source('R/colors.r')
-
 #' A ggplot theme
 #'
 #' A ggplot theme for making publication quality visualizations with options for organization-specific colors and logos.
@@ -44,10 +34,10 @@ theme_pub <- function (type='line',
   ## Use the 0.35 conversion for points to mm here for geom_text.
   ## Necessary because geom_text and themes define font sizes differently.
   ## save default settings, then update defaults, then return to old settings at the end of the
-  update_geom_defaults("point"  , list(size=  8*base_size/36, color=pubtextgray))
-  update_geom_defaults("line"   , list(size=  3*base_size/36, color=pubtextgray))
-  update_geom_defaults("smooth" , list(size=  3*base_size/36, color=pubtextgray))
-  update_geom_defaults("segment", list(size=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("point"  , list(size=  7*base_size/36, color=pubtextgray))
+  update_geom_defaults("line"   , list(linewidth=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("smooth" , list(linewidth=  3*base_size/36, color=pubtextgray))
+  update_geom_defaults("segment", list(linewidth=  4*base_size/36, color=pubtextgray))
   update_geom_defaults("text"   , list(size=.35*base_size   , color=pubtextgray, family=base_family))
   update_geom_defaults("bar"    , list(                       color=pubtextgray)) ## does width even work?
 
@@ -70,12 +60,12 @@ theme_pub <- function (type='line',
   #options(ggplot2.continuous.size   = function() scale_size_continuous(limits=c(5, 10))) ## don't think this is an option
 
   th = theme(line = element_line(colour = pubtextgray,
-                                 size = base_line_size,
+                                 linewidth = base_line_size,
                                  linetype = 1,
                                  lineend = "butt"),
              rect = element_rect(fill = pubbackgray,
                                  colour = NA,
-                                 size = base_rect_size,
+                                 linewidth = base_rect_size,
                                  linetype = 1),
              text = element_text(family = base_family,
                                  face = "plain",
@@ -115,7 +105,7 @@ theme_pub <- function (type='line',
              axis.ticks.length.y        = NULL,
              axis.ticks.length.y.left   = NULL,
              axis.ticks.length.y.right  = NULL,
-             axis.line          = element_line(size=base_line_size),
+             axis.line          = element_line(linewidth=base_line_size),
              axis.line.x        = NULL,
              axis.line.x.top    = NULL,
              axis.line.x.bottom = NULL,
@@ -186,23 +176,35 @@ theme_pub <- function (type='line',
   ## Change the base theme based on the type of plot specified by the user.
   ## Use of axis.ticks.length = unit(0, "pt") is that the blank ticks don't take up whitespace
   if(type=='scatter'){th = th + theme(panel.grid.major.x = element_line(colour = publightgray))}
+  if(type=='pairs'  ){th = th + theme(panel.grid.major.x = element_line(colour = publightgray),
+                                      panel.border = element_rect(color=pubtextgray, fill=NA),
+                                      strip.background   = element_rect(color=pubtextgray, fill=publightgray))}
   if(type=='line'   ){th = th}
   if(type=='bar'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
                                       axis.ticks.length = unit(0, "pt"),
                                       axis.text.x=element_blank(),
                                       panel.grid.major.y = element_blank()) }
-  if(type=='pop'){th = th + theme(axis.line  = element_blank(),
+  if(type=='pop'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
                                       axis.ticks.length.y = unit(0, "pt")
                                       )}
   if(type=='hist'   ){th = th + theme(axis.ticks.x = element_blank(), panel.grid.major.x = element_blank()) }
   if(type=='grid'   ){th = th + theme(axis.ticks = element_blank(),
                                       axis.ticks.length = unit(0, "pt"),
-                                      axis.line.x  = element_blank(),
+                                      axis.line  = element_blank(),
                                       strip.background = element_blank(),
-                                      axis.title.x.top   = element_text(margin = margin(t = -6*px, b = 30*px, unit='in'), vjust = 0),
+                                      axis.title.x.top   = element_text(margin = margin(t = -6*px, 
+                                                                                        b = 30*px, 
+                                                                                        unit='in'), 
+                                                                        vjust = 0),
                                       panel.grid.major = element_blank())}
+  if(type=='timeline'){th = th +theme(axis.ticks = element_blank(),
+                                      axis.ticks.length = unit(0, "pt"),
+                                      axis.line  = element_blank(),
+                                      panel.grid.major = element_blank(), 
+                                      axis.text.x = element_blank()
+                                      )}
   if(facet==T       ){th = th + theme(panel.border = element_rect(color=pubtextgray, fill=NA),
                                       strip.background   = element_rect(color=pubtextgray, fill=publightgray))}
 
