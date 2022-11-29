@@ -13,7 +13,7 @@ Times, and ESPN. Several templates for scatter plot, line plots, etc.,
 are provided below for easy copying/pasting.
 
 Organization-specific color palettes and logos can be used as well via
-the package `orgthemes`.
+the package `orgthemes`. See <https://github.com/bmacGTPM/orgthemes>.
 
 ## Installation
 
@@ -36,6 +36,7 @@ Load the package using
 
 ``` r
 library(pubtheme)
+library(GGally) ## Needed for the Pairs Plot example
 ```
 
 as usual. The theme will change some of your ggplot defaults the first
@@ -45,37 +46,37 @@ time you use it. To change them back, restart R, or use
 restore.ggplot.defaults()
 ```
 
-at any time.
+at any time. It is recommended that you update your version of
+`tidyverse` and especially `ggplot2` to use this package.
 
 ## Scatter plot
 
 ``` r
 dg = mtcars %>% 
-  select(wt, mpg)
+  select(wt, mpg, cyl)
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=wt, y=mpg))+
-  geom_point(aes(size=mpg), color=pubred)+
+g = ggplot(dg, aes(x=wt, y=mpg, color=as.factor(cyl)))+
+  geom_point(aes(size=mpg))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
   scale_x_continuous(limits=c(0, 6), breaks=c(0, 3, 6), oob=squish, labels=comma)+
   scale_y_continuous(limits=c(0,40), breaks=c(0,20,40), oob=squish, labels=comma)+
   coord_cartesian(clip='off', expand=FALSE)+
-  theme_pub(type='scatter', base_size = 12) 
+  scale_size(range=c(2,6))+
+  theme_pub(type='scatter', base_size = 36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 ## Save to a file
 gg = g +
-  theme_pub(type='scatter', base_size=36)+
-  scale_size(range=c(6,18)) 
+  scale_size(range=c(6,18)) +
+  theme_pub(type='scatter', base_size=36)
+#> Scale for size is already present.
+#> Adding another scale for size, which will replace the existing scale.
+  
 
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
       plot=gg,
@@ -84,6 +85,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
       units='in', 
       dpi=72)     
 ```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 You must have a subfolder called `img` in order for the `ggsave` chunk
 above to work.
@@ -106,6 +109,42 @@ only.
 You’ll notice a `scale_size(range=c(6,18)` when preparing the plot to be
 saved. If you are using `size` inside `aes()`, you’ll need that change
 the scale, otherwise the points will be too small.
+
+## Pairs plot
+
+``` r
+dg = mtcars %>%
+  select(mpg, cyl, wt, carb) %>%
+  mutate(cyl=factor(cyl))
+
+title = 'Title in Upper Lower'
+g = ggpairs(dg, 
+            columns = c('mpg', 'wt', 'carb'),
+            aes(color = cyl, 
+                fill  = cyl), 
+            diag = list(continuous = pub.density)) +
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption, giving additional info or Twitter handle",
+       x = 'Horizontal Axis Label in Upper Lower',
+       y = 'Vertical Axis Label in Upper Lower')+
+  coord_cartesian(clip='off', expand=FALSE)+
+  theme_pub(type='pairs', base_size=36/3)
+print(g)
+
+## Save to a file
+gg = g +
+  theme_pub(type='pairs', base_size=36)
+
+ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+      plot=gg,
+      width=20,   
+      height=20,  
+      units='in', 
+      dpi=72)  
+```
+
+<img src="man/figures/README-unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 ## Line plot
 
@@ -140,7 +179,7 @@ g = ggplot(dg, aes(x=days, y=value, color=name))+
   geom_line()+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', 
        y = 'Vertical Axis Label in Upper Lower')+  
   scale_x_continuous(labels=comma) + 
@@ -148,11 +187,6 @@ g = ggplot(dg, aes(x=days, y=value, color=name))+
   coord_cartesian(clip='off', expand=FALSE)+
   theme_pub(type='line', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 ## Save to a file
 gg = g + 
@@ -165,6 +199,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        units='in', 
        dpi=72)     
 ```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 Note that once again we set breaks for the y-axis at the top, middle,
 and bottom.
@@ -181,18 +217,13 @@ g  = ggplot(dg, aes(x=value))+
   geom_histogram(fill=pubred, color=pubbackgray, binwidth=500) + ## set a reasonable binwidth
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', ## Required.
        y = 'Count')+  ## Often don't need to change.
   scale_x_continuous(labels=comma)+
   scale_y_continuous(labels=comma, expand = c(0,0))+
   theme_pub(type='hist', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='hist', base_size=36)
@@ -204,6 +235,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
        units='in', ## do not change
        dpi=72)     ## do not change
 ```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 Here `binwidth` will almost surely need to be changed for your data.
 
@@ -234,17 +267,12 @@ g = ggplot(dg, aes(x=value, y=name))+
   geom_text(aes(label=round(value,2)), hjust=-0.1)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,35))+ 
   theme_pub(type='bar', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='bar', base_size=36)
@@ -256,6 +284,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        units='in', ## do not change
        dpi=72)     ## do not change
 ```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 If you are using digits next to the bars, you can increase the `max` so
 the text fits.
@@ -283,21 +313,18 @@ g = ggplot(dg, aes(x=name, y=name2, fill=value))+
                       oob=squish) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Day (Optional Axis Label in Upper Lower)', 
        y = NULL)+  ## Optional. 
-  geom_vline(xintercept=1:(length(unique(dg$name ))+1)-.5, color=pubdarkgray, size=0.2)+ # vert  lines between each square
-  geom_hline(yintercept=1:(length(unique(dg$name2))+1)-.5, color=pubdarkgray, size=0.2)+ # horiz lines 
+  geom_vline(xintercept=1:(length(unique(dg$name ))+1)-.5, color=pubdarkgray, linewidth=0.2)+ # vert  lines between each square
+  geom_hline(yintercept=1:(length(unique(dg$name2))+1)-.5, color=pubdarkgray, linewidth=0.2)+ # horiz lines 
   scale_x_continuous(expand = c(0, 0), position='top', breaks=seq(2,30,by=2))+
   scale_y_discrete(  expand = c(0, 0)) +
   theme_pub(type='grid', base_size=36/3) 
+#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+#> ℹ Please use `linewidth` instead.
 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='grid', base_size=36)
@@ -309,6 +336,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
        units='in', ## do not change
        dpi=72)     ## do not change
 ```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 ## Lollipop plot
 
@@ -334,18 +363,13 @@ g = ggplot(dg, aes(x=value, y=name))+
   geom_text(aes(label=round(value,2)), hjust=-0.3)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,120), expand=c(0,0))+
   coord_cartesian(clip='off', expand=FALSE)+
   theme_pub(type='pop', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='pop', base_size=36)
@@ -357,6 +381,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        units='in', ## do not change
        dpi=72) 
 ```
+
+<img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 ## Lollipop for discrete distributions
 
@@ -373,7 +399,7 @@ g = ggplot(dg, aes(x=name, y=value))+
   geom_text(aes(label=round(value,2)), vjust=-0.5)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,10), expand=c(0,0), breaks=0:10)+
@@ -381,11 +407,6 @@ g = ggplot(dg, aes(x=name, y=value))+
   coord_cartesian(clip='off', expand=FALSE)+
   theme_pub(type='pop', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='pop', base_size=36)
@@ -397,6 +418,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        units='in', ## do not change
        dpi=72) 
 ```
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 ## Barbell plot
 
@@ -422,18 +445,13 @@ g = ggplot(dg, aes(y=name))+
   geom_text(aes(x=xend, label=round(xend,2)), hjust=-0.3)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,120), expand=c(0,0))+
   coord_cartesian(clip='off', expand=FALSE)+
   theme_pub(type='pop', base_size=36/3) 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='pop', base_size=36)
@@ -445,6 +463,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        units='in', ## do not change
        dpi=72) 
 ```
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 ## Dot and Whiskers Plot
 
@@ -485,7 +505,7 @@ g = ggplot(dg, aes(x=coef, y=var))+
   geom_vline(xintercept=0, color=pubmediumgray)+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Coefficient', 
        y = NULL)+  ## Optional. 
   scale_x_continuous(limits=c(-5,5))+
@@ -494,11 +514,6 @@ g = ggplot(dg, aes(x=coef, y=var))+
   theme_pub(type='pop', base_size=36/3) 
 
 print(g)
-```
-
-<img src="man/figures/README-unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
-
-``` r
 
 gg = g + 
   theme_pub(type='pop', base_size=36)
@@ -510,6 +525,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
        units='in', ## do not change
        dpi=72)     ## do not change
 ```
+
+<img src="man/figures/README-unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 ## Faceting
 
@@ -528,7 +545,7 @@ g = ggplot(dg, aes(x=wt, y=mpg))+
   facet_wrap(~name, nrow=1) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or twitter handle",
+       caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
   scale_x_continuous(limits=c(0, 6), breaks=c(0, 3, 6), oob=squish, labels=comma_format(accuracy = 1))+
@@ -536,15 +553,11 @@ g = ggplot(dg, aes(x=wt, y=mpg))+
   coord_cartesian(clip='off', expand=FALSE)+
   theme_pub(type='scatter', base_size=36/3, facet=T)
 print(g)
-```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
-
-``` r
+gf = g # save this 'g' with 'f'aceting for later
 
 gg = g +
   theme_pub(type='scatter', base_size=36, facet=T)
-  #scale_size(range=c(6,18))
 
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot=gg, ## change range=c(6,18) when base_size=36
@@ -554,6 +567,89 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        dpi=72)     ## do not change
 ```
 
+<img src="man/figures/README-unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+
+## Timeline
+
+Let’s make up some data. Let’s also define a new “reverse” function.
+
+``` r
+current.year = as.numeric(format(Sys.Date(), "%Y"))
+dg = data.frame(date=as.Date(c(paste0(current.year, 
+                                   c('-01-01', 
+                                     '-07-04', 
+                                     '-12-25', 
+                                     '-12-31')),
+                             paste0(current.year+1, 
+                                    c('-01-01', 
+                                      '-07-04', 
+                                      '-12-25', 
+                                      '-12-31')))), 
+                text=c("New Year's Day", 
+                       "Independence Day",
+                       "Christmas Day",
+                       "New Year's Eve", 
+                       "New Year's Day", 
+                       "Independence Day",
+                       "Christmas Day",
+                       "New Year's Eve")) %>%
+  mutate(text = paste0(text, ', ', date), 
+         name = case_when(grepl('Christmas', text) ~ 'Christmas', 
+                          grepl('Indep'    , text) ~ 'Indep', 
+                          TRUE ~ 'Other'), 
+         name = factor(name, levels=c('Christmas', 'Indep', 'Other')))
+dg
+#>         date                         text      name
+#> 1 2022-01-01   New Year's Day, 2022-01-01     Other
+#> 2 2022-07-04 Independence Day, 2022-07-04     Indep
+#> 3 2022-12-25    Christmas Day, 2022-12-25 Christmas
+#> 4 2022-12-31   New Year's Eve, 2022-12-31     Other
+#> 5 2023-01-01   New Year's Day, 2023-01-01     Other
+#> 6 2023-07-04 Independence Day, 2023-07-04     Indep
+#> 7 2023-12-25    Christmas Day, 2023-12-25 Christmas
+#> 8 2023-12-31   New Year's Eve, 2023-12-31     Other
+
+library(ggrepel)
+
+## Copied from https://github.com/tidyverse/ggplot2/issues/4014
+reverse2_trans <- function() {
+  trans_new(
+    "reverse2",
+    function(x) -1 * as.numeric(x), # Force values to be numeric for Date objects
+    function(x) -1 * as.numeric(x)
+  )
+}
+
+## Edit breaks
+breaks = as.Date(c('2022-01-01', '2023-01-01', '2024-01-01'))
+title = "Title in Upper Lower" ## to be used by ggplot and ggsave
+g = ggplot(dg, aes(x=0, y=date, color=name))+
+  geom_segment(aes(x=0, xend=0, y=min(date), yend=max(date)), 
+               show.legend = F, 
+               color=publightgray)+
+  geom_point(show.legend=F)+
+  geom_label_repel(aes(label=text),
+                   nudge_x = 1,
+                   hjust = 0, 
+                   direction = 'y',
+                   show.legend = F)+
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption, giving additional info or Twitter handle",
+       x = '',
+       y = '')+
+  scale_x_continuous(limits=c(0, 5))+
+  scale_y_continuous(trans=c('reverse2'), 
+                     breaks=as.numeric(breaks), 
+                     labels=format(breaks, '%b %d, %Y'), 
+                     expand=c(.1, .1))+ ## expand in case more room is needed
+  theme_pub(type='timeline', base_size=12)
+  
+g
+```
+
+<img src="man/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+
 ## Default colors
 
 This theme changes your default ggplot colors to those found in
@@ -561,15 +657,15 @@ This theme changes your default ggplot colors to those found in
 `scale_colour_discrete` and `scale_fill_discrete` consists of red, blue,
 gray, light red, and light blue, as seen in the Line Plot above. Recall
 that if you want to undo the changes made by this theme, you can use
-`restore.gglot.defaults()` at any time.
+`restore.ggplot.defaults()` at any time.
 
-If more than 5-6 colors are needed, the 14-color colorblind friendly
-palette `cb14` can be used by adding
+If more than 5-6 colors are needed, a 14-color colorblind friendly
+palette `cb.pal` can be used by adding
 `+ scale_color_manual(values=cb.pal)` or
 `+ scale_fill_manual( values=cb.pal)` to a plot. For example,
 
 ``` r
-g + scale_color_manual(values=cb.pal)
+gf + scale_color_manual(values=cb.pal)
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
