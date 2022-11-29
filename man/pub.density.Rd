@@ -10,6 +10,8 @@ pub.density(data, mapping, ...)
 \item{data}{The `data` as in `ggplot`}
 
 \item{mapping}{The `mapping` as in `ggplot`}
+
+\item{...}{Additional arguments}
 }
 \value{
 When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
