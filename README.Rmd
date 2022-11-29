@@ -46,7 +46,6 @@ Load the package using
 
 ```{r, message=F}
 library(pubtheme)
-library(GGally) ## Needed for the Pairs Plot example
 ```
 
 as usual. The theme will change some of your ggplot defaults the first time you use it. To change them back, restart R, or use 
@@ -105,6 +104,7 @@ If you are using `size` inside `aes()`, you'll need that change the scale, other
 ## Pairs plot
 
 ```{r fig.height=7, fig.width=7}
+library(GGally) ## Needed for ggpairs function
 dg = mtcars %>%
   select(mpg, cyl, wt, carb) %>%
   mutate(cyl=factor(cyl))
