@@ -8,6 +8,8 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  warning = FALSE, 
+  message = FALSE,
   fig.path = "man/figures/README-",
   fig.height=7, 
   fig.width=7,
@@ -514,6 +516,7 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
 
 ## Timeline
 Let's make up some data. Let's also define a new "reverse" function.
+
 ```{r  fig.height=7, fig.width=5}
 current.year = as.numeric(format(Sys.Date(), "%Y"))
 dg = data.frame(date=as.Date(c(paste0(current.year, 
@@ -541,9 +544,12 @@ dg = data.frame(date=as.Date(c(paste0(current.year,
          name = factor(name, levels=c('Christmas', 'Indep', 'Other')))
 dg
 
-library(ggrepel)
+## Now make the timeline using ggrepel for the text
+library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
 
+## Function for reverse date axes 
 ## Copied from https://github.com/tidyverse/ggplot2/issues/4014
+## Use this with scale_y_continuous below (and use _continuous instead of _date)
 reverse2_trans <- function() {
   trans_new(
     "reverse2",
@@ -552,7 +558,7 @@ reverse2_trans <- function() {
   )
 }
 
-## Edit breaks
+## Define breaks, title, and plot
 breaks = as.Date(c('2022-01-01', '2023-01-01', '2024-01-01'))
 title = "Title in Upper Lower" ## to be used by ggplot and ggsave
 g = ggplot(dg, aes(x=0, y=date, color=name))+
@@ -571,7 +577,7 @@ g = ggplot(dg, aes(x=0, y=date, color=name))+
        x = '',
        y = '')+
   scale_x_continuous(limits=c(0, 5), expand=c(0,0))+
-  scale_y_continuous(trans=c('reverse2'), 
+  scale_y_continuous(trans=c('reverse2'),
                      breaks=as.numeric(breaks), 
                      labels=format(breaks, '%b %d, %Y'), 
                      expand=c(.1, .1))+ ## expand in case more room is needed

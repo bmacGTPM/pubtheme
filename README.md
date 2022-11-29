@@ -36,7 +36,6 @@ Load the package using
 
 ``` r
 library(pubtheme)
-library(GGally) ## Needed for the Pairs Plot example
 ```
 
 as usual. The theme will change some of your ggplot defaults the first
@@ -74,8 +73,6 @@ print(g)
 gg = g +
   scale_size(range=c(6,18)) +
   theme_pub(type='scatter', base_size=36)
-#> Scale for size is already present.
-#> Adding another scale for size, which will replace the existing scale.
   
 
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
@@ -113,6 +110,7 @@ the scale, otherwise the points will be too small.
 ## Pairs plot
 
 ``` r
+library(GGally) ## Needed for ggpairs function
 dg = mtcars %>%
   select(mpg, cyl, wt, carb) %>%
   mutate(cyl=factor(cyl))
@@ -321,8 +319,6 @@ g = ggplot(dg, aes(x=name, y=name2, fill=value))+
   scale_x_continuous(expand = c(0, 0), position='top', breaks=seq(2,30,by=2))+
   scale_y_discrete(  expand = c(0, 0)) +
   theme_pub(type='grid', base_size=36/3) 
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
 
 print(g)
 
@@ -609,9 +605,12 @@ dg
 #> 7 2023-12-25    Christmas Day, 2023-12-25 Christmas
 #> 8 2023-12-31   New Year's Eve, 2023-12-31     Other
 
-library(ggrepel)
+## Now make the timeline using ggrepel for the text
+library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
 
+## Function for reverse date axes 
 ## Copied from https://github.com/tidyverse/ggplot2/issues/4014
+## Use this with scale_y_continuous below (and use _continuous instead of _date)
 reverse2_trans <- function() {
   trans_new(
     "reverse2",
@@ -620,7 +619,7 @@ reverse2_trans <- function() {
   )
 }
 
-## Edit breaks
+## Define breaks, title, and plot
 breaks = as.Date(c('2022-01-01', '2023-01-01', '2024-01-01'))
 title = "Title in Upper Lower" ## to be used by ggplot and ggsave
 g = ggplot(dg, aes(x=0, y=date, color=name))+
@@ -638,11 +637,12 @@ g = ggplot(dg, aes(x=0, y=date, color=name))+
        caption  = "Optional caption, giving additional info or Twitter handle",
        x = '',
        y = '')+
-  scale_x_continuous(limits=c(0, 5))+
-  scale_y_continuous(trans=c('reverse2'), 
+  scale_x_continuous(limits=c(0, 5), expand=c(0,0))+
+  scale_y_continuous(trans=c('reverse2'),
                      breaks=as.numeric(breaks), 
                      labels=format(breaks, '%b %d, %Y'), 
                      expand=c(.1, .1))+ ## expand in case more room is needed
+  coord_cartesian(clip='off')+
   theme_pub(type='timeline', base_size=12)
   
 g
