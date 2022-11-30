@@ -10,6 +10,7 @@
 #' @param colors Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement. This assumes you have installed the package `orgthemes`
 #' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
 #' @import tidyverse
+#' @import ggplot2
 #' @import scales
 #' @export
 #' @exportPattern "^[[:alpha:]]+" ## exports all objects like colors
@@ -46,8 +47,14 @@ theme_pub <- function (type='line',
   #formals(scale_size, envir = environment(scale_size))$range <<- c(6,21)*base_size/36
 
   ## define colors if needed
-  if(colors == 'default'){pal = default.pal}
-  if(colors == 'cb14'   ){pal =      cb.pal}
+  ## do it so that colors defined in orgthemes can be used without changing
+  ## any code in pubtheme. 
+  
+  if(length(colors)==1){
+    if(colors == 'default'){pal = default.pal}
+    if(colors == 'cb14'   ){pal =      cb.pal}
+  }
+  if(length(colors)>1){pal=colors}
   #if(colors == 'yale'   ){pal =   pal} # not yet implemented
   #if(colors == 'cmu'    ){pal =   pal} # not yet implemented
 
