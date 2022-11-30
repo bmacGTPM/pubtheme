@@ -304,7 +304,7 @@ dg = airquality %>%
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, aes(x=name, y=name2, fill=value))+
-  geom_tile(size=0.4, show.legend = F) +
+  geom_tile(linewidth=0.4, show.legend = F) +
   scale_fill_gradient(low = pubbackgray,
                       high = pubred,
                       na.value = 'white',
