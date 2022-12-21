@@ -660,10 +660,6 @@ p=plot_ly(data=dg,
   
 print(p)
 
-#htmltools::save_html(partial_bundle(p), 
-#           file=paste0("img/", gsub("%", " Perc", title), ".html"))
-#xml2::write_html(partial_bundle(p), 
-#                 file=paste0("img/", gsub("%", " Perc", title), ".html"))
 htmlwidgets::saveWidget(widget = p, 
                         file = paste0("img/", gsub("%", " Perc", title), ".html"), 
                         selfcontained = F, 
@@ -671,19 +667,15 @@ htmlwidgets::saveWidget(widget = p,
 ```
 
 
-See [here](https://bmacgtpm.github.io/pubtheme/) to view the interactive version of the plot. 
+See [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html) to view the interactive version of the plot. 
 
 ```{r}
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-```{r}
-htmltools::includeHTML('https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html')
-```
-
-
 ```{r echo=F, include=F}
 ## Stuff that didn't work
+# htmltools::includeHTML('https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html')
 # htmltools::includeHTML(paste0("img/", gsub("%", " Perc", title), ".html"))
 # htmltools::tags$iframe(
 #   src = "img/Title in Upper Lower.html", 
