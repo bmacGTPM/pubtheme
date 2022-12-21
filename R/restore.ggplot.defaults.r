@@ -1,13 +1,13 @@
 #' Restore ggplot defaults
 #'
 #' A function for restoring ggplot defaults that were changed by the pubtheme package.
-#' @import tidyverse
-#' @import ggplot2
+#' @import plotly
+#' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @export
 #' @examples
 #'
 #' ## Load required packages
-#' library(tidyverse)
+#' library(plotly) ## loads ggplot2, and we'll need plotly eventually
 #' ggplot(mtcars, aes(x=wt, y=mpg, color=as.factor(cyl))) + 
 #'     geom_point() ## default discrete colors (red, green, blue)
 #'

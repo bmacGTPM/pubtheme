@@ -5,7 +5,8 @@
 #' @param mapping The `mapping` as in `ggplot` 
 #' @param ... Additional arguments
 #' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
-#' @import ggplot2
+#' @import plotly
+#' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @examples
 #' #See the `Pairs Plot` section of `https://github.com/bmacGTPM/pubtheme` for examples.
 

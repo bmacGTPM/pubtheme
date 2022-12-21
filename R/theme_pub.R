@@ -9,9 +9,9 @@
 #' @param facet Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.
 #' @param colors Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement. This assumes you have installed the package `orgthemes`
 #' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
-#' @import tidyverse
-#' @import ggplot2
+#' @import plotly
 #' @import scales
+#' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @export
 #' @exportPattern "^[[:alpha:]]+" ## exports all objects like colors
 #' @examples
@@ -19,12 +19,12 @@
 
 
 theme_pub <- function (type='line',
-                      base_size = 36/3,
-                      base_family = "sans",
-                      base_line_size=base_size*.35/36*3,
-                      base_rect_size=base_size*.35/36,
-                      facet=F,
-                      colors = 'default'){
+                       base_size = 36/3,
+                       base_family = "sans",
+                       base_line_size=base_size*.35/36*3,
+                       base_rect_size=base_size*.35/36,
+                       facet=F,
+                       colors = 'default'){
 
 
   #base_size <- base_size
@@ -34,12 +34,12 @@ theme_pub <- function (type='line',
   ## Use the 0.35 conversion for points to mm here for geom_text.
   ## Necessary because geom_text and themes define font sizes differently.
   ## save default settings, then update defaults, then return to old settings at the end of the
-  update_geom_defaults("point"  , list(size=  7*base_size/36, color=pubtextgray))
+  update_geom_defaults("point"  , list(size=       7*base_size/36, color=pubtextgray))
   update_geom_defaults("line"   , list(linewidth=  3*base_size/36, color=pubtextgray))
   update_geom_defaults("smooth" , list(linewidth=  3*base_size/36, color=pubtextgray))
   update_geom_defaults("segment", list(linewidth=  4*base_size/36, color=pubtextgray))
-  update_geom_defaults("text"   , list(size=.35*base_size   , color=pubtextgray, family=base_family))
-  update_geom_defaults("bar"    , list(                       color=pubtextgray)) ## does width even work?
+  update_geom_defaults("text"   , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("bar"    , list(                            color=pubtextgray)) ## does width even work?
 
   ## this changes the default scale_size range
   ## unfortunately scale_size() still needed to be called.
@@ -180,7 +180,7 @@ theme_pub <- function (type='line',
              validate = TRUE)
 
   ## Change the base theme based on the type of plot specified by the user.
-  ## Use of axis.ticks.length = unit(0, "pt") is that the blank ticks don't take up whitespace
+  ## Use axis.ticks.length = unit(0, "pt") so  blank ticks don't take up whitespace
   if(type=='scatter'){th = th + theme(panel.grid.major.x = element_line(colour = publightgray))}
   if(type=='pairs'  ){th = th + theme(panel.grid.major.x = element_line(colour = publightgray),
                                       panel.border = element_rect(color=pubtextgray, fill=NA),
