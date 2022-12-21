@@ -547,7 +547,7 @@ dg = data.frame(date=as.Date(c(paste0(current.year,
 dg
 
 ## Now make the timeline using ggrepel for the text
-#library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
+library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
 
 ## Function for reverse date axes 
 ## Copied from https://github.com/tidyverse/ggplot2/issues/4014
@@ -624,6 +624,7 @@ You can use `layout_pub` to get similar formatting for `plotly` figures that use
 
 ```{r fig.height=7, fig.width=7}
 library(plotly)
+library(xml2)
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(cyl = factor(cyl)) %>%
@@ -659,8 +660,21 @@ p=plot_ly(data=dg,
   
 print(p)
 
+#htmltools::save_html(partial_bundle(p), 
+#           file=paste0("img/", gsub("%", " Perc", title), ".html"))
+#xml2::write_html(partial_bundle(p), 
+#                 file=paste0("img/", gsub("%", " Perc", title), ".html"))
+htmlwidgets::saveWidget(widget = p, 
+                        file = paste0("img/", gsub("%", " Perc", title), ".html"), 
+                        selfcontained = F, 
+                        libdir = "lib")
 ```
 
+```{r fig.height=8}
+htmltools::includeHTML(paste0("img/", gsub("%", " Perc", title), ".html"))
+```
+
+See bmacgtpm.github.io/pubtheme/img/Title in Upper Lower.html to view the interactive plot. 
 
 
 
