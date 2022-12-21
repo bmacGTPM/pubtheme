@@ -670,11 +670,8 @@ htmlwidgets::saveWidget(widget = p,
                         libdir = "lib")
 ```
 
-```{r fig.height=8}
-htmltools::includeHTML(paste0("img/", gsub("%", " Perc", title), ".html"))
-```
 
-See https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html to view the interactive plot. 
+See https://bmacgtpm.github.io/pubtheme/ to view the interactive plot. 
 
 ```{r}
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
@@ -683,6 +680,7 @@ knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%2
 
 ```{r echo=F, include=F}
 ## Stuff that didn't work
+#htmltools::includeHTML(paste0("img/", gsub("%", " Perc", title), ".html"))
 #htmltools::includeHTML('https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html')
 # htmltools::tags$iframe(
 #   src = "img/Title in Upper Lower.html", 
