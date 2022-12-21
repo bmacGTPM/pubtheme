@@ -13,6 +13,7 @@
 #' @import scales
 #' @rawNamespace import(ggplot2, except = 'last_plot')
 #' @import tidyverse
+#' @import ggrepel
 #' @export
 #' @exportPattern "^[[:alpha:]]+" ## exports all objects like colors
 #' @examples
