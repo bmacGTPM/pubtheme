@@ -677,4 +677,11 @@ htmltools::includeHTML(paste0("img/", gsub("%", " Perc", title), ".html"))
 See bmacgtpm.github.io/pubtheme/img/Title in Upper Lower.html to view the interactive plot. 
 
 
+```{r}
+htmltools::includeHTML('bmacgtpm.github.io/pubtheme/img/Title in Upper Lower.html')
+```
+
+```{r}
+knitr::include_url("bmacgtpm.github.io/pubtheme/img/Title in Upper Lower.html")
+```
 
