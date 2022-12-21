@@ -80,7 +80,9 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
       width=20,   
       height=20,  
       units='in', 
-      dpi=72)     
+      dpi=72)  
+
+g.scatter=g ## save for later
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
@@ -567,7 +569,8 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
 
 ## Timeline
 
-Let’s make up some data. Let’s also define a new “reverse” function.
+Let’s make up some data. Let’s also define a new “`reverse_trans`”
+function called `reverse2_trans`.
 
 ``` r
 current.year = as.numeric(format(Sys.Date(), "%Y"))
@@ -646,6 +649,16 @@ g = ggplot(dg, aes(x=0, y=date, color=name))+
   theme_pub(type='timeline', base_size=12)
   
 g
+
+gg = g +
+  theme_pub(type='timeline', base_size=36, facet=T)
+
+ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot=gg, ## change range=c(6,18) when base_size=36
+       width=20,   ## do not change
+       height=30,  ## can change if desired. Here, 14 was chosen so that each subplot is square
+       units='in', ## do not change
+       dpi=72)     ## do not change
 ```
 
 <img src="man/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
@@ -669,3 +682,48 @@ gf + scale_color_manual(values=cb.pal)
 ```
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+
+## Plotly
+
+You can use `layout_pub` to get similar formatting for `plotly` figures
+that use `ggplotly` or `plot_ly`. This is under development. Only using
+`type='scatter'` with `plot_ly` is currently supported. Others will be
+added “soon”. Example using `plot_ly`:
+
+``` r
+library(plotly)
+dg = mtcars %>% 
+  select(wt, mpg, cyl) %>%
+  mutate(cyl = factor(cyl)) %>%
+  rownames_to_column('name')
+
+base_size=18 ## c
+p=plot_ly(data=dg, 
+          width=1440*base_size/36, 
+          height=1440*base_size/36) %>%
+  add_trace(type='scatter', 
+            mode='markers',
+            x=~wt, 
+            y=~mpg, 
+            color=~cyl, 
+            text=~name,
+            colors=default.pal[1:3], ## change 3 to number of categories
+            marker = list(alpha=1, size=30*base_size/36),
+            hovertemplate = paste0( 
+              "<b>%{text}</b><br>",
+              "%{yaxis.title.text}: %{y:,.3f}<br>",
+              "%{xaxis.title.text}: %{x:,.2f}<br>",
+              "<extra></extra>")) %>%
+  layoutpub(type='scatter', base_size=base_size, subtitle=T, caption=F, legend=T) %>%
+  layout(title = list(text = maketitle(title='Title In Upper Lower',
+                                       subtitle='Optional Subtitle in Upper Lower',
+                                       base_size=base_size)), 
+         xaxis = list(title = list(text='Wt'),
+                      range=c(0,6),
+                      tickvals = c(0,3,6)),
+         yaxis = list(title = list(text='MPG'), 
+                      range=c(0,40), 
+                      tickvals = c(0,20,40))) 
+  
+print(p)
+```

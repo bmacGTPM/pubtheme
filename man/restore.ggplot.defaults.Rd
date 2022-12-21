@@ -12,7 +12,7 @@ A function for restoring ggplot defaults that were changed by the pubtheme packa
 \examples{
 
 ## Load required packages
-library(tidyverse)
+library(plotly) ## loads ggplot2, and we'll need plotly eventually
 ggplot(mtcars, aes(x=wt, y=mpg, color=as.factor(cyl))) + 
     geom_point() ## default discrete colors (red, green, blue)
 
