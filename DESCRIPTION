@@ -8,9 +8,10 @@ Description: A ggplot and plotly theme for creating publication quality visualiz
 Depends:
     plotly,
     ggplot2,
+    tidyverse,
+    scales,
     R (>= 2.10)
-Imports:
-    scales
+Imports: ggrepel
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

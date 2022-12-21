@@ -12,6 +12,7 @@
 #' @import plotly
 #' @import scales
 #' @rawNamespace import(ggplot2, except = 'last_plot')
+#' @import tidyverse
 #' @export
 #' @exportPattern "^[[:alpha:]]+" ## exports all objects like colors
 #' @examples
@@ -39,6 +40,7 @@ theme_pub <- function (type='line',
   update_geom_defaults("smooth" , list(linewidth=  3*base_size/36, color=pubtextgray))
   update_geom_defaults("segment", list(linewidth=  4*base_size/36, color=pubtextgray))
   update_geom_defaults("text"   , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("label_repel"   , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
   update_geom_defaults("bar"    , list(                            color=pubtextgray)) ## does width even work?
 
   ## this changes the default scale_size range
