@@ -212,8 +212,12 @@ theme_pub <- function (type='line',
                                       axis.ticks.length.x = unit(0, "pt"),
                                       axis.line  = element_blank(),
                                       panel.grid.major = element_blank(), 
-                                      axis.text.x = element_blank()
-                                      )}
+                                      axis.text.x = element_blank())}
+  if(type=='map'){th = th + theme(axis.text = element_blank(), 
+                                   axis.title = element_blank(), 
+                                   axis.line = element_blank(), 
+                                   axis.ticks = element_blank(), 
+                                   panel.grid = element_blank())}
   if(facet==T       ){th = th + theme(panel.border = element_rect(color=pubtextgray, fill=NA),
                                       strip.background   = element_rect(color=pubtextgray, fill=publightgray))}
 
