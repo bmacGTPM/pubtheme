@@ -63,7 +63,7 @@ theme_pub <- function (type='line',
 
   ## redefine default color palettes
   options(ggplot2.continuous.colour = function() scale_colour_gradient(low=publightgray, high=pubblue)) ## use different blue
-  options(ggplot2.continuous.fill   = function() scale_colour_gradient(low=publightgray, high=pubblue)) ## use different blue
+  options(ggplot2.continuous.fill   = function() scale_fill_gradient(low=publightgray, high=pubblue)) ## use different blue
   options(ggplot2.discrete.colour   = pal)
   options(ggplot2.discrete.fill     = pal)
   #options(ggplot2.continuous.size   = function() scale_size_continuous(limits=c(5, 10))) ## don't think this is an option
