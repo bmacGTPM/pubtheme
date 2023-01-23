@@ -599,14 +599,14 @@ dg = data.frame(date=as.Date(c(paste0(current.year,
          name = factor(name, levels=c('Christmas', 'Indep', 'Other')))
 dg
 #>         date                         text      name
-#> 1 2022-01-01   New Year's Day, 2022-01-01     Other
-#> 2 2022-07-04 Independence Day, 2022-07-04     Indep
-#> 3 2022-12-25    Christmas Day, 2022-12-25 Christmas
-#> 4 2022-12-31   New Year's Eve, 2022-12-31     Other
-#> 5 2023-01-01   New Year's Day, 2023-01-01     Other
-#> 6 2023-07-04 Independence Day, 2023-07-04     Indep
-#> 7 2023-12-25    Christmas Day, 2023-12-25 Christmas
-#> 8 2023-12-31   New Year's Eve, 2023-12-31     Other
+#> 1 2023-01-01   New Year's Day, 2023-01-01     Other
+#> 2 2023-07-04 Independence Day, 2023-07-04     Indep
+#> 3 2023-12-25    Christmas Day, 2023-12-25 Christmas
+#> 4 2023-12-31   New Year's Eve, 2023-12-31     Other
+#> 5 2024-01-01   New Year's Day, 2024-01-01     Other
+#> 6 2024-07-04 Independence Day, 2024-07-04     Indep
+#> 7 2024-12-25    Christmas Day, 2024-12-25 Christmas
+#> 8 2024-12-31   New Year's Eve, 2024-12-31     Other
 
 ## Now make the timeline using ggrepel for the text
 library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
@@ -683,6 +683,27 @@ gf + scale_color_manual(values=cb.pal)
 
 <img src="man/figures/README-unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
+## Maps
+
+``` r
+dg = data.frame(city = c('New York', 'Los Angeles'), 
+                lat = c( 40.7128,   34.0522),
+                lon = c(-74.0060, -118.2437))
+
+title = "Title in Upper Lower"
+g = ggplot(dg, aes(x=lon, y=lat))+
+  borders('state', colour=publightgray)+
+  geom_point(color=pubred)+
+  labs(title    = title, 
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption, giving additional info or Twitter handle")+
+  coord_cartesian(expand=F, clip='off')+
+  theme_pub(type='map', base_size = 36/3)
+g
+```
+
+<img src="man/figures/README-unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+
 ## Plotly
 
 You can use `layout_pub` to get similar formatting for `plotly` figures
@@ -742,4 +763,4 @@ to view the interactive version of the plot.
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-18-1.png" style="display: block; margin: auto;" /></a>
+<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;" /></a>
