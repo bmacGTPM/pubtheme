@@ -618,6 +618,25 @@ can be used by adding
 gf + scale_color_manual(values=cb.pal)
 ```
 
+## Maps
+```{r fig.width=7, fig.height=5}
+dg = data.frame(city = c('New York', 'Los Angeles'), 
+                lat = c( 40.7128,   34.0522),
+                lon = c(-74.0060, -118.2437))
+
+title = "Title in Upper Lower"
+g = ggplot(dg, aes(x=lon, y=lat))+
+  borders('state', colour=publightgray)+
+  geom_point(color=pubred)+
+  labs(title    = title, 
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption, giving additional info or Twitter handle")+
+  coord_cartesian(expand=F, clip='off')+
+  theme_pub(type='map', base_size = 36/3)
+g
+```
+
+
 ## Plotly 
 
 You can use `layout_pub` to get similar formatting for `plotly` figures that use `ggplotly` or `plot_ly`. This is under development. Only using `type='scatter'` with `plot_ly` is currently supported. Others will be added "soon". Example using `plot_ly`:
