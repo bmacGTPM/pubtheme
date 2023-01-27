@@ -299,14 +299,25 @@ do use axes titles, they should be in Upper Lower.
 ``` r
 dg = airquality %>%
   mutate(Month= month.abb[Month],
-         Month = factor(Month, levels=rev(month.abb))) %>% 
+         Month = factor(Month, levels=rev(month.abb[month.abb %in% Month])), 
+         Day   = factor(Day, levels=1:31)) %>% 
   rename(name  = Day,
          name2 = Month,
-         value = Temp)
+         value = Temp) 
+head(dg)
+#>   Ozone Solar.R Wind value name2 name
+#> 1    41     190  7.4    67   May    1
+#> 2    36     118  8.0    72   May    2
+#> 3    12     149 12.6    74   May    3
+#> 4    18     313 11.5    62   May    4
+#> 5    NA      NA 14.3    56   May    5
+#> 6    28      NA 14.9    66   May    6
 
-title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=name, y=name2, fill=value))+
-  geom_tile(linewidth=0.4, show.legend = F) +
+title = "Title in Upper Lower"
+g = ggplot(dg %>%
+             complete(name, name2, fill=list(value=NA)), ## so that all combos have a tile
+           aes(x=name, y=name2, fill=value))+
+  geom_tile(linewidth=0.4, show.legend = F, color=pubdarkgray) +
   scale_fill_gradient(low = pubbackgray,
                       high = pubred,
                       na.value = 'white',
@@ -316,10 +327,8 @@ g = ggplot(dg, aes(x=name, y=name2, fill=value))+
        caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Day (Optional Axis Label in Upper Lower)', 
        y = NULL)+  ## Optional. 
-  geom_vline(xintercept=1:(length(unique(dg$name ))+1)-.5, color=pubdarkgray, linewidth=0.2)+ # vert  lines between each square
-  geom_hline(yintercept=1:(length(unique(dg$name2))+1)-.5, color=pubdarkgray, linewidth=0.2)+ # horiz lines 
-  scale_x_continuous(expand = c(0, 0), position='top', breaks=seq(2,30,by=2))+
-  scale_y_discrete(  expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), position='top', breaks=seq(2, 32, by=2))+
+  scale_y_discrete(expand = c(0, 0)) +
   theme_pub(type='grid', base_size=36/3) 
 
 print(g)
