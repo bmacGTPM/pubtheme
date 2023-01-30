@@ -722,8 +722,7 @@ that use `ggplotly` or `plot_ly`. This is under development. Only using
 added “soon”. Example using `plot_ly`:
 
 ``` r
-library(plotly)
-library(xml2)
+library(htmlwidgets)
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(cyl = factor(cyl)) %>%

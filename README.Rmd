@@ -645,8 +645,7 @@ g
 You can use `layout_pub` to get similar formatting for `plotly` figures that use `ggplotly` or `plot_ly`. This is under development. Only using `type='scatter'` with `plot_ly` is currently supported. Others will be added "soon". Example using `plot_ly`:
 
 ```{r fig.height=7, fig.width=7}
-library(plotly)
-library(xml2)
+library(htmlwidgets)
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(cyl = factor(cyl)) %>%
