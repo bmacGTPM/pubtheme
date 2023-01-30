@@ -272,7 +272,7 @@ dg = airquality %>%
   rename(name  = Day,
          name2 = Month,
          value = Temp)
-head(dg)
+#head(dg)
 
 title = "Title in Upper Lower"
 g = ggplot(dg %>%

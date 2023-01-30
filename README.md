@@ -306,14 +306,7 @@ dg = airquality %>%
   rename(name  = Day,
          name2 = Month,
          value = Temp)
-head(dg)
-#>   Ozone Solar.R Wind value name2 name
-#> 1    41     190  7.4    67   May    1
-#> 2    36     118  8.0    72   May    2
-#> 3    12     149 12.6    74   May    3
-#> 4    18     313 11.5    62   May    4
-#> 5    NA      NA 14.3    56   May    5
-#> 6    28      NA 14.9    66   May    6
+#head(dg)
 
 title = "Title in Upper Lower"
 g = ggplot(dg %>%
