@@ -53,11 +53,12 @@ at any time. It is recommended that you update your version of
 ``` r
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
-  mutate(Cylinders = as.factor(cyl))
+  mutate(Cylinders = as.factor(cyl)) %>%
+  rename(MPG = mpg)
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=wt, y=mpg, color=Cylinders))+
-  geom_point(aes(size=mpg))+
+g = ggplot(dg, aes(x=wt, y=MPG, color=Cylinders))+
+  geom_point(aes(size=MPG))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption, giving additional info or Twitter handle",
@@ -318,7 +319,7 @@ title = "Title in Upper Lower"
 g = ggplot(dg %>%
              complete(name, name2, fill=list(value=NA)), ## so that all combos have a tile
            aes(x=name, y=name2, fill=value))+
-  geom_tile(linewidth=0.4, show.legend = F, color=pubdarkgray) +
+  geom_tile(linewidth=0.4, show.legend = T, color=pubdarkgray) +
   scale_fill_gradient(low = pubbackgray,
                       high = pubred,
                       na.value = 'white',
@@ -327,7 +328,8 @@ g = ggplot(dg %>%
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption, giving additional info or Twitter handle",
        x = 'Day (Optional Axis Label in Upper Lower)', 
-       y = NULL)+  ## Optional. 
+       y = NULL, ## Optional
+       fill = 'Value')+  
   scale_x_discrete(expand = c(0, 0), position='top', breaks=seq(2, 32, by=2))+
   scale_y_discrete(expand = c(0, 0)) +
   theme_pub(type='grid', base_size=36/3) 
@@ -340,7 +342,7 @@ gg = g +
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot=gg,
        width=20,   ## do not change
-       height=10,  
+       height=12,  
        units='in', ## do not change
        dpi=72)     ## do not change
 ```
@@ -774,9 +776,9 @@ htmlwidgets::saveWidget(widget = p,
                         libdir = "lib")
 ```
 
-See
+Click
 [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html)
-to view the interactive version of the plot.
+or click on the image below to view the interactive version of the plot.
 
 ``` r
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
@@ -788,11 +790,11 @@ knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%2
 
 ``` r
 ## Create a ggplot
-## Here we'll use g.scatter, our ggplot we made above 
-              ## in the "Scatter plot" section
+## Here we'll use g.scatter, the ggplot we made above 
+## in the "Scatter plot" section
 g = g.scatter 
 
-## Convert to plotly using ggplotly
+## Convert g to plotly using ggplotly
 base_size=12
 p = g %>% 
   ggplotly(width =1440*base_size/36, 
