@@ -52,10 +52,11 @@ at any time. It is recommended that you update your version of
 
 ``` r
 dg = mtcars %>% 
-  select(wt, mpg, cyl)
+  select(wt, mpg, cyl) %>%
+  mutate(Cylinders = as.factor(cyl))
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=wt, y=mpg, color=as.factor(cyl)))+
+g = ggplot(dg, aes(x=wt, y=mpg, color=Cylinders))+
   geom_point(aes(size=mpg))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -303,7 +304,7 @@ dg = airquality %>%
          Day   = factor(Day, levels=1:31)) %>% 
   rename(name  = Day,
          name2 = Month,
-         value = Temp) 
+         value = Temp)
 head(dg)
 #>   Ozone Solar.R Wind value name2 name
 #> 1    41     190  7.4    67   May    1
@@ -713,7 +714,7 @@ g
 
 <img src="man/figures/README-unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
-## Plotly
+## plotly
 
 You can use `layout_pub` to get similar formatting for `plotly` figures
 that use `ggplotly` or `plot_ly`. This is under development. Only using
@@ -728,39 +729,49 @@ dg = mtcars %>%
   mutate(cyl = factor(cyl)) %>%
   rownames_to_column('name')
 
-base_size=18 ## c
+base_size=12
 p=plot_ly(data=dg, 
           width=1440*base_size/36, 
           height=1440*base_size/36) %>%
-  add_trace(type='scatter', 
-            mode='markers',
-            x=~wt, 
-            y=~mpg, 
-            color=~cyl, 
-            text=~name,
-            colors=default.pal[1:3], ## change 3 to number of categories
-            marker = list(alpha=1, size=30*base_size/36),
+  add_trace(type   = 'scatter', 
+            mode   = 'markers',
+            x      = ~wt, 
+            y      = ~mpg, 
+            color  = ~cyl, 
+            size   = ~mpg,
+            text   = ~name,
+            colors = default.pal[1:3], ## change 3 to number of categories
+            marker = list(opacity=1),# add size=30*base_size/36 if no size above
             hovertemplate = paste0( 
               "<b>%{text}</b><br>",
               "%{yaxis.title.text}: %{y:,.3f}<br>",
               "%{xaxis.title.text}: %{x:,.2f}<br>",
               "<extra></extra>")) %>%
-  layoutpub(type='scatter', base_size=base_size, subtitle=T, caption=F, legend=T) %>%
-  layout(title = list(text = maketitle(title='Title In Upper Lower',
-                                       subtitle='Optional Subtitle in Upper Lower',
-                                       base_size=base_size)), 
-         xaxis = list(title = list(text='Wt'),
-                      range=c(0,6),
-                      tickvals = c(0,3,6)),
-         yaxis = list(title = list(text='MPG'), 
-                      range=c(0,40), 
-                      tickvals = c(0,20,40))) 
-  
-print(p)
+  layoutpub(type      = 'scatter', 
+            base_size = base_size, 
+            subtitle  = T, 
+            caption   = F, 
+            legend    = T) %>%
+  layout(
+    title = list(text = maketitle(title     = 'Title In Upper Lower',
+                                  subtitle  = 'Optional Subtitle in Upper Lower',
+                                  base_size = base_size)), 
+    xaxis = list(title    = list(text = 'Wt'),
+                 range    = c(0,    6),
+                 tickvals = c(0, 3, 6)),
+    yaxis = list(title    = list(text = 'MPG'), 
+                 range    = c(0,     40), 
+                 tickvals = c(0, 20, 40))) 
+p
+```
 
-htmlwidgets::saveWidget(widget = p, 
-                        file = paste0("img/", gsub("%", " Perc", title), ".html"), 
-                        selfcontained = F, 
+<img src="man/figures/README-unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+
+``` r
+
+htmlwidgets::saveWidget(widget = p,
+                        file = paste0("img/", gsub("%", " Perc", title), ".html"),
+                        selfcontained = F,
                         libdir = "lib")
 ```
 
@@ -773,3 +784,45 @@ knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%2
 ```
 
 <a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;" /></a>
+
+## ggplotly
+
+``` r
+## Create a ggplot
+## Here we'll use g.scatter, our ggplot we made above 
+              ## in the "Scatter plot" section
+g = g.scatter 
+
+## Convert to plotly using ggplotly
+base_size=12
+p = g %>% 
+  ggplotly(width =1440*base_size/36, 
+           height=1440*base_size/36) %>%
+  layoutpub(type      = 'scatter', 
+            base_size = base_size, 
+            subtitle  = T, 
+            caption   = F, 
+            legend    = T) %>%
+  layout(
+    title = list(text = maketitle(title     = 'Title In Upper Lower',
+                                  subtitle  = 'Optional Subtitle in Upper Lower',
+                                  base_size = base_size)), 
+    xaxis = list(title    = list(text = 'Wt'), 
+                 range    = c(0,    6), 
+                 tickvals = c(0, 3, 6)),
+    yaxis = list(title    = list(text = 'MPG'), 
+                 range    = c(0,   40), 
+                 tickvals = c(0,20,40))) %>%
+  style(marker.sizeref=1.5)
+p
+```
+
+<img src="man/figures/README-unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+
+``` r
+
+htmlwidgets::saveWidget(widget = p,
+                        file = paste0("img/", gsub("%", " Perc", title), ".html"),
+                        selfcontained = F,
+                        libdir = "lib")
+```
