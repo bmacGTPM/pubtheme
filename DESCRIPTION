@@ -1,7 +1,7 @@
 Package: pubtheme
 Type: Package
 Title: A ggplot theme and plotly theme
-Version: 0.2.0
+Version: 0.3.0
 Author: Brian Macdonald
 Maintainer: Brian Macdonald <tbd@tbd.com>
 Description: A ggplot and plotly theme for creating publication quality visualizations for web and mobile.
@@ -10,8 +10,9 @@ Depends:
     ggplot2,
     tidyverse,
     scales,
+    ggrepel,
+    htmlwidgets,
     R (>= 2.10)
-Imports: ggrepel
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
