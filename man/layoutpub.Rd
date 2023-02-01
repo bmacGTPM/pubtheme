@@ -10,7 +10,7 @@ layoutpub(
   base_size = 18,
   subtitle = F,
   caption = F,
-  legend = F,
+  legend.rows = 0,
   facet = F
 )
 }
@@ -25,7 +25,7 @@ layoutpub(
 
 \item{caption}{Is there a caption? Default is FALSE. This affects spacing.}
 
-\item{legend}{Is there a legend? Default is FALSE. This affects spacing.}
+\item{legend.rows}{How many rows are needed for the legend? Default is 0. This affects spacing.}
 
 \item{facet}{Not implemented yet. Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.}
 }

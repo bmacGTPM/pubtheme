@@ -61,7 +61,7 @@ g = ggplot(dg, aes(x=wt, y=MPG, color=Cylinders))+
   geom_point(aes(size=MPG))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
   scale_x_continuous(limits=c(0, 6), breaks=c(0, 3, 6), oob=squish, labels=comma)+
@@ -127,7 +127,7 @@ g = ggpairs(dg,
             diag = list(continuous = pub.density)) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
   coord_cartesian(clip='off', expand=FALSE)+
@@ -181,7 +181,7 @@ g = ggplot(dg, aes(x=days, y=value, color=name))+
   geom_line()+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', 
        y = 'Vertical Axis Label in Upper Lower')+  
   scale_x_continuous(labels=comma) + 
@@ -219,7 +219,7 @@ g  = ggplot(dg, aes(x=value))+
   geom_histogram(fill=pubred, color=pubbackgray, binwidth=500) + ## set a reasonable binwidth
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Required.
        y = 'Count')+  ## Often don't need to change.
   scale_x_continuous(labels=comma)+
@@ -269,7 +269,7 @@ g = ggplot(dg, aes(x=value, y=name))+
   geom_text(aes(label=round(value,2)), hjust=-0.1)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,35))+ 
@@ -319,7 +319,7 @@ g = ggplot(dg %>%
                       oob=squish) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Day (Optional Axis Label in Upper Lower)', 
        y = NULL, ## Optional
        fill = 'Value')+  
@@ -366,7 +366,7 @@ g = ggplot(dg, aes(x=value, y=name))+
   geom_text(aes(label=round(value,2)), hjust=-0.3)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,120), expand=c(0,0))+
@@ -402,7 +402,7 @@ g = ggplot(dg, aes(x=name, y=value))+
   geom_text(aes(label=round(value,2)), vjust=-0.5)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,10), expand=c(0,0), breaks=0:10)+
@@ -448,7 +448,7 @@ g = ggplot(dg, aes(y=name))+
   geom_text(aes(x=xend, label=round(xend,2)), hjust=-0.3)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)+  ## Optional. Upper Lower.
   scale_x_continuous(limits=c(0,120), expand=c(0,0))+
@@ -508,7 +508,7 @@ g = ggplot(dg, aes(x=coef, y=var))+
   geom_vline(xintercept=0, color=pubmediumgray)+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Coefficient', 
        y = NULL)+  ## Optional. 
   scale_x_continuous(limits=c(-5,5))+
@@ -548,7 +548,7 @@ g = ggplot(dg, aes(x=wt, y=mpg))+
   facet_wrap(~name, nrow=1) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
   scale_x_continuous(limits=c(0, 6), breaks=c(0, 3, 6), oob=squish, labels=comma_format(accuracy = 1))+
@@ -642,7 +642,7 @@ g = ggplot(dg, aes(x=0, y=date, color=name))+
                    show.legend = F)+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle",
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = '',
        y = '')+
   scale_x_continuous(limits=c(0, 5), expand=c(0,0))+
@@ -701,7 +701,7 @@ g = ggplot(dg, aes(x=lon, y=lat))+
   geom_point(color=pubred)+
   labs(title    = title, 
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, giving additional info or Twitter handle")+
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme")+
   coord_cartesian(expand=F, clip='off')+
   theme_pub(type='map', base_size = 36/3)
 g
@@ -745,7 +745,7 @@ p=plot_ly(data=dg,
             base_size = base_size, 
             subtitle  = T, 
             caption   = F, 
-            legend    = T) %>%
+            legend.rows = 1) %>%
   layout(
     title = list(text = maketitle(title     = 'Title In Upper Lower',
                                   subtitle  = 'Optional Subtitle in Upper Lower',
