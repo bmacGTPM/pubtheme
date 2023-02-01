@@ -5,7 +5,7 @@
 #' @param type Text indicating the type of plot the theme is being used for.  Supported types are currently 'line', 'bar', 'hist', 'grid', 'scatter'. Other plot types will be added later.
 #' @param base_size base font size, given in pts. For viewing in RStudio, something like 18 (the default) or 12 is recommended.
 #' @param subtitle Is there a subtitle? Default is FALSE. This affects spacing.
-#' @param legend Is there a legend? Default is FALSE. This affects spacing. 
+#' @param legend.rows How many rows are needed for the legend? Default is 0. This affects spacing. 
 #' @param caption Is there a caption? Default is FALSE. This affects spacing.
 #' @param facet Not implemented yet. Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.
 #' @return When used in conjunction with plot_ly, it returns a plot formatted using layout.pub.
@@ -21,7 +21,7 @@ layoutpub = function(p,
                      base_size=18, 
                      subtitle=F, 
                      caption=F, 
-                     legend=F, 
+                     legend.rows=0, 
                      facet=F){
   
   scale = base_size/36
@@ -30,7 +30,7 @@ layoutpub = function(p,
   legend.pt=0
   if(subtitle==T){subtitle.pt=46}
   if(caption ==T){caption.pt =36+20} ## text plus 20 in spacing
-  if(legend  ==T){legend.pt = 36+20}
+  if(legend.rows!=0){legend.pt = 36*legend.rows+20*legend.rows}
   
   custom.layout = 
     layout(p, 
@@ -92,7 +92,8 @@ layoutpub = function(p,
                       showline=T, ## axis line
                       mirror=T, ## show on top too
                       ticklabelstep = 1, ## show tick label every n ticks
-                      ticklen=20*scale),
+                      ticklen=20*scale, 
+                      layer = 'below traces'),
          yaxis = list(title = list(standoff=20*scale, 
                                    font=list(size=36*scale, 
                                              family='Arial', 
@@ -113,8 +114,8 @@ layoutpub = function(p,
                       showline=T,
                       mirror=T, # show on right side too
                       ticklabelstep = 1, ## show tick label every n ticks
-                      ticklen=20*scale), 
-         showlegend=T,
+                      ticklen=20*scale, 
+                      layer = 'below traces'), 
          legend = list(font = list(family = "Arial",
                                    size=base_size,
                                    color=pubtextgray),
@@ -123,10 +124,12 @@ layoutpub = function(p,
                                                 color=pubtextgray), 
                                     text=''),
                        orientation='h', 
-                       itemclick='toggle', 
-                       itemdoubleclick='toggleothers',
-                       x=-0.13, xanchor='left', ## -0.018 with title
-                       y= 1.12, yanchor='top'),
+                       itemclick='toggleothers', 
+                       itemdoubleclick='toggle',
+                       x=-0.13, 
+                       xanchor='left', ## -0.018 with title
+                       y= 1.03, 
+                       yanchor='bottom'),
          hoverlabel = list(bgcolor = pubbackgray#, 
                            #font=list(size=36*scale, color=pubtextgray),
                            #bordercolor = 'transparent'
