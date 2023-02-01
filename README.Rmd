@@ -291,12 +291,14 @@ g = ggplot(dg %>%
        fill = 'Value')+  
   scale_x_discrete(expand = c(0, 0), position='top', breaks=seq(2, 32, by=2))+
   scale_y_discrete(expand = c(0, 0)) +
-  theme_pub(type='grid', base_size=36/3) 
+  theme_pub(type='grid', base_size=36/3) #+ 
+  #theme(legend.key.width = unit(1/3, "in"))
 
 print(g)
 
 gg = g + 
-  theme_pub(type='grid', base_size=36)
+  theme_pub(type='grid', base_size=36) + 
+  theme(legend.key.width = unit(1/72, "in"))
 
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot=gg,

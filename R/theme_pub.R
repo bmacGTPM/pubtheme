@@ -210,9 +210,9 @@ theme_pub <- function (type='line',
                                                                                         unit='in'), 
                                                                         vjust = 0),
                                       panel.grid.major = element_blank(), 
-                                      legend.title     = element_text(size=base_size, vjust=0.5,
-                                                                       margin = margin(0, 0, 0, 50*px, 'in')),
-                                      legend.key.width = unit(60*px, "in")
+                                      legend.title     = 
+                                        element_text(size=base_size, vjust=0.5,
+                                                     margin = margin(0, 0, 0, 50*px, 'in'))
                                       )}
   if(type=='timeline'){th = th +theme(axis.ticks.x = element_blank(),
                                       axis.ticks.length.x = unit(0, "pt"),
