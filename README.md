@@ -316,7 +316,9 @@ g = ggplot(dg %>%
   scale_fill_gradient(low = pubbackgray,
                       high = pubred,
                       na.value = 'white',
-                      oob=squish) +
+                      oob=squish, 
+                      breaks=c(60,75,90), 
+                      guide=guide_colorbar(frame.colour = pubdarkgray)) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
@@ -330,7 +332,8 @@ g = ggplot(dg %>%
 print(g)
 
 gg = g + 
-  theme_pub(type='grid', base_size=36)
+  theme_pub(type='grid', base_size=36) #+ 
+  #theme(legend.key.width = unit(1/72, "in"))
 
 ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot=gg,

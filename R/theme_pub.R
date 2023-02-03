@@ -129,7 +129,7 @@ theme_pub <- function (type='line',
              legend.key        = element_rect(fill = NA, colour = NA),
              legend.key.size   = unit(30*px, "in"),
              legend.key.height = unit(30*px, "in"), 
-             legend.key.width  = unit(36*px, "in"),
+             legend.key.width  = unit(36*px, "in"), ## makes rectangles squares
              legend.text       = element_text(size = base_size, vjust=0.5, hjust=0.5,
                                               margin = margin(0, 20*px, 0, 0, 'in')),
              legend.text.align = 0.5,
@@ -212,7 +212,7 @@ theme_pub <- function (type='line',
                                       panel.grid.major = element_blank(), 
                                       legend.title     = 
                                         element_text(size=base_size, vjust=0.5,
-                                                     margin = margin(0, 0, 0, 50*px, 'in'))
+                                                     margin = margin(0, 0, 0, 50*px, 'in')) 
                                       )}
   if(type=='timeline'){th = th +theme(axis.ticks.x = element_blank(),
                                       axis.ticks.length.x = unit(0, "pt"),
