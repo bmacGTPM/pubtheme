@@ -41,7 +41,9 @@ theme_pub <- function (type='line',
   update_geom_defaults("smooth" , list(linewidth=  3*base_size/36, color=pubtextgray))
   update_geom_defaults("segment", list(linewidth=  4*base_size/36, color=pubtextgray))
   update_geom_defaults("text"   , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
-  update_geom_defaults("label_repel"   , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("label"  , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("text_repel" , list(size= .35*base_size   , color=pubtextgray, family=base_family))
+  update_geom_defaults("label_repel", list(size= .35*base_size   , color=pubtextgray, family=base_family))
   update_geom_defaults("bar"    , list(                            color=pubtextgray)) ## does width even work?
 
   ## this changes the default scale_size range
@@ -195,11 +197,10 @@ theme_pub <- function (type='line',
                                       axis.ticks = element_blank(),
                                       axis.ticks.length = unit(0, "pt"),
                                       axis.text.x=element_blank(),
-                                      panel.grid.major.y = element_blank()) }
+                                      panel.grid.major.y = element_blank())}
   if(type=='pop'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
-                                      axis.ticks.length.y = unit(0, "pt")
-                                      )}
+                                      axis.ticks.length.y = unit(0, "pt"))}
   if(type=='hist'   ){th = th + theme(axis.ticks.x = element_blank(), panel.grid.major.x = element_blank()) }
   if(type=='grid'   ){th = th + theme(axis.ticks = element_blank(),
                                       axis.ticks.length = unit(0, "pt"),
@@ -212,8 +213,7 @@ theme_pub <- function (type='line',
                                       panel.grid.major = element_blank(), 
                                       legend.title     = 
                                         element_text(size=base_size, vjust=0.5,
-                                                     margin = margin(0, 0, 0, 50*px, 'in')) 
-                                      )}
+                                                     margin = margin(0, 0, 0, 50*px, 'in')))}
   if(type=='timeline'){th = th +theme(axis.ticks.x = element_blank(),
                                       axis.ticks.length.x = unit(0, "pt"),
                                       axis.line  = element_blank(),
