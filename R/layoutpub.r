@@ -18,11 +18,11 @@
 #' 
 layoutpub = function(p, 
                      type = 'scatter', 
-                     base_size=18, 
-                     subtitle=F, 
-                     caption=F, 
-                     legend.rows=0, 
-                     facet=F){
+                     base_size = 12, 
+                     subtitle = F, 
+                     caption  = F, 
+                     legend.rows = 0, 
+                     facet = F){
   
   scale = base_size/36
   subtitle.pt=0
