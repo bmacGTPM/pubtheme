@@ -7,7 +7,7 @@
 layoutpub(
   p,
   type = "scatter",
-  base_size = 18,
+  base_size = 12,
   subtitle = F,
   caption = F,
   legend.rows = 0,

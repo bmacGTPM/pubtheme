@@ -5,7 +5,7 @@
 \title{A ggplot theme}
 \usage{
 theme_pub(
-  type = "line",
+  type = "scatter",
   base_size = 36/3,
   base_family = "sans",
   base_line_size = base_size * 0.35/36 * 3,
