@@ -20,7 +20,7 @@
 #' #See `https://github.com/bmacGTPM/pubtheme` for examples.
 
 
-theme_pub <- function (type='line',
+theme_pub <- function (type='scatter',
                        base_size = 36/3,
                        base_family = "sans",
                        base_line_size=base_size*.35/36*3,
@@ -44,8 +44,8 @@ theme_pub <- function (type='line',
   update_geom_defaults("label"  , list(size=     .35*base_size   , color=pubtextgray, family=base_family))
   update_geom_defaults("text_repel" , list(size= .35*base_size   , color=pubtextgray, family=base_family))
   update_geom_defaults("label_repel", list(size= .35*base_size   , color=pubtextgray, family=base_family))
-  update_geom_defaults("bar"    , list(                            color=pubtextgray)) ## does width even work?
-
+  update_geom_defaults("bar"    , list(                            color=NA, fill=pubred, width=0.8)) ## does width even work?
+  update_geom_defaults("col"    , list(                            color=NA, fill=pubred, width=0.8)) ## does width even work?
   ## this changes the default scale_size range
   ## unfortunately scale_size() still needed to be called.
   ## See https://github.com/bmacGTPM/themesn/issues/12
@@ -168,7 +168,7 @@ theme_pub <- function (type='line',
              plot.tag      = element_text(size =       base_size, hjust = 0.5, vjust = 0.5),
              plot.tag.position = "topleft",
              plot.margin = margin(t = 70*px,
-                                  r = 50*px,
+                                  r = 70*px,
                                   b = 50*px,
                                   l = 50*px, unit='in'),
              strip.background   = NULL,
@@ -196,7 +196,7 @@ theme_pub <- function (type='line',
   if(type=='bar'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
                                       axis.ticks.length = unit(0, "pt"),
-                                      axis.text.x=element_blank(),
+                                      #axis.text.x=element_blank(),
                                       panel.grid.major.y = element_blank())}
   if(type=='pop'    ){th = th + theme(axis.line  = element_blank(),
                                       axis.ticks = element_blank(),
@@ -227,6 +227,8 @@ theme_pub <- function (type='line',
   if(facet==T       ){th = th + theme(panel.border = element_rect(color=pubtextgray, fill=NA),
                                       strip.background   = element_rect(color=pubtextgray, fill=publightgray))}
 
+  
+ 
   return(th)
 }
 
