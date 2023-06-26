@@ -762,37 +762,41 @@ library(pubtheme)
 
 df = economics
 
-dd <- hexbin::hexbin(df$psavert, 
+h <- hexbin::hexbin(df$psavert, 
                      df$uempmed,
                      xbins = 20, 
                      IDs = TRUE)
 
-h =  data.frame(hexbin::hcell2xy(dd),
-                   cell = dd@cell,
-                   count = dd@count, 
-                   xcm = dd@xcm, 
-                   ycm = dd@ycm)
+hh =  data.frame(hexbin::hcell2xy(h),
+                   cell = h@cell,
+                   count = h@count, 
+                   xcm = h@xcm, 
+                   ycm = h@ycm)
 head(h)
 
-df$cell = dd@cID
-df <- df %>%
+df$cell = h@cID
+dd <- df %>%
   group_by(cell) %>%
   summarise(n = n(),           ## for size
             pop=sum(pop)) %>%  ## for fill
   ungroup() %>%
   mutate(mean.pop = pop/n) %>%
-  right_join(h, by = "cell") %>%
+  right_join(hh, by = "cell") %>%
   select(cell, x, y, count, n, pop, mean.pop)
 
 title = 'Title in Upper Lower'
-g = ggplot(df, 
+g = ggplot(dd, 
            aes(x = x, 
                y = y, 
                fill = mean.pop, 
                size = n)) +
-  geom_star(colour = pubbackgray, 
-            starshape = 'hexagon', 
+  geom_star(colour = pubbackgray,
+            starshape = 'hexagon',
             show.legend = T) +
+  geom_hex(data=df, 
+           aes(x=psavert, 
+               y=unempmed),
+               color='black', fill=NA) +
   labs(title    = title, 
        
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -801,7 +805,7 @@ g = ggplot(df,
        y = 'Median Duration of Unemployment', 
        size = 'Observations', 
        fill = 'Mean Population')+
-  scale_fill_gradient(guide='legend') +
+  #scale_fill_gradient(guide='legend') +
   guides(size = guide_legend(nrow = 3, override.aes = list(fill=pubdarkgray)), 
          fill = guide_legend(nrow = 2))
 
@@ -822,7 +826,6 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
        height=20,  ## can change if desired. Here, 14 was chosen so that each subplot is square
        units='in', ## do not change
        dpi=72)     ## do not change
-
 
 ```
 
@@ -887,7 +890,7 @@ Click [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-Note that the caption is currently not functioning properly. 
+Note that the caption at the bottom of the plot is currently not functioning properly. 
 
 ## ggplotly 
 Here is an example using `ggplotly`.
