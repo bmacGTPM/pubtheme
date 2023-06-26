@@ -752,30 +752,67 @@ g %>% pub(type='map')
 
 ## Hex bins
 
-The function `geom_hex` can be used for making a heat map with hexagonal bins. Those can be colored by count. If you want to size the hexagons by count, and color by another variable, the only way I know is to use `geom_star` with `starshape = 'hexagon'`. This code creates some data with `cell` ID, cell location `x` and `y`, the `count` to be used for size, and a column `mean.pop` to be used for fill. This is a reasonable solution but it is not ideal and is still under development. 
+The function `geom_hex` can be used for making a heat map with hexagonal bins. Those can be colored by count. 
 
-```{r fig.width=7, fig.height=7}
-library(tidyverse)
+```{r fig.width=7, fig.height=8}
+dg = economics
+
+title = 'Title in Upper Lower'
+g = ggplot(dg, 
+           aes(x = psavert, 
+               y = uempmed)) +
+    geom_hex(color=pubbackgray, 
+             bins=20) +
+  labs(title    = title, 
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
+       x = 'Personal Savings Rate', 
+       y = 'Median Duration of Unemployment', 
+       fill = 'Observations')
+
+g %>% pub(xlim = c(0,20), 
+          ylim = c(0,30)) +
+  scale_size(range=c(1,5)) ## adjust the max, and maybe the min, manually 
+
+## Save to a file using base_size=36
+gg = g %>%
+  pub(xlim = c(0,20), 
+      ylim = c(0,30),
+      base_size = 36) + 
+  scale_size(range=c(1,5)*3) ## same as above, but times 3
+
+ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot=gg,    ## ggplot using base_size=36
+       width=20,   ## do not change
+       height=20,  ## can change if desired. Here, 14 was chosen so that each subplot is square
+       units='in', ## do not change
+       dpi=72)     ## do not change
+
+```
+
+If you want to size the hexagons by count, and color by another variable, the only way I know is to use `geom_star` with `starshape = 'hexagon'`. The following code creates some data with `cell` ID, cell location `x` and `y`, the `count` to be used for size, and a column `mean.pop` to be used for fill. This is a reasonable solution but it is not ideal and is still under development. 
+
+```{r fig.width=7, fig.height=8}
 library(hexbin)
 library(ggstar)
-library(pubtheme)
 
 df = economics
 
-h <- hexbin::hexbin(df$psavert, 
-                     df$uempmed,
-                     xbins = 20, 
-                     IDs = TRUE)
+h <- hexbin::hexbin(df$psavert,
+                    df$uempmed,
+                    xbins = 20, 
+                    IDs = TRUE)
 
 hh =  data.frame(hexbin::hcell2xy(h),
-                   cell = h@cell,
-                   count = h@count, 
-                   xcm = h@xcm, 
-                   ycm = h@ycm)
-head(h)
+                 cell  = h@cell,
+                 count = h@count, 
+                 xcm   = h@xcm, 
+                 ycm   = h@ycm)
+head(hh)
 
 df$cell = h@cID
-dd <- df %>%
+
+dg <- df %>%
   group_by(cell) %>%
   summarise(n = n(),           ## for size
             pop=sum(pop)) %>%  ## for fill
@@ -785,7 +822,7 @@ dd <- df %>%
   select(cell, x, y, count, n, pop, mean.pop)
 
 title = 'Title in Upper Lower'
-g = ggplot(dd, 
+g = ggplot(dg, 
            aes(x = x, 
                y = y, 
                fill = mean.pop, 
@@ -793,10 +830,6 @@ g = ggplot(dd,
   geom_star(colour = pubbackgray,
             starshape = 'hexagon',
             show.legend = T) +
-  geom_hex(data=df, 
-           aes(x=psavert, 
-               y=unempmed),
-               color='black', fill=NA) +
   labs(title    = title, 
        
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -805,9 +838,9 @@ g = ggplot(dd,
        y = 'Median Duration of Unemployment', 
        size = 'Observations', 
        fill = 'Mean Population')+
-  #scale_fill_gradient(guide='legend') +
+  scale_fill_gradient(guide='legend', low = publightgray, high=pubblue) +
   guides(size = guide_legend(nrow = 3, override.aes = list(fill=pubdarkgray)), 
-         fill = guide_legend(nrow = 2))
+         fill = guide_legend(nrow = 2, override.aes = list(size=5)))
 
 g %>% pub(xlim = c(0,20), 
           ylim = c(0,30)) +

@@ -713,7 +713,8 @@ library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
 
 ## Function for reverse date axes 
 ## Copied from https://github.com/tidyverse/ggplot2/issues/4014
-## Use this with scale_y_continuous below (and use _continuous instead of _date)
+## Will be used by pub. If you are using theme_pub instead of pub, 
+## you will need this function and scale_y_continuous(trans='reverse2'). 
 reverse2_trans <- function() {
   trans_new(
     "reverse2",
@@ -785,18 +786,20 @@ palette `cb.pal` can be used by adding
 dg = mtcars %>%
   mutate(gear = paste0(gear, ' gear'), 
          cyl  = paste0(cyl, ' cyl'  ), 
-         name = paste0(gear, '-', cyl)) 
+         name = paste0(gear, ', ', cyl)) 
 
 title = "Title in Upper Lower" ## to be used by ggplot and ggsave
 g = ggplot(dg, aes(x=wt, y=mpg))+
-  geom_point(aes(color=name), show.legend=F)+
+  geom_point(aes(color=name))+
   facet_grid(cyl~gear) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
-       y = 'Vertical Axis Label in Upper Lower')+
-  scale_color_manual(values=cb.pal)
+       y = 'Vertical Axis Label in Upper Lower', 
+       color = 'Gears and Cylinders')+
+  scale_color_manual(values=cb.pal) +
+  guides(color = guide_legend(nrow=3))
 
 g %>% pub(xlim=c(0,6), 
           ylim=c(0,40), 
@@ -829,69 +832,23 @@ g %>% pub(type='map')
 ## Hex bins
 
 The function `geom_hex` can be used for making a heat map with hexagonal
-bins. Those can be colored by count. If you want to size the hexagons by
-count, and color by another variable, the only way I know is to use
-`geom_star` with `starshape = 'hexagon'`. The code creates some data
-with `cell` ID, cell location `x` and `y`, the `count` to be used for
-size
+bins. Those can be colored by count.
 
 ``` r
-library(tidyverse)
-library(hexbin)
-library(ggstar)
-library(pubtheme)
-
-df = economics
-
-dd <- hexbin::hexbin(df$psavert, 
-                     df$uempmed,
-                     xbins = 20, 
-                     IDs = TRUE)
-
-h =  data.frame(hexbin::hcell2xy(dd),
-                   cell = dd@cell,
-                   count = dd@count, 
-                   xcm = dd@xcm, 
-                   ycm = dd@ycm)
-head(h)
-#>         x        y cell count      xcm  ycm
-#> 1  9.7500 4.000000   11     2  9.90000 4.10
-#> 2 10.5050 4.000000   12     4 10.40000 4.25
-#> 3 11.2600 4.000000   13     3 11.23333 4.40
-#> 4 12.0150 4.000000   14     3 11.83333 4.30
-#> 5 13.5250 4.000000   16     1 13.30000 4.10
-#> 6  4.8425 4.917987   25     1  4.50000 5.20
-
-df$cell = dd@cID
-df <- df %>%
-  group_by(cell) %>%
-  summarise(n = n(),           ## for size
-            pop=sum(pop)) %>%  ## for fill
-  ungroup() %>%
-  mutate(mean.pop = pop/n) %>%
-  right_join(h, by = "cell") %>%
-  select(cell, x, y, count, n, pop, mean.pop)
+dg = economics
 
 title = 'Title in Upper Lower'
-g = ggplot(df, 
-           aes(x = x, 
-               y = y, 
-               fill = mean.pop, 
-               size = n)) +
-  geom_star(colour = NA, 
-            starshape = 'hexagon', 
-            show.legend = T) +
+g = ggplot(dg, 
+           aes(x = psavert, 
+               y = uempmed)) +
+    geom_hex(color=pubbackgray, 
+             bins=20) +
   labs(title    = title, 
-       
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
        x = 'Personal Savings Rate', 
        y = 'Median Duration of Unemployment', 
-       size = 'Observations', 
-       fill = 'Mean Population')+
-  scale_fill_gradient(guide='legend') +
-  guides(size = guide_legend(nrow = 3, override.aes = list(fill=pubdarkgray)), 
-         fill = guide_legend(nrow = 2))
+       fill = 'Observations')
 
 g %>% pub(xlim = c(0,20), 
           ylim = c(0,30)) +
@@ -913,6 +870,91 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
 ```
 
 <img src="man/figures/README-unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+
+If you want to size the hexagons by count, and color by another
+variable, the only way I know is to use `geom_star` with
+`starshape = 'hexagon'`. The following code creates some data with
+`cell` ID, cell location `x` and `y`, the `count` to be used for size,
+and a column `mean.pop` to be used for fill. This is a reasonable
+solution but it is not ideal and is still under development.
+
+``` r
+library(hexbin)
+library(ggstar)
+
+df = economics
+
+h <- hexbin::hexbin(df$psavert,
+                    df$uempmed,
+                    xbins = 20, 
+                    IDs = TRUE)
+
+hh =  data.frame(hexbin::hcell2xy(h),
+                 cell  = h@cell,
+                 count = h@count, 
+                 xcm   = h@xcm, 
+                 ycm   = h@ycm)
+head(hh)
+#>         x        y cell count      xcm  ycm
+#> 1  9.7500 4.000000   11     2  9.90000 4.10
+#> 2 10.5050 4.000000   12     4 10.40000 4.25
+#> 3 11.2600 4.000000   13     3 11.23333 4.40
+#> 4 12.0150 4.000000   14     3 11.83333 4.30
+#> 5 13.5250 4.000000   16     1 13.30000 4.10
+#> 6  4.8425 4.917987   25     1  4.50000 5.20
+
+df$cell = h@cID
+
+dg <- df %>%
+  group_by(cell) %>%
+  summarise(n = n(),           ## for size
+            pop=sum(pop)) %>%  ## for fill
+  ungroup() %>%
+  mutate(mean.pop = pop/n) %>%
+  right_join(hh, by = "cell") %>%
+  select(cell, x, y, count, n, pop, mean.pop)
+
+title = 'Title in Upper Lower'
+g = ggplot(dg, 
+           aes(x = x, 
+               y = y, 
+               fill = mean.pop, 
+               size = n)) +
+  geom_star(colour = pubbackgray,
+            starshape = 'hexagon',
+            show.legend = T) +
+  labs(title    = title, 
+       
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
+       x = 'Personal Savings Rate', 
+       y = 'Median Duration of Unemployment', 
+       size = 'Observations', 
+       fill = 'Mean Population')+
+  scale_fill_gradient(guide='legend', low = publightgray, high=pubblue) +
+  guides(size = guide_legend(nrow = 3, override.aes = list(fill=pubdarkgray)), 
+         fill = guide_legend(nrow = 2, override.aes = list(size=5)))
+
+g %>% pub(xlim = c(0,20), 
+          ylim = c(0,30)) +
+  scale_size(range=c(1,5)) ## adjust the max, and maybe the min, manually 
+
+## Save to a file using base_size=36
+gg = g %>%
+  pub(xlim = c(0,20), 
+      ylim = c(0,30),
+      base_size = 36) + 
+  scale_size(range=c(1,5)*3) ## same as above, but times 3
+
+ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot=gg,    ## ggplot using base_size=36
+       width=20,   ## do not change
+       height=20,  ## can change if desired. Here, 14 was chosen so that each subplot is square
+       units='in', ## do not change
+       dpi=72)     ## do not change
+```
+
+<img src="man/figures/README-unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
 
 ## plotly
 
@@ -979,9 +1021,10 @@ or click on the image below to view the interactive version of the plot.
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-22-1.png" style="display: block; margin: auto;" /></a>
+<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-23-1.png" style="display: block; margin: auto;" /></a>
 
-Note that the caption is currently not functioning properly.
+Note that the caption at the bottom of the plot is currently not
+functioning properly.
 
 ## ggplotly
 
@@ -1021,7 +1064,7 @@ p = g %>%
 p
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -1052,7 +1095,7 @@ g %>%
       legend.rows = 1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 If you want to customize the tooltip (e.g. when you are unable to
 specify the order that you want), you can create a `text` column that
 has the information you want, in the order that you want. You can also
@@ -1097,4 +1140,4 @@ g %>%
       legend.rows = 1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" style="display: block; margin: auto;" />
