@@ -38,12 +38,25 @@ restore.ggplot.defaults <- function(){
   ## geom defaults
   ## obtained by restarting R and using, for example,
   ## ggplot2:::check_subclass("point", "Geom")$default_aes
-  update_geom_defaults("point"  , list(shape=19, colour='black', size=1.5, fill=NA, alpha=NA, stroke=0.5))
-  update_geom_defaults("line"   , list(colour='black', size=0.5, linetype=1, alpha=NA))
-  update_geom_defaults("segment", list(colour='black', size=0.5, linetype=1, alpha=NA))
-  update_geom_defaults("smooth" , list(colour="#3366FF", fill='gray60', size=1,linetype=1, weight=1, alpha=-0.4))
-  update_geom_defaults("text"   , list(colour='black', size=3.88, angle=0, hjust=0.5, vjust=0.5, alpha=NA, family='', fontface=1, lineheight=1.2))
-  update_geom_defaults("bar"    , list(colour=NA, fill='gray35', size=0.5, linetype=1, alpha=NA))
+  update_geom_defaults("bar"    , list(colour = NA       , alpha = NA  , size=0.5 , linetype = 1, fill = 'gray35'))
+  update_geom_defaults("col"    , list(colour = NA       , alpha = NA  , size=0.5 , linetype = 1, fill = 'gray35'))
+  update_geom_defaults("line"   , list(colour = 'black'  , alpha = NA  , size=0.5 , linetype = 1))
+  update_geom_defaults("segment", list(colour = 'black'  , alpha = NA  , size=0.5 , linetype = 1))
+  update_geom_defaults("smooth" , list(colour = "#3366FF", alpha = -0.4, size=1   , linetype = 1, fill = 'gray60', weight = 1))
+  update_geom_defaults("point"  , list(colour = 'black'  , alpha = NA  , size=1.5 ,               fill = NA, 
+                                       stroke = 0.5, 
+                                       shape  = 19))
+  
+  update_geom_defaults("text"   , list(colour = 'black'  , alpha = NA  , size=3.88, 
+                                       angle      = 0, 
+                                       hjust      = 0.5, 
+                                       vjust      = 0.5, 
+                                       family     = '', 
+                                       fontface   = 1, 
+                                       lineheight = 1.2))
+  ## put the original geom_col back
+  #rm(geom_col)
+  
   
 }
 

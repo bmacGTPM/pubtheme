@@ -18,20 +18,20 @@
 #' @param ... Other arguments passed to `theme_pub`
 
 pub = function (g, 
-                type = 'scatter',
+                type      = 'scatter',
                 base_size = 36/3,
-                xlim = NULL, 
-                ylim = NULL, 
-                xbreaks = NULL,
-                ybreaks = NULL,
-                xlabels = NULL,
-                ylabels = NULL,
-                xtrans  = NULL, 
-                ytrans  = NULL,
-                int     = FALSE, 
-                tooltip = 'all',
-                subtitle = F, 
-                caption  = F, 
+                xlim      = NULL, 
+                ylim      = NULL, 
+                xbreaks   = NULL,
+                ybreaks   = NULL,
+                xlabels   = NULL,
+                ylabels   = NULL,
+                xtrans    = NULL, 
+                ytrans    = NULL,
+                int       = FALSE, 
+                tooltip   = 'all',
+                subtitle  = F, 
+                caption   = F, 
                 legend.rows = 0, 
                 ...
                 # base_family = "sans",
@@ -73,13 +73,13 @@ pub = function (g,
     lapply(function(x) ggplot2:::snakeize(class(x$geom))[1]) %>% 
     unlist()
   
-  text = ifelse(sum(grepl('geom_text', geoms)>0), TRUE, FALSE)
+  text = ifelse(sum(grepl('geom_text', geoms) > 0), TRUE, FALSE)
   text
   
   ## Is there a bar plot with light gray background bars?
   ## If so, there is no need to expand
   bg.bars = ifelse(sum(grepl('geom[_]col|geom[_]bar', 
-                             geoms))>1, 
+                             geoms)) > 1, 
                    TRUE, 
                    FALSE)
   bg.bars
@@ -248,12 +248,13 @@ pub = function (g,
           xlim[2])
       else xbreaks
     )
-    scalesy = scale_y_continuous(oob=squish, 
-                                 trans= if(is.null(ytrans)) "reverse2" else ytrans,
-                                 breaks=as.numeric(ybreaks),
-                                 labels=format(ybreaks, '%b %d, %Y'),
-                                 expand=expandy)
-    sizes = scale_size(range=c(3,18)*base_size/36)
+    scalesy = scale_y_continuous(
+      oob    = squish, 
+      trans  = if(is.null(ytrans)) "reverse2" else ytrans,
+      breaks = as.numeric(ybreaks),
+      labels = format(ybreaks, '%b %d, %Y'),
+      expand = expandy)
+    sizes = scale_size(range = c(3,18) * base_size/36)
   }
   
   
@@ -262,8 +263,8 @@ pub = function (g,
   ## Add the theme
   #browser()
   g = g + 
-    theme_pub(type=type, 
-              base_size=base_size, 
+    theme_pub(type = type, 
+              base_size = base_size, 
               ...
               # base_family = base_family,
               # base_line_size=base_line_size,
@@ -274,16 +275,16 @@ pub = function (g,
 
   if(type=='bar' & text==T){
     g = g + 
-      theme(axis.text.x=element_blank())
+      theme(axis.text.x = element_blank())
   }
     
   if(int==T){
     g = g %>%
-      ggplotly(width =1440*base_size/36, 
-               height=1440*base_size/36, 
+      ggplotly(width  = 1440*base_size/36, 
+               height = 1440*base_size/36, 
                tooltip = if(is.null(tooltip)) 'text' else tooltip) %>%
-      layoutpub(type      = type, 
-                base_size = base_size, 
+      layoutpub(type        = type, 
+                base_size   = base_size, 
                 subtitle    = subtitle, 
                 caption     = caption, 
                 legend.rows = legend.rows,

@@ -17,119 +17,128 @@
 #' #See `https://github.com/bmacGTPM/pubtheme` for examples.
 #' 
 layoutpub = function(p, 
-                     type = 'scatter', 
-                     base_size = 12, 
-                     subtitle = F, 
-                     caption  = F, 
+                     type        = 'scatter', 
+                     base_size   = 12, 
+                     subtitle    = F, 
+                     caption     = F, 
                      legend.rows = 0, 
-                     facet = F){
+                     facet       = F){
   
-  scale = base_size/36
-  subtitle.pt=0
-  caption.pt=0
-  legend.pt=0
-  if(subtitle==T){subtitle.pt=46}
-  if(caption ==T){caption.pt =36+20} ## text plus 20 in spacing
-  if(legend.rows!=0){legend.pt = 36*legend.rows+20*legend.rows}
+  scale       = base_size/36
+  subtitle.pt = 0
+  caption.pt  = 0
+  legend.pt   = 0
+  
+  if(subtitle    == T){subtitle.pt = 46}
+  if(caption     == T){ caption.pt = 36 + 20} ## text plus 20 in spacing
+  if(legend.rows != 0){  legend.pt = 36*legend.rows + 20*legend.rows}
   
   custom.layout = 
     layout(p, 
-           autosize=T,
+           autosize = T,
            font = list(family = "Arial",
-                       size=base_size,
-                       color=pubtextgray),
+                       size   = base_size,
+                       color  = pubtextgray),
          title = list(font = list(family = "Arial", 
-                                  size=50*scale, 
-                                  color = pubdarkgray),
-                      pad = list(t=(70+20)*scale, 
-                                 b=(70+20)*scale,
-                                 l=50*scale, 
-                                 r=50*scale),
-                      x=0, 
-                      xanchor='left',
-                      xref = 'container',
-                      y=1, 
-                      yanchor='top', 
-                      yref = 'container'),
+                                  size   = 50*scale, 
+                                  color  = pubdarkgray),
+                      pad = list(t = (70+20)*scale, 
+                                 b = (70+20)*scale,
+                                 l = 50*scale, 
+                                 r = 50*scale),
+                      x       = 0, 
+                      xanchor = 'left',
+                      xref    = 'container',
+                      y       = 1, 
+                      yanchor = 'top', 
+                      yref    = 'container'),
          ## margin means plotting area, seems not to include titles, etc
          ## need to put padding above/below titles, etc
-         margin = list(t = 70*scale+
-                         50*48/36*scale+ ## title (50 font converted to pixels)
-                         subtitle.pt*48/36*scale+ ## subtitle (46 font)
-                         legend.pt*scale+
+         margin = list(t = 70*scale + 
+                         50*48/36*scale + ## title (50 font converted to pixels)
+                         subtitle.pt*48/36*scale + ## subtitle (46 font)
+                         legend.pt*scale +
                          40*scale, ## bonus
+                       
                        r = 50*scale, 
-                       b = 50*scale+ ## below title
-                         36*48/36*scale+ ## title (36 point converted to pixels)
-                         20      *scale+ ##above title
-                         36*48/36*scale+  ## axis text (36 font converted to pixels)
-                         20      *scale+  ## above axis text
-                         caption.pt*48/36*scale+
-                         0*scale, ## a little more
-                       l = 50    *scale+
-                         36*48/36*scale+ ## title (36 point converted to pixels)
-                         20      *scale+ ##above title
-                         36*48/36*scale+  ## axis text (36 font converted to pixels)
-                         20      *scale, ## above axis text 
-                       pad=0*scale), ## don't want space between plot and ticks
-         xaxis = list(title = list(standoff=30*scale, 
-                                   font=list(size=36*scale, 
-                                             family='Arial', 
-                                             color = pubtextgray)), 
-                      tickfont = list(size=36*scale, 
-                                      family='Arial', 
-                                      color =pubtextgray),
-                      ticks = 'outside', ## or inside, or remove for no ticks
+                       
+                       b = 50*scale +      ## below title
+                         36*48/36*scale +  ## title (36 point converted to pixels)
+                         20      *scale +  ## above title
+                         36*48/36*scale +  ## axis text (36 font converted to pixels)
+                         20      *scale +  ## above axis text
+                         caption.pt*48/36*scale +
+                         0*scale,          ## a little more
+                       
+                       l = 50    *scale +
+                         36*48/36*scale +  ## title (36 point converted to pixels)
+                         20      *scale +  ## above title
+                         36*48/36*scale +  ## axis text (36 font converted to pixels)
+                         20      *scale,   ## above axis text 
+                       
+                       pad=0*scale),       ## don't want space between plot and ticks
+         
+         xaxis = list(title = list(standoff = 30*scale, 
+                                   font     = list(size   = 36*scale, 
+                                                   family = 'Arial', 
+                                                   color  = pubtextgray)), 
+                      tickfont = list(size   = 36*scale, 
+                                      family = 'Arial', 
+                                      color  = pubtextgray),
+                      ticks  = 'outside', ## or inside, or remove for no ticks
                       nticks = 3, 
-                      tick0 = 0, 
-                      linecolor=pubtextgray,
-                      tickcolor=pubtextgray,
-                      gridcolor=publightgray, 
-                      linewidth=2*scale,
-                      tickwidth=2*scale,
-                      gridwidth=2*scale,
-                      zeroline=F, ## line at zero
-                      showline=T, ## axis line
-                      mirror=T, ## show on top too
+                      tick0  = 0, 
+                      linecolor = pubtextgray,
+                      tickcolor = pubtextgray,
+                      gridcolor = publightgray, 
+                      linewidth = 2*scale,
+                      tickwidth = 2*scale,
+                      gridwidth = 2*scale,
+                      zeroline  = F, ## line at zero
+                      showline  = T, ## axis line
+                      mirror    = T, ## show on top too
                       ticklabelstep = 1, ## show tick label every n ticks
-                      ticklen=20*scale, 
-                      layer = 'below traces'),
-         yaxis = list(title = list(standoff=20*scale, 
-                                   font=list(size=36*scale, 
-                                             family='Arial', 
-                                             color =pubtextgray)),
-                      tickfont = list(size=36*scale, 
-                                      family='Arial', 
-                                      color =pubtextgray),
+                      ticklen = 20*scale, 
+                      layer   = 'below traces'),
+         
+         yaxis = list(title = list(standoff = 20*scale, 
+                                   font     = list(size   = 36*scale, 
+                                                   family = 'Arial', 
+                                                   color  = pubtextgray)),
+                      tickfont = list(size   = 36*scale, 
+                                      family = 'Arial', 
+                                      color  = pubtextgray),
                       ticks = 'outside', 
                       #ticks = 3, 
                       tick0 = 0, 
-                      linecolor=pubtextgray,
-                      tickcolor=pubtextgray,
-                      gridcolor=publightgray, 
-                      linewidth=2*scale,
-                      tickwidth=2*scale,
-                      gridwidth=2*scale,
-                      zeroline=F,
-                      showline=T,
-                      mirror=T, # show on right side too
+                      linecolor = pubtextgray,
+                      tickcolor = pubtextgray,
+                      gridcolor = publightgray, 
+                      linewidth = 2*scale,
+                      tickwidth = 2*scale,
+                      gridwidth = 2*scale,
+                      zeroline  = F,
+                      showline  = T,
+                      mirror    = T, # show on right side too
                       ticklabelstep = 1, ## show tick label every n ticks
-                      ticklen=20*scale, 
-                      layer = 'below traces'), 
+                      ticklen   = 20*scale, 
+                      layer     = 'below traces'), 
+         
          legend = list(font = list(family = "Arial",
-                                   size=base_size,
-                                   color=pubtextgray),
+                                   size   = base_size,
+                                   color  = pubtextgray),
                        title = list(font = list(family = "Arial",
-                                                size=base_size,
-                                                color=pubtextgray), 
-                                    text=''),
-                       orientation='h', 
-                       itemclick='toggleothers', 
-                       itemdoubleclick='toggle',
-                       x=-0.13, 
-                       xanchor='left', ## -0.018 with title
-                       y= 1.03, 
-                       yanchor='bottom'),
+                                                size   = base_size,
+                                                color  = pubtextgray), 
+                                    text = ''),
+                       orientation = 'h', 
+                       itemclick   = 'toggleothers', 
+                       itemdoubleclick = 'toggle',
+                       x       = -0.13, 
+                       xanchor = 'left', ## -0.018 with title
+                       y       = 1.03, 
+                       yanchor = 'bottom'),
+         
          hoverlabel = list(bgcolor = pubbackgray#, 
                            #font=list(size=36*scale, color=pubtextgray),
                            #bordercolor = 'transparent'
@@ -138,9 +147,9 @@ layoutpub = function(p,
          #dragmode = 'select', 
          #selectdirection = 'h', ## for selecting an x range
          paper_bgcolor = pubbackgray,
-         plot_bgcolor = pubbackgray, 
-         colorway = default.pal, ## not tested
-         colorscale = c(publightgray, pubblue) ## doesn't seem to work
+         plot_bgcolor  = pubbackgray, 
+         colorway      = default.pal, ## not tested
+         colorscale    = c(publightgray, pubblue) ## doesn't seem to work
          )
   
   ## changes based on type
