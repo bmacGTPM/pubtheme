@@ -7,16 +7,16 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  warning = FALSE, 
-  message = FALSE,
-  fig.path = "man/figures/README-",
-  fig.height=7, 
-  fig.width=7,
-  dpi=84,
-  #out.width="80%",
-  fig.align='center',
-  fig.show='hold'
+  comment  = "#>",
+  warning  = FALSE, 
+  message  = FALSE,
+  fig.path   = "man/figures/README-",
+  fig.height = 7, 
+  fig.width  = 7,
+  dpi = 84,
+  #out.width = "80%",
+  fig.align = 'center',
+  fig.show  = 'hold'
 )
 library(knitr)
 ```
@@ -59,50 +59,52 @@ restore.ggplot.defaults()
 at any time. It is recommended that you update your version of `tidyverse` and especially `ggplot2` to use this package. 
 
 ## Scatter plot
-```{r fig.height=7, fig.width=7}
+```{r fig.height = 7, fig.width=7}
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(Cylinders = as.factor(cyl)) %>%
   rename(MPG = mpg)
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=wt, y=MPG, color=Cylinders))+
-  geom_point(aes(size=MPG))+
+g = ggplot(dg, 
+           aes(x = wt, 
+               y = MPG, 
+               color = Cylinders))+
+  geom_point(aes(size = MPG))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
-  scale_x_continuous(limits=c(0,6 ), breaks=c(0, 3, 6), oob=squish, labels=comma) +
-  scale_y_continuous(limits=c(0,40), breaks=c(0,20,40), oob=squish, labels=comma) +
-  scale_size(range=c(2,6))+
-  coord_cartesian(clip='off', expand=F)+
-  theme_pub(type='scatter') 
+  scale_x_continuous(limits = c(0,6 ), breaks = c(0, 3, 6), oob = squish, labels = comma) +
+  scale_y_continuous(limits = c(0,40), breaks = c(0,20,40), oob = squish, labels = comma) +
+  scale_size(range = c(2,6))+
+  coord_cartesian(clip = 'off', expand=F)+
+  theme_pub(type = 'scatter') 
 print(g)
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g +
-  scale_size(range=c(6,18))+
-  theme_pub(type='scatter', 
-            base_size=36)
+  scale_size(range = c(6,18))+
+  theme_pub(type = 'scatter', 
+            base_size = 36)
 
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-      plot=gg,
-      width=20,   
-      height=20,  
-      units='in', 
-      dpi=72)  
-
-g.scatter=g ## save for later
+g.scatter = g ## save for later
 ```
 
 
 You must have a subfolder called `img` in order for the `ggsave` chunk above to work. 
 
-Note that the default is `base_size=12`, which works well when viewing the image in RStudio. Use `ggsave` and `base_size=36` when saving an image instead of exporting from the RStudio viewer. Do not adjust the `width=20` in ggsave. 
+Note that the default is `base_size = 12`, which works well when viewing the image in RStudio. Use `ggsave` and `base_size = 36` when saving an image instead of exporting from the RStudio viewer. Do not adjust the `width = 20` in ggsave. 
 
-Do not change `width=20`, `units='in'`, or `dpi=72`. Height can be adjusted if desired. A square image is often preferred, so when in doubt, keep height at 20.
+Do not change `width = 20`, `units  = 'in'`, or `dpi    = 72`. Height can be adjusted if desired. A square image is often preferred, so when in doubt, keep height at 20.
 
 Upper Lower means First letter of each word is capitalized. The option `expand=FALSE` removes the default padding. The option `breaks=c(0,3,6)` sets 3 lines at left, middle, and right. You can certainly add lines if there is a reason to, but when in doubt you can stick with just 3 lines (left/middle/right) only. Similarly, for the y-axis, top/middle/bottom only.  
 
@@ -112,10 +114,13 @@ If you are using `size` inside `aes()`, you'll need that change the scale, other
 ## `pub` function
 We explicitly specified the `scale`s and `coord_cartesian` above. To use the default settings in `pubtheme`, you can save a lot of typing by using the function `pub`, which applies `theme_pub` and also automatically adds `scale`s and `coord` similar to above. 
 
-```{r fig.height=7, fig.width=7}
+```{r fig.height = 7, fig.width=7}
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=wt, y=MPG, color=Cylinders))+
-  geom_point(aes(size=MPG))+
+g = ggplot(dg, 
+           aes(x = wt, 
+               y = MPG, 
+               color = Cylinders))+
+  geom_point(aes(size = MPG))+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
@@ -126,32 +131,32 @@ g %>%
   pub(xlim = c(0, 6),
       ylim = c(0, 40))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
   pub(xlim = c(0, 6), 
       ylim = c(0, 40), 
       base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = gg,
-       width  = 20,   
-       height = 20,  
-       units  = 'in', 
-       dpi    = 72)  
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 To save to a file, we again need `base_size = 36`. We simply copy and paste the `pub` code and add `base_size = 36`.
 
 ## Pairs plot
 
-```{r fig.height=7, fig.width=7}
+```{r fig.height = 7, fig.width=7}
 library(GGally) ## Needed for ggpairs function
 dg = mtcars %>%
   select(mpg, cyl, wt, carb) %>%
-  mutate(cyl=factor(cyl))
+  mutate(cyl = factor(cyl))
 
 title = 'Title in Upper Lower'
 g = ggpairs(dg, 
-            columns = c('mpg', 'wt', 'carb'),
+            columns   = c('mpg', 'wt', 'carb'),
             aes(color = cyl, 
                 fill  = cyl), 
             diag = list(continuous = pub.density)) +
@@ -160,20 +165,20 @@ g = ggpairs(dg,
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')+
-  theme_pub(type='pairs')
+  theme_pub(type = 'pairs')
 print(g)
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g +
-  theme_pub(type='pairs', 
-            base_size=36)
+  theme_pub(type = 'pairs', 
+            base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-      plot=gg,
-      width=20,   
-      height=20,  
-      units='in', 
-      dpi=72)  
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 Note that since the object `g` resulting from using `ggpairs` is not a `ggplot` object, `pub` can't be used with it. 
@@ -183,16 +188,19 @@ Since `name` and `value` will be more common column names when using these in th
 
 Continuous variables for `x` seem to be more common, so we'll convert date to days for this example, so that copying and pasting later becomes easier. We'll use `toupper()` to avoid using variables with all lowercase letters in the legend.
 
-```{r fig.height=7, fig.width=7}
+```{r fig.height = 7, fig.width=7}
 dg = economics_long %>%
-  mutate(name = toupper(variable), 
-         days = as.numeric(date - min(date)), 
-         value= value01) %>%
+  mutate(name  = toupper(variable), 
+         days  = as.numeric(date - min(date)), 
+         value = value01) %>%
   select(date, days, name, value)
 head(dg)
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=days, y=value, color=name))+
+g = ggplot(dg, 
+           aes(x = days, 
+               y = value, 
+               color = name))+
   geom_line()+
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -201,21 +209,21 @@ g = ggplot(dg, aes(x=days, y=value, color=name))+
        y = 'Vertical Axis Label in Upper Lower')
 
 g %>% 
-  pub(type='line', 
-      ylim=c(0,1))
+  pub(type = 'line', 
+      ylim = c(0,1))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type='line', 
-      ylim=c(0,1), 
-      base_size=36)
+  pub(type = 'line', 
+      ylim = c(0,1), 
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot=gg,
-       width=20,   
-       height=20,  
-       units='in', 
-       dpi=72)     
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change  
 ```
 
 Note that once again we set breaks for the y-axis at the top, middle, and bottom. 
@@ -258,19 +266,19 @@ g  = ggplot(dg, aes(x=value))+
         y = 'Count') 
 
 g %>% 
-  pub(type='hist')
+  pub(type = 'hist')
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type='hist', 
-      base_size=36)
+  pub(type = 'hist', 
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot = gg,
-       width=20,   ## do not change
-       height=20,  
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 Here `binwidth` will almost surely need to be changed for your data. 
@@ -281,40 +289,43 @@ We'll use the `mtcars` data again, with some modifications. For cylinder, we'll 
 `-cylinder` to the numbers so it looks nice. We'll then convert it a factor so that we can specify the order. We'll also create a column called `max` which controls the length of the lightgray bars in the background. Finally, we'll rename `cyl` and `mpg` to `name` and `value`, which will be convenient when copying and pasting this code. 
 
 
-```{r fig.height=7*.75}
+```{r fig.height = 7*.75}
 dg = mtcars %>%
   group_by(cyl) %>%
   summarise(mpg = mean(mpg)) %>%
   mutate(cyl = paste0(cyl, '-cylinder'),
-         cyl = factor(cyl, levels=c('8-cylinder', '6-cylinder', '4-cylinder'))) %>% ## for background cars
+         cyl = factor(cyl, levels = c('8-cylinder', 
+                                      '6-cylinder', 
+                                      '4-cylinder'))) %>% ## for background cars
   rename(name  = cyl, 
          value = mpg) 
 
 title = "Title in Upper Lower" 
-g = ggplot(dg, aes(x=value, y=name))+
-  geom_col(width=0.8, aes(x=30), fill=publightgray)+ ## optional background bars. 
-  geom_col(width=0.8)+ 
-  geom_text(aes(label=round(value,2)), hjust=-0.1)+ ## optional numbers with reasonable number of digits
+g = ggplot(dg, aes(x = value, 
+                   y = name))+
+  geom_col(width = 0.8, aes(x=30), fill = publightgray)+ ## optional background bars. 
+  geom_col(width = 0.8)+ 
+  geom_text(aes(label = round(value,2)), hjust = -0.1)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
-       x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
-       y = NULL)  ## Optional. Upper Lower.
+       x        = 'Horizontal Axis Label in Upper Lower', ## Optional. 
+       y        = NULL)  ## Optional. Upper Lower.
 
-g %>% 
-  pub(type='bar')
+g %>%
+  pub(type = 'bar')
 
-## Save to a file using base_size=36
-gg = g %>% 
-  pub(type='bar', 
-      base_size=36)
+## Save to a file using base_size = 36
+gg = g %>%
+  pub(type = 'bar',
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot = gg,
-       width=20,   ## do not change
-       height=15,  
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 15,   ## can change from 20 if desired. We use 15 here b/c there are only 3 bars
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 ```
 
@@ -325,7 +336,7 @@ You may want to remove `x` and `y` axis titles.  If not used, use `x=NULL` and/o
 
 
 ## Grid plot
-```{r fig.height=4, fig.width=7}
+```{r fig.height = 4, fig.width=7}
 dg = airquality %>%
   mutate(Month= month.abb[Month],
          Month = factor(Month, levels=rev(month.abb[month.abb %in% Month])), 
@@ -357,25 +368,25 @@ g %>%
   pub(type = 'grid',
       xbreaks = seq(2, 32, by=2))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>%
   pub(type = 'grid', 
       xbreaks = seq(2, 32, by=2),
-      base_size=36)
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot=gg,
-       width=20,   ## do not change
-       height=12,  
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 12,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 
 ## Lollipop plot
 We'll make a horizontal lollipop plot. It can be used an alternative to a bar plot, and it is often preferred, especially when the visualization will eventually be printed since the lollipop plot used far less ink/toner. 
 
-```{r fig.height=4}
+```{r fig.height = 4}
 dg = airquality %>%
   mutate(Month= month.abb[Month],
          Month = factor(Month, levels=rev(month.abb))) %>% 
@@ -397,25 +408,25 @@ g = ggplot(dg, aes(x=value, y=name))+
        y = NULL)  ## Optional. Upper Lower.
 
 g %>% 
-  pub(type='pop', 
-      xlim=c(0,120))
+  pub(type = 'pop', 
+      xlim = c(0,120))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type='pop',
-      xlim=c(0,120),
-      base_size=36)
+  pub(type = 'pop',
+      xlim = c(0,120),
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot = gg,
-       width=20,   ## do not change
-       height=15,  
-       units='in', ## do not change
-       dpi=72) 
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 15,   ## can change from 20 if desired. We use 15 here because there are only 5 lollipops
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 ## Lollipop for discrete distributions
-This still uses `type='pop'` but we'll use a different template for copying/pasting.
+This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
 ```{r}
 dg = data.frame(name=0:10, 
@@ -433,34 +444,34 @@ g = ggplot(dg, aes(x=name, y=value))+
        y = NULL)  ## Optional. Upper Lower.
   
 g %>% 
-  pub(type='pop', 
-      xlim=c(0, 10), 
-      ylim=c(0, .3), 
+  pub(type = 'pop', 
+      xlim = c(0, 10), 
+      ylim = c(0, .3), 
       xbreaks=0:10,
       ybreaks=c(0,.1, .2, .3))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type='pop', 
-      xlim=c(0, 10), 
-      ylim=c(0, .3), 
+  pub(type = 'pop', 
+      xlim = c(0, 10), 
+      ylim = c(0, .3), 
       xbreaks=0:10, 
       ybreaks=c(0,.1, .2, .3), 
-      base_size=36)
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot = gg,
-       width=20,   ## do not change
-       height=15,  
-       units='in', ## do not change
-       dpi=72) 
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 15,   ## can change from 20 if desired. We choose 15 here b/c the extra space isn't needed
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 ```
 
 ## Barbell plot
-This still uses `type='pop'` but we'll use a different template for copying/pasting.
+This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
-```{r fig.height=4}
+```{r fig.height = 4}
 dg = airquality %>%
   mutate(Month= month.abb[Month],
          Month = factor(Month, levels=rev(month.abb))) %>% 
@@ -484,21 +495,21 @@ g = ggplot(dg, aes(y=name))+
        y = NULL)  ## Optional. Upper Lower.
 
 g %>% 
-  pub(type='pop', 
-      xlim=c(0,120))
+  pub(type = 'pop', 
+      xlim = c(0,120))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type='pop', 
-      xlim=c(0,120), 
-      base_size=36)
+  pub(type = 'pop', 
+      xlim = c(0,120), 
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot = gg,
-       width=20,   ## do not change
-       height=15,  
-       units='in', ## do not change
-       dpi=72) 
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 15,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 
@@ -508,9 +519,9 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have 
 
 It is often desirable to visualize regression coefficients using a dot and whiskers plot instead of showing a table of coefficients and standard errors.  We'll make up a regression model and demonstrate that here. 
 
-This still uses `type='pop'` but we'll use a different template for copying/pasting.
+This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
-```{r fig.height=7*10/20}
+```{r fig.height = 7*10/20}
 ## standardize predictors so they are roughly the same scale
 d = mtcars %>%
   mutate(wt = scale(wt),  
@@ -547,18 +558,18 @@ g %>%
   pub(type = 'pop', 
       xlim = c(-5, 5))
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>% 
   pub(type = 'pop', 
       xlim = c(-5, 5),
       base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot=gg,
-       width=20,   ## do not change
-       height=10,  
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 10,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 
 ```
@@ -567,7 +578,7 @@ ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"),
 ## Faceting
 We'll use our scatter plot example, but with `facet_wrap` to make separate plots for each `cyl`, and we add a `facet=T` argument to make some formatting more appropriate for faceted plots. 
 
-```{r fig.height=7*13/20}
+```{r fig.height = 7*13/20}
 dg = mtcars %>%
   select(wt, mpg, cyl) %>%
   mutate(cyl = paste0(cyl, '-cylinder')) %>%
@@ -583,29 +594,30 @@ g = ggplot(dg, aes(x=wt, y=mpg))+
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')
 
-g %>% pub(xlim=c(0,6), 
-          ylim=c(0,40), 
+g %>% pub(xlim = c(0,6), 
+          ylim = c(0,40), 
           facet=T)
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>%
-  pub(xlim=c(0,6), 
-      ylim=c(0,40), 
+  pub(xlim = c(0,6), 
+      ylim = c(0,40), 
       facet=T, 
-      base_size=36)
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       width=20,   ## do not change
-       height=13,  ## can change if desired. Here, 14 was chosen so that each subplot is square
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 13,   ## can change from 20 if desired. Here we choose 13 so each subplot is square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 ```
 
 ## Timeline
 Let's make up some data. Let's also define a new "`reverse_trans`" function called `reverse2_trans`.
 
-```{r  fig.height=7, fig.width=5}
+```{r  fig.height = 7, fig.width=5}
 current.year = as.numeric(format(Sys.Date(), "%Y"))
 dg = data.frame(date=as.Date(c(paste0(current.year, 
                                    c('-01-01', 
@@ -673,23 +685,21 @@ g %>%
       ylabels = function(x) format(x, '%b %d, %Y'), 
       ytrans = 'reverse2')
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>%
   pub(type = 'timeline', 
       xlim = c(0,5), 
       ybreaks = breaks,
       ylabels = function(x) format(x, '%b %d, %Y'), 
       ytrans = 'reverse2',
-      base_size=36)
+      base_size = 36)
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot=gg,    ## ggplot using base_size=36
-       width=20,   ## do not change
-       height=30,  ## can change if desired. Here, 14 was chosen so that each subplot is square
-       units='in', ## do not change
-       dpi=72)     ## do not change
-
-
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,  
+       width  = 20,   ## do not change
+       height = 30,   ## can change if you want. Here we made it longer to have more space
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 
@@ -705,7 +715,7 @@ can be used by adding
 `+ scale_color_manual(values=cb.pal)` or 
 `+ scale_fill_manual( values=cb.pal)` to a plot. For example,
 
-```{r fig.height=8, fig.width=7}
+```{r fig.height = 8, fig.width=7}
 dg = mtcars %>%
   mutate(gear = paste0(gear, ' gear'), 
          cyl  = paste0(cyl, ' cyl'  ), 
@@ -724,15 +734,15 @@ g = ggplot(dg, aes(x=wt, y=mpg))+
   scale_color_manual(values=cb.pal) +
   guides(color = guide_legend(nrow=3))
 
-g %>% pub(xlim=c(0,6), 
-          ylim=c(0,40), 
+g %>% pub(xlim = c(0,6), 
+          ylim = c(0,40), 
           facet=T)
 
 
 ```
 
 ## Maps
-```{r fig.width=7, fig.height=5}
+```{r fig.width=7, fig.height = 5}
 dg = data.frame(city = c('New York', 'Los Angeles'), 
                 lat = c( 40.7128,   34.0522),
                 lon = c(-74.0060, -118.2437))
@@ -745,8 +755,8 @@ g = ggplot(dg, aes(x=lon, y=lat))+
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme")+
   coord_cartesian(expand=F, clip='off')#+
-  #theme_pub(type='map')
-g %>% pub(type='map')
+  #theme_pub(type = 'map')
+g %>% pub(type = 'map')
 ```
 
 
@@ -754,7 +764,7 @@ g %>% pub(type='map')
 
 The function `geom_hex` can be used for making a heat map with hexagonal bins. Those can be colored by count. 
 
-```{r fig.width=7, fig.height=8}
+```{r fig.width=7, fig.height = 8}
 dg = economics
 
 title = 'Title in Upper Lower'
@@ -774,25 +784,25 @@ g %>% pub(xlim = c(0,20),
           ylim = c(0,30)) +
   scale_size(range=c(1,5)) ## adjust the max, and maybe the min, manually 
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>%
   pub(xlim = c(0,20), 
       ylim = c(0,30),
       base_size = 36) + 
   scale_size(range=c(1,5)*3) ## same as above, but times 3
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot=gg,    ## ggplot using base_size=36
-       width=20,   ## do not change
-       height=20,  ## can change if desired. Here, 14 was chosen so that each subplot is square
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,   
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 ```
 
 If you want to size the hexagons by count, and color by another variable, the only way I know is to use `geom_star` with `starshape = 'hexagon'`. The following code creates some data with `cell` ID, cell location `x` and `y`, the `count` to be used for size, and a column `mean.pop` to be used for fill. This is a reasonable solution but it is not ideal and is still under development. 
 
-```{r fig.width=7, fig.height=8}
+```{r fig.width=7, fig.height = 8}
 library(hexbin)
 library(ggstar)
 
@@ -831,7 +841,6 @@ g = ggplot(dg,
             starshape = 'hexagon',
             show.legend = T) +
   labs(title    = title, 
-       
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
        x = 'Personal Savings Rate', 
@@ -846,40 +855,40 @@ g %>% pub(xlim = c(0,20),
           ylim = c(0,30)) +
   scale_size(range=c(1,5)) ## adjust the max, and maybe the min, manually 
 
-## Save to a file using base_size=36
+## Save to a file using base_size = 36
 gg = g %>%
   pub(xlim = c(0,20), 
       ylim = c(0,30),
       base_size = 36) + 
   scale_size(range=c(1,5)*3) ## same as above, but times 3
 
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot=gg,    ## ggplot using base_size=36
-       width=20,   ## do not change
-       height=20,  ## can change if desired. Here, 14 was chosen so that each subplot is square
-       units='in', ## do not change
-       dpi=72)     ## do not change
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,   
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 
 ```
 
 
 ## plotly 
 
-You can use `layout_pub` to get similar formatting for `plotly` figures that use `ggplotly` or `plot_ly`. This is under development. Only using `type='scatter'` with `plot_ly` is currently supported. Others may work and will be added "soon", according to some defintion of soon. 
+You can use `layout_pub` to get similar formatting for `plotly` figures that use `ggplotly` or `plot_ly`. This is under development. Only using `type = 'scatter'` with `plot_ly` is currently supported. Others may work and will be added "soon", according to some defintion of soon. 
 
 Here is an example using `plot_ly`:
 
-```{r fig.height=20/3, fig.width=20/3}
+```{r fig.height = 20/3, fig.width = 20/3}
 library(htmlwidgets)
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(cyl = factor(cyl)) %>%
   rownames_to_column('name')
 
-base_size=12
+base_size = 12
 p=plot_ly(data=dg, 
           width=1440*base_size/36, 
-          height=1440*base_size/36) %>%
+          height = 1440*base_size/36) %>%
   add_trace(type   = 'scatter', 
             mode   = 'markers',
             x      = ~wt, 
@@ -928,7 +937,7 @@ Note that the caption at the bottom of the plot is currently not functioning pro
 ## ggplotly 
 Here is an example using `ggplotly`.
 
-```{r fig.height=20/3, fig.width=20/3}
+```{r fig.height = 20/3, fig.width = 20/3}
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(Cylinders = as.factor(cyl)) %>%
@@ -946,7 +955,7 @@ g = ggplot(dg, aes(x=Weight, y=MPG, color=Cylinders, text=name))+
        size = "MPG")
 
 ## Convert g to plotly using ggplotly
-base_size=12
+base_size = 12
 p = g %>% 
   pub(xlim = c(0, 6),
       ylim = c(0, 40)) %>%

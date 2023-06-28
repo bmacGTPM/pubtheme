@@ -336,29 +336,29 @@ dg = mtcars %>%
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, aes(x=value, y=name))+
-  geom_col(width=0.8, aes(x=30), fill=publightgray)+ ## optional background bars. 
-  geom_col(width=0.8)+ 
+  geom_col(width = 0.8, aes(x=30), fill=publightgray)+ ## optional background bars. 
+  geom_col(width = 0.8)+ 
   geom_text(aes(label=round(value,2)), hjust=-0.1)+ ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)  ## Optional. Upper Lower.
-
-g %>% 
-  pub(type='bar')
-
-## Save to a file using base_size=36
-gg = g %>% 
-  pub(type='bar', 
-      base_size=36)
-
-ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot = gg,
-       width=20,   ## do not change
-       height=15,  
-       units='in', ## do not change
-       dpi=72)     ## do not change
+g
+# g %>%
+#   pub(type='bar')
+# 
+# ## Save to a file using base_size=36
+# gg = g %>%
+#   pub(type='bar',
+#       base_size=36)
+# 
+# ggsave(filename=paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+#        plot = gg,
+#        width=20,   ## do not change
+#        height=15,
+#        units='in', ## do not change
+#        dpi=72)     ## do not change
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
