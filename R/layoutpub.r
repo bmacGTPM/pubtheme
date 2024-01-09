@@ -34,7 +34,7 @@ layoutpub = function(p,
   if(legend.rows != 0){  legend.pt = 36*legend.rows + 20*legend.rows}
   
   custom.layout = 
-    layout(p, 
+    layout(p,
            autosize = T,
            font = list(family = "Arial",
                        size   = base_size,
@@ -59,10 +59,9 @@ layoutpub = function(p,
                          subtitle.pt*48/36*scale + ## subtitle (46 font)
                          legend.pt*scale +
                          40*scale, ## bonus
-                       
                        r = 50*scale, 
-                       
-                       b = 50*scale +      ## below title
+                       b = 50*scale +    
+                         ## below title
                          36*48/36*scale +  ## title (36 point converted to pixels)
                          20      *scale +  ## above title
                          36*48/36*scale +  ## axis text (36 font converted to pixels)
@@ -76,7 +75,7 @@ layoutpub = function(p,
                          36*48/36*scale +  ## axis text (36 font converted to pixels)
                          20      *scale,   ## above axis text 
                        
-                       pad=0*scale),       ## don't want space between plot and ticks
+                       pad = 0*scale),       ## don't want space between plot and ticks
          
          xaxis = list(title = list(standoff = 30*scale, 
                                    font     = list(size   = 36*scale, 
@@ -129,16 +128,23 @@ layoutpub = function(p,
                                    color  = pubtextgray),
                        title = list(font = list(family = "Arial",
                                                 size   = base_size,
-                                                color  = pubtextgray), 
-                                    text = ''),
+                                                color  = pubtextgray)),
+                       grouptitlefont = list(family = "Arial",
+                                             color  = pubtextgray),
                        orientation = 'h', 
                        itemclick   = 'toggleothers', 
                        itemdoubleclick = 'toggle',
-                       x       = -0.13, 
+                       itemsizing = 'constant',
+                       itemwidth = 10*scale,
+                       xref    = 'paper',
+                       x       = -0.105, #-0.117, 
                        xanchor = 'left', ## -0.018 with title
                        y       = 1.03, 
-                       yanchor = 'bottom'),
-         
+                       yanchor = 'bottom', 
+                       bgcolor = pubbackgray, 
+                       tracegroupgap = 20*scale, 
+                       valign = 'top'),
+
          hoverlabel = list(bgcolor = pubbackgray#, 
                            #font=list(size=36*scale, color=pubtextgray),
                            #bordercolor = 'transparent'
@@ -152,6 +158,72 @@ layoutpub = function(p,
          colorscale    = c(publightgray, pubblue) ## doesn't seem to work
          )
   
+  if(type == 'bar'){
+    th = th + theme(axis.line          = element_blank(),
+                    axis.ticks         = element_blank(),
+                    axis.ticks.length  = unit(0, "pt"),
+                    #axis.text.x=element_blank(),
+                    panel.grid.major.y = element_blank())
+  }
+  
+  if(type == 'pop'){
+    th = th + theme(axis.line           = element_blank(),
+                    axis.ticks          = element_blank(),
+                    axis.ticks.length.y = unit(0, "pt"))
+  }
+  
+  if(type == 'hist'){
+    th = th + theme(axis.ticks.x       = element_blank(),
+                    panel.grid.major.x = element_blank()) 
+  }
+  
+  if(type == 'grid'){
+    custom.layout = custom.layout %>% 
+      layout(xaxis = list(ticks     = '', 
+                          linewidth = 0, 
+                          gridwidth = 0,
+                          side      = 'top', 
+                          autotypenumbers = 'category'),
+             yaxis = list(ticks     = '', 
+                          linewidth = 0, 
+                          gridwidth = 0,
+                          side      = 'left'))
+      
+    # th = th + theme(axis.ticks        = element_blank(),
+    #                 axis.ticks.length = unit(0, "pt"),
+    #                 axis.line         = element_blank(),
+    #                 strip.background  = element_blank(),
+    #                 axis.title.x.top  = element_text(
+    #                   margin = margin(t = -6*px, 
+    #                                   b = 30*px, 
+    #                                   unit = 'in'), 
+    #                   vjust = 0),
+    #                 panel.grid.major = element_blank(), 
+
+    #)
+  }
+  
+  if(type == 'timeline'){
+    th = th + theme(axis.ticks.x        = element_blank(),
+                    axis.ticks.length.x = unit(0, "pt"),
+                    axis.line           = element_blank(),
+                    panel.grid.major    = element_blank(), 
+                    axis.text.x         = element_blank())
+  }
+  
+  if(type == 'map'){
+    th = th + theme(axis.text  = element_blank(),
+                    axis.title = element_blank(), 
+                    axis.line  = element_blank(), 
+                    axis.ticks = element_blank(), 
+                    panel.grid = element_blank())
+  }
+  if(facet == T){
+    th = th + theme(panel.border = element_rect(color = pubtextgray, 
+                                                fill  = NA),
+                    strip.background = element_rect(color = pubtextgray, 
+                                                    fill  = publightgray))
+  }
   ## changes based on type
   ##### not implemented yet #####
   
