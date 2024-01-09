@@ -91,6 +91,8 @@ pub = function (g,
   if(type=='hist'                    ){expandx = expansion(mult = c(0.05, 0.05))}
   if(type=='bar' & text==T & !bg.bars){expandx = expansion(mult = c(0   , 0.1 ))}
   if(type=='timeline'                ){expandy = expansion(mult = c(0.1 , 0.1 ))}
+  if(type=='slope'                   ){expandx = expansion(mult = c(0.5 , 0.5 ))
+                                       expandy = expansion(mult = c(0.1 , 0.1 ))}
   
   ## Modify the scales
   ## Determine type of x-axis and y-axis
@@ -115,7 +117,8 @@ pub = function (g,
 
   ## scales
   #breaks=trans_breaks('identity', identity, 2), ## weird right bound
-  if(type %in% c('scatter', 'line', 'hist', 'bar', 'grid', 'pop', 'map')){
+  if(type %in% c('scatter', 'line', 'hist', 'bar', 
+                 'grid', 'pop', 'map', 'slope')){
     
     ### if axis type is cont use scale_x_continuous 
     if(x.axis.type == 'cont'){
@@ -133,16 +136,17 @@ pub = function (g,
             mean(xlim), 
             xlim[2])
         else xbreaks
-        ) 
+        )
+      
     }
     
     
     if(x.axis.type=='dis'){
       scalesx = 
-        scale_x_discrete(expand   = c(0,0), 
+        scale_x_discrete(expand   = expandx, 
                          breaks   = if(is.null(xbreaks)) waiver() else xbreaks, 
                          labels   = if(is.null(xlabels)) waiver() else xlabels, 
-                         position = ifelse(type=='grid', 
+                         position = ifelse(type %in% c('grid', 'slope'), 
                                            'top', 
                                            waiver()))
     }
@@ -166,7 +170,6 @@ pub = function (g,
     }
     
     
-    
     if(y.axis.type=='cont'){
  
         scalesy = scale_y_continuous(
@@ -175,7 +178,7 @@ pub = function (g,
           expand = expandy,
           limits = if(is.null(ylim)) NULL else ylim, 
           breaks = 
-            if(is.null(xbreaks) & is.null(xlim)) 
+            if(is.null(ybreaks) & is.null(ylim)) 
               waiver() 
           else if (is.null(ybreaks) & !is.null(ylim)) 
             c(ylim[1],
@@ -188,12 +191,10 @@ pub = function (g,
       }
     
     if(y.axis.type=='dis'){
-
       scalesy = 
         scale_y_discrete(expand = c(0,0),
                          breaks = if(is.null(ybreaks)) waiver() else ybreaks, 
                          labels = if(is.null(ylabels)) waiver() else ylabels)
-      
     }
 
     
@@ -217,6 +218,17 @@ pub = function (g,
     
     
     sizes = scale_size(range=c(3,18)*base_size/36)
+    linewidths = NULL
+    
+    if(type == 'pop'){
+      sizes      = scale_size(     range = c( 3,  3)*3*base_size/36)
+      linewidths = scale_linewidth(range = c(.5, .5)*3*base_size/36)
+    }
+    
+    if(type == 'slope'){
+      sizes      = scale_size(     range = c(3.5, 3.5)*3*base_size/36)
+      linewidths = scale_linewidth(range = c(1  , 1  )*3*base_size/36)
+    }
     # theme.and.scales = list(scalesx, scalesy, coords, sizes)
     
   }
@@ -255,16 +267,78 @@ pub = function (g,
       labels = format(ybreaks, '%b %d, %Y'),
       expand = expandy)
     sizes = scale_size(range = c(3,18) * base_size/36)
+    linewidths = NULL
   }
   
+  # # For slope graph, make changes to x-axis
+  # if(type == 'slope'){
+  #   
+  #     scalesx = 
+  #       scale_x_discrete(expand   = c(0,0), 
+  #                        breaks   = if(is.null(xbreaks)) waiver() else xbreaks, 
+  #                        labels   = if(is.null(xlabels)) waiver() else xlabels, 
+  #                        position = 
+  #                                          'top', 
+  #                                          waiver()))
+  #   }
+  # }
   
-  g = g + scalesx + scalesy + sizes
+  g = g + scalesx + scalesy + sizes + linewidths
   
-  ## Add the theme
+  ## How much should the left margin of the legend shift to the left?
+  ## Shift the legend based on 
+  ## max number of characters in y-axis labels and
+  ## whether or not the axis title exists. 
+  ## This is kinda hacky but works pretty well. 
+  ## Might be better to access coordinates in gtable, 
+  ## but I had trouble doing that 
+
+  ## Get the labels that will be used for the y axis
+  y.labels = ggplot_build(g)$layout$panel_params[[1]]$y$breaks
+  y.labels = y.labels[!is.na(y.labels)]
+  y.labels
+  cols = paste0('lab', 1:length(y.labels))
+  arial.widths[,cols] = NA
+  
+  ## rescale so a zero is 20 pixels wide 
+  zero.width = arial.widths$V2[arial.widths$V1 == 0]
+  zero.width
+  arial.widths = arial.widths %>%
+    mutate(V2 = V2/zero.width*20)
+  head(arial.widths)
+  
+  for(j in 1:nrow(arial.widths)){
+    n.chars = str_count(y.labels, fixed(arial.widths[j,1]))
+    arial.widths[j,cols] = n.chars
+  }
+  
+  widths = arial.widths %>% 
+    mutate(across(all_of(cols), ~.x*V2)) %>%
+    summarise(across(starts_with('lab'), sum))
+    
+  max.width = max(widths)
+  #max.width %>% print()
+  
+  y.title = g$labels$y
+  title.width = 0
+  if(!is.null(y.title)){title.width = 30 + 50} ## 50 is fudging it
+  #title.width %>% print()
+  
+  tick.width = if(type %in% c('bar', 'grid')) -3 else 20
+  #print(tick.width)
   #browser()
+ 
+   legend.shift = 
+    tick.width + ## axis.ticks
+    max.width  + ## axis text
+    title.width  ## axis title
+ #print(legend.shift)
+  ## Add the theme
+
   g = g + 
     theme_pub(type = type, 
               base_size = base_size, 
+              legend.shift = -legend.shift,
               ...
               # base_family = base_family,
               # base_line_size=base_line_size,
@@ -278,20 +352,22 @@ pub = function (g,
       theme(axis.text.x = element_blank())
   }
     
-  if(int==T){
-    g = g %>%
-      ggplotly(width  = 1440*base_size/36, 
-               height = 1440*base_size/36, 
-               tooltip = if(is.null(tooltip)) 'text' else tooltip) %>%
-      layoutpub(type        = type, 
-                base_size   = base_size, 
-                subtitle    = subtitle, 
-                caption     = caption, 
-                legend.rows = legend.rows,
-                ...
-                ) %>%
-      style(marker.sizeref=1.5)
+  g$type = type
+  
+  if(int == T){
+    g = g %>% 
+      ggplotly(width   = 1440*base_size/36, 
+               height  = 1440*base_size/36, 
+               tooltip = tooltip) %>%
+      layoutpub(type      = type, 
+                base_size = base_size, 
+                subtitle  = subtitle, 
+                caption   = caption, 
+                legend    = ifelse(legend.rows == 0, F, T)) %>%
+      style(marker.sizeref = 1.5)
+    
     }
+  
   return(g)
    
 }
