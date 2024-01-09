@@ -8,6 +8,7 @@
 #' @param base_rect_size base size for rect elements. Default is `base_size*.35/36`, and should typically not be changed.
 #' @param facet Indicates whether or not `facet_wrap` or `facet_grid` are being used for this plot.  The default is `facet=FALSE`.
 #' @param colors Choose the color palette. The default, colors='default", is reds, blues and grays commonly used in journalism.  'cb14' is a colorblind friendly palette with 14 colors. Choosing 'yourorgname' will use specific reds, blues, and grays from the organizations color palette, if they have been implement. This assumes you have installed the package `orgthemes`
+#' @param legend.shift Amount to shift the legend to the right by, in pixels.  This is primarily used by `pub`. 
 #' @return When used in conjunction with ggplot, it returns a plot formatted using theme_pub.
 #' @import plotly
 #' @import scales
@@ -22,6 +23,7 @@
 
 theme_pub <- function (type = 'scatter',
                        base_size = 36/3,
+                       legend.shift = 0,
                        base_family = "sans",
                        base_line_size = base_size*.35/36*3,
                        base_rect_size = base_size*.35/36,
@@ -39,7 +41,7 @@ theme_pub <- function (type = 'scatter',
   update_geom_defaults("point"  , list(size      =   7*base_size/36, color = pubtextgray))
   update_geom_defaults("line"   , list(linewidth =   3*base_size/36, color = pubtextgray))
   update_geom_defaults("smooth" , list(linewidth =   3*base_size/36, color = pubtextgray))
-  update_geom_defaults("segment", list(linewidth =   4*base_size/36, color = pubtextgray))
+  update_geom_defaults("segment", list(linewidth =   3*base_size/36, color = pubtextgray))
   update_geom_defaults("text"   , list(     size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("label"  , list(     size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("text_repel" , list( size = .35*base_size   , color = pubtextgray, family = base_family))
@@ -179,7 +181,8 @@ theme_pub <- function (type = 'scatter',
              legend.spacing    = NULL,
              legend.spacing.x  = unit(10*px, 'in'),
              legend.spacing.y  = NULL,
-             legend.key        = element_rect(fill = NA, colour = NA),
+             legend.key        = element_rect(fill   = NA, 
+                                              colour = NA),
              legend.key.size   = unit(30*px, "in"),
              legend.key.height = unit(30*px, "in"), 
              legend.key.width  = unit(36*px, "in"), ## makes rectangles squares
@@ -197,7 +200,11 @@ theme_pub <- function (type = 'scatter',
              legend.justification  = "left",
              legend.box            = NULL,
              legend.box.just       = 'left',
-             legend.box.margin     = margin(0, 0, 50*px, -140*px, "in"),
+             legend.box.margin     = margin(0, 0, 50*px, 
+                                            #-140*px + 
+                                            
+                                              legend.shift*px, 
+                                            "in"),
              legend.box.background = element_blank(),
              legend.box.spacing    = NULL,
              
@@ -336,7 +343,16 @@ theme_pub <- function (type = 'scatter',
                     axis.line  = element_blank(), 
                     axis.ticks = element_blank(), 
                     panel.grid = element_blank())
+  }
+  
+  if(type=='slope'){
+    th = th + theme(axis.text.y = element_blank(), 
+                    axis.title  = element_blank(), 
+                    axis.line   = element_blank(), 
+                    axis.ticks  = element_blank(), 
+                    panel.grid  = element_blank())
     }
+  
   if(facet == T){
     th = th + theme(panel.border = element_rect(color = pubtextgray, 
                                                 fill  = NA),
