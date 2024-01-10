@@ -12,7 +12,8 @@
 
 ## This makes the density plots more transparent
 pub.density = function (data, mapping, ...){
-  p=ggplot(data = data, mapping = mapping) + 
-    geom_density(alpha=0.3,...)
+  p = ggplot(data = data, 
+            mapping = mapping) + 
+    geom_density(alpha = 0.3, ...)
   p
 }
