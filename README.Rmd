@@ -19,6 +19,8 @@ knitr::opts_chunk$set(
   fig.show  = 'hold'
 )
 library(knitr)
+library(tidyverse)
+library(pubtheme)
 ```
 
 # pubtheme
@@ -75,7 +77,7 @@ g = ggplot(dg,
   geom_point() +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption with more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower') +
   scale_x_continuous(limits = c(0, 6), 
@@ -135,7 +137,7 @@ g = ggplot(dg,
   geom_point() +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')
 
@@ -176,7 +178,7 @@ g = ggpairs(dg,
             diag    = list(continuous = pub.density)) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x     = 'Horizontal Axis Label in Upper Lower',
        y     = 'Vertical Axis Label in Upper Lower') +
   theme_pub(type = 'pairs')
@@ -219,7 +221,7 @@ g = ggplot(dg,
   geom_line() +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x     = 'Horizontal Axis Label in Upper Lower', 
        y     = 'Vertical Axis Label in Upper Lower', 
        color = 'Legend Label') +
@@ -245,9 +247,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 Note that once again we set breaks for the y-axis at the top, middle, and bottom. 
 
-Interactive version:
-
-```{r}
+```{r eval = F, echo = F, include = F}
 base_size = 12
 g %>% 
   pub(type = 'line', 
@@ -276,7 +276,7 @@ g = ggplot(dg,
   geom_line() +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x     = 'Horizontal Axis Label in Upper Lower', 
        y     = 'Vertical Axis Label in Upper Lower', 
        color = 'Legend Label')
@@ -305,7 +305,7 @@ g  = ggplot(dg,
                  binwidth = 500) + ## set a reasonable binwidth
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Required.
        y = 'Count') 
 
@@ -356,7 +356,7 @@ g = ggplot(dg,
   geom_text(hjust = -0.1) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x        = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y        = NULL)  ## Optional. Upper Lower.
 
@@ -416,7 +416,7 @@ g = ggplot(dg,
                       guide    = guide_colorbar(frame.colour = pubdarkgray)) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x    = 'Day (Optional Axis Label in Upper Lower)', 
        y    = NULL, ## Optional
        fill = 'Value') 
@@ -438,7 +438,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        units  = 'in', ## do not change
        dpi    = 72)   ## do not change
 ```
-```{r}
+```{r eval=F, echo=F, include=F}
 base_size = 12
 p = g %>% 
   pub(type    = 'grid',
@@ -464,7 +464,8 @@ dg = economics_long %>%
          y= value01, 
          x = as.character(date)) %>%
   select(x, name, y) %>%
-  filter(x %in% range(x)) %>% ## keep first and last date
+  filter(x %in% range(x), 
+         name != 'PCE') %>% ## keep first and last date
   mutate(time = ifelse(x == min(x), "", "end")) %>%
   pivot_wider(names_from = time, 
               values_from = c(x, y), 
@@ -492,54 +493,79 @@ title = "Title in Upper Lower"
 g = ggplot(dg, 
            aes(x = x,
                y = y, 
+               color = name, 
                size = 4, 
                linewidth = .25)) +
+  
+  ## lines
   geom_segment(aes(xend = xend,
-                   yend = yend),
-               color = pubred) +
+                   yend = yend)) +
+  
+  ## text labels
   geom_text_repel(aes(label = label1),
-                  #nudge_x     = -365,
-                  hjust       =  1, 
-                  direction   = 'y',
-                  show.legend = F) +
+                  color = pubtextgray,
+                  nudge_x   = -1,
+                  hjust     =  0, 
+                  #vjust     = 0.4,
+                  direction = 'y') +
+  
   geom_text_repel(aes(x     = xend,
                       y     = yend,
                       label = label2), 
-                  nudge_x     = 1.5,
-                  hjust       = 1, 
-                  direction   = 'y',
-                  show.legend = F)+
-  geom_label(color = pubred, 
-            aes(label = round(y,2))) + 
-  geom_label(color = pubred, 
-              aes(x = xend, 
-                  y = yend, 
-                  label = round(yend,2))) + 
+                  color = pubtextgray,
+                  nudge_x = 1,
+                  hjust   = 1, 
+                  #vjust   = 0.4,
+                  direction = 'y') +
+  
+  ## numeric labels
+  geom_label(aes(label = round(y,2)), 
+             color = pubtextgray, 
+             fill  = pubbackgray,
+             hjust = 1,
+             vjust = 0.4,
+             nudge_x = -0.025,
+             label.size = 0) + 
+  
+  geom_label(aes(x = xend, 
+                 y = yend, 
+                 label = round(yend,2)), 
+             color = pubtextgray, 
+             fill  = pubbackgray, 
+             hjust = 0,
+             vjust = 0.4,
+             nudge_x = 0.025,
+             label.size = 0) + 
+  
+  ## points
+  geom_point(show.legend = F) + 
+  geom_point(show.legend = F, 
+             aes(x = xend, 
+                 y = yend)) + 
+  
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)  +  ## Optional. Upper Lower.
   guides(size      = 'none', 
-         linewidth = 'none') 
-g
+         linewidth = 'none', 
+         color     = 'none') 
 
 g %>% 
-  pub(type = 'slope', 
-      xlim = c(0, 3))
-# 
-# ## Save to a file using base_size = 36
-# gg = g %>% 
-#   pub(type = 'pop', 
-#       xlim = c(0, 120), 
-#       base_size = 36)
-# 
-# ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-#        plot   = gg,
-#        width  = 20,   ## do not change
-#        height = 15,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
-#        units  = 'in', ## do not change
-#        dpi    = 72)   ## do not change
+  pub(type = 'slope')
+ 
+## Save to a file using base_size = 36
+gg = g %>%
+  pub(type = 'slope',
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
 ```
 
 
@@ -575,7 +601,7 @@ g = ggplot(dg,
   geom_text(hjust = -0.3) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size      = 'none', 
@@ -623,7 +649,7 @@ g = ggplot(dg,
   geom_text(vjust = -1) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size = 'none', 
@@ -688,7 +714,7 @@ g = ggplot(dg,
             hjust = -0.5) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size      = 'none', 
@@ -763,7 +789,7 @@ g = ggplot(dg,
              color      = pubmediumgray) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Coefficient', 
        y = NULL) + ## Optional. 
   guides(size      = 'none', 
@@ -813,7 +839,7 @@ g = ggplot(dg,
              nrow = 1) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')
 
@@ -912,7 +938,7 @@ g = ggplot(dg,
                    show.legend = F) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption, X handle, or shameless promotion of pubtheme",
        x = '',
        y = '') 
 
@@ -969,7 +995,7 @@ g = ggplot(dg,
   facet_grid(cyl ~ gear) +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x     = 'Horizontal Axis Label in Upper Lower',
        y     = 'Vertical Axis Label in Upper Lower', 
        color = 'Gears and Cylinders') +
@@ -984,6 +1010,7 @@ g %>%
 ```
 
 ## Maps
+
 ```{r fig.width = 7, fig.height = 5}
 
 dg = data.frame(city = c('New York', 'Los Angeles'), 
@@ -999,7 +1026,7 @@ g = ggplot(dg,
   geom_point(color = pubred) +
   labs(title    = title, 
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme") 
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme") 
 
 g %>% 
   pub(type = 'map')
@@ -1022,7 +1049,7 @@ g = ggplot(dg,
              bins  = 20) +
   labs(title    = title, 
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme", 
        x    = 'Personal Savings Rate', 
        y    = 'Median Duration of Unemployment', 
        fill = 'Observations')
@@ -1093,7 +1120,7 @@ g = ggplot(dg,
             show.legend = T) +
   labs(title    = title, 
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme", 
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme", 
        x    = 'Personal Savings Rate', 
        y    = 'Median Duration of Unemployment', 
        size = 'Observations', 
@@ -1135,14 +1162,23 @@ Let's use the `ggtext` https://wilkelab.org/ggtext/ package to add images as lab
 First let's choose a couple of images, and create a data frame with the image URLs, the country name and GDP per capita (taken from  https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)_per_capita
 on 11/21/2023).
 
+First, let's get a couple of PNG files from the web. 
+
+```{r eval = F}
+# us = 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/35px-Flag_of_the_United_States.svg.png'
+# can = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/35px-Flag_of_Canada_%28Pantone%29.svg.png'
+# download.file(url = us , destfile = "img/US.png" , method='curl')
+# download.file(url = can, destfile = "img/CAN.png", method='curl')
+# us  = png::readPNG(us )
+# can = png::readPNG(can) 
+# writePNG('img/US.png')
+# writePNG('img/CAN.png')
+```
+
 ```{r}
-library(tidyverse)
 library(ggtext)
-library(pubtheme) ## https://github.com/bmacGTPM/pubtheme
-us = 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/35px-Flag_of_the_United_States.svg.png'
-can = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/35px-Flag_of_Canada_%28Pantone%29.svg.png'
-
-
+us = 'img/US.png'
+can = 'img/CAN.png'
 df = data.frame(country = c('USA', 'Canada'), 
                 GDP.per.cap = c(80412, 53247), 
                 image   = c(us, can))
@@ -1156,7 +1192,7 @@ You will likely need to change the width and height, but note that after saving 
 df = df %>% 
   mutate(label = paste0('<img src="', 
                           image, 
-                          '" style = "display:inline-block; vertical-align:middle" width="92" height="48">'))
+                          '" style = "display:inline-block; vertical-align:middle" width="72" height="36">'))
 df
 ```
 
@@ -1179,12 +1215,12 @@ g = ggplot(df,
                    yend = country), 
                color = pubred) +
   geom_image(aes(image = image), 
-             size = .1, 
+             size = .05, 
              by = 'height', 
-             nudge_x = 7500) + 
+             nudge_x = 12000) + 
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size      = 'none', 
@@ -1210,7 +1246,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 ```
 
 
-Now we'll use `geom_richtext` instead of `geom_text` to add labels to points. These images have a better aspect ratio.
+Now we'll use `geom_richtext` instead of `geom_text` to add labels to points. These images have a better aspect ratio. 
 
 ```{r}
 title = "Title in Upper Lower" 
@@ -1227,12 +1263,12 @@ g = ggplot(df,
                    y    = country, 
                    yend = country), 
                color = pubred) +
-  geom_richtext(hjust = -0.3, 
+  geom_richtext(hjust = -0.2, 
                 fill = NA, 
                 label.color = NA) + 
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size      = 'none', 
@@ -1251,7 +1287,7 @@ gg = g %>%
       base_size = 36) +
   theme(axis.text.y = element_markdown()) 
 
-ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
        plot   = gg,
        width  = 20,   ## do not change
        height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
@@ -1260,7 +1296,9 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 ```
 
+The images are smaller and less fuzzy when saved using `ggsave`:
 
+![flags](img/flag.example.jpg)   
 
 ## Images as axes labels
 
@@ -1273,7 +1311,7 @@ g = ggplot(df,
            aes(x     = GDP.per.cap, 
                y     = label, 
                label = round(GDP.per.cap,2), 
-               size  = 10,           ## these are constant put these in aes() anyway
+               size  = 12,         ## these are constant put these in aes() anyway
                linewidth = .5)) +  ## so they change when base_size changes
   geom_point(color = pubred, 
              show.legend = F) + 
@@ -1285,7 +1323,7 @@ g = ggplot(df,
   geom_text(hjust = -0.3) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL) +  ## Optional. Upper Lower.
   guides(size      = 'none', 
@@ -1312,18 +1350,6 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 
 ```
-
-```{r}
-g %>% 
-  pub(type = 'lollipop') +
-  theme(axis.text.y = 
-          element_markdown()) 
-  
-```
-
-```{r}
-```
-
 
 ## plotly 
 
@@ -1412,7 +1438,7 @@ g = ggplot(dg,
   geom_point() +
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x    = 'Horizontal Axis Label in Upper Lower',
        y    = 'Vertical Axis Label in Upper Lower', 
        size = "MPG")
@@ -1430,7 +1456,7 @@ p = g %>%
             base_size = base_size, 
             subtitle  = T, 
             caption   = F, 
-            legend    = T) %>%
+            legend.rows = 1) %>%
   style(marker.sizeref = 1.5)
 p
 
@@ -1445,7 +1471,7 @@ The plot isn't interactive here. Run the code to see the interactive plot.
 
 Note that the subtitle does not currently display. And the points in the legend are different sizes for some reason #shrugs.
 
-As with non-interactive plots above, you can use `pub` to save a lot of typing if you are ok with accepting more default settings. If you use `pub` with `int = TRUE` (`int` for interactive), the `ggplot` object will be converted to a `plotly` object using the `ggplotly` and `layoutpub` code above. You'll just need to specify the arguments `subtitle`, `caption` and `legend.rows` required by `layoutpub`. 
+As with non-interactive plots above, you can use `pub` to save a lot of typing if you are ok with accepting more default settings. If you use `pub` with `int = TRUE` (`int` for interactive), the `ggplot` object will be converted to a `plotly` object using the `ggplotly` and `layoutpub` code above. You'll just need to specify the arguments `subtitle`, `caption` and `legend.rows` required by `layoutpub`. This is in development and works for this example but may not work for other plots. 
 
 ```{r}
 g %>% 
@@ -1455,8 +1481,9 @@ g %>%
       tooltip = c('x', 'y', 'color', 'text'), 
       subtitle  = T, 
       caption   = F, 
-      legend.rows = 10)
+      legend.rows = 1) 
 ```
+
 
 If you want to customize the tooltip (e.g. when you are unable to specify the order that you want), you can create a `text` column that has the information you want, in the order that you want.  You can also include HTML code to format the text. 
 
@@ -1481,20 +1508,20 @@ dg = mtcars %>%
                              MPG, 
                              Cylinders))
 
-  
 g = ggplot(dg,
            aes(x = Weight, 
                y = MPG, 
                color = Cylinders, 
-               size = MPG, 
+               #size = MPG, ## this messes up the legend position or margins
                text = text)) +
 geom_point() +
 labs(title    = title,
      subtitle = 'Optional Subtitle In Upper Lower',
-     caption  = "Optional caption giving more info, Twitter handle, or shameless promotion of pubtheme",
+     caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
      x    = 'Horizontal Axis Label in Upper Lower',
      y    = 'Vertical Axis Label in Upper Lower', 
-     size = "MPG")
+     #size = "MPG"
+     )
 
 g %>% 
   pub(xlim        = c(0, 6),
