@@ -17,9 +17,15 @@ publightgray   = rgb(210, 210, 210, max=255) ## gray for background data
 pubtextgray    = rgb(100, 100, 100, max=255) ## dark gray for text
 
 #' A color used in `pubtheme`
-pubbackgray    = rgb(240, 240, 240, max=255) ## very light gray for image background
+pubgradgray    = rgb(225, 225, 225, max=255) ## light gray for color gradients
 
 #' A color used in `pubtheme`
+pubgradgraylight = rgb(235, 235, 235, max=255) ## very light gray for color gradients
+
+#' A color used in `pubtheme`
+pubbackgray    = rgb(245, 245, 245, max=255) ## very light gray for image background
+
+#' A color used in `pubtheme` 
 pubblue        = rgb(  5, 140, 200, max=255) ## blue for highlighted data
 
 #' A color used in `pubtheme`
