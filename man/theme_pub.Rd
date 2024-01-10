@@ -7,6 +7,7 @@
 theme_pub(
   type = "scatter",
   base_size = 36/3,
+  legend.shift = 0,
   base_family = "sans",
   base_line_size = base_size * 0.35/36 * 3,
   base_rect_size = base_size * 0.35/36,
@@ -18,6 +19,8 @@ theme_pub(
 \item{type}{Text indicating the type of plot the theme is being used for.  Supported types are currently 'line', 'bar', 'hist', 'grid', 'scatter' which can be used for plots with `geom_line`, `geom_bar`, `geo_histogram`, `geom_tile`, and `geom_point`.  Other plot types will be added later.}
 
 \item{base_size}{base font size, given in pts. For saving images, 36 is required. For viewing in RStudio, something much smaller like 36/3 = 12 (the default) is recommended.}
+
+\item{legend.shift}{Amount to shift the legend to the right by, in pixels.  This is primarily used by `pub`.}
 
 \item{base_family}{base font family.  The default is `'sans'`, which is available cross-platform by default.}
 
