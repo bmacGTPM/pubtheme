@@ -319,14 +319,8 @@ theme_pub <- function (type = 'scatter',
                                       b = 30*px, 
                                       unit = 'in'), 
                       vjust = 0),
-                    panel.grid.major = element_blank(), 
-                    legend.title     = element_text(size = base_size, 
-                                                    vjust = 0.5,
-                                                    margin = margin(0, 
-                                                                    0, 
-                                                                    0, 
-                                                                    50*px, 
-                                                                    'in')))
+                    panel.grid.major = element_blank()
+                    )
   }
   
   if(type == 'timeline'){
@@ -349,8 +343,10 @@ theme_pub <- function (type = 'scatter',
     th = th + theme(axis.text.y = element_blank(), 
                     axis.title  = element_blank(), 
                     axis.line   = element_blank(), 
-                    axis.ticks  = element_blank(), 
-                    panel.grid  = element_blank())
+                    axis.ticks  = element_blank(),
+                    panel.grid.major.x = element_line(colour = publightgray),
+                    panel.grid.major.y = element_blank()
+      )
     }
   
   if(facet == T){
