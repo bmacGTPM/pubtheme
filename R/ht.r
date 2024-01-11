@@ -4,6 +4,7 @@
 #' @param x An R object, usually a data frame, as in `head`.
 #' @param n An integer vector as in `head`. 
 #' @param keepnums Same as in `head`.
+#' @param ... Additional arguments to be passed to `head` and `tail`.
 #' @return When used with a data frame, returns the first `n` and last `n` rows. 
 #' @examples
 #' ht(mtcars)
@@ -13,8 +14,8 @@ ht = function(x,
               keepnums = FALSE, 
               ...){
 
-  headn = head(x, n)
-  tailn = tail(x, n)
+  headn = utils::head(x, n)
+  tailn = utils::tail(x, n)
   
   data = rbind(headn, 
                tailn)
