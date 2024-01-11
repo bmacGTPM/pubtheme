@@ -1,27 +1,42 @@
-#' @export 
+#' Function for creating HTML code for a formatted tooltip
+#'
+#' A function for generating HTML code to be used to create a formatted tooltip. The tooltip will have one line per column supplied to the function. The first column given will be listed in the first line and will be bolded.
+#' @param ... Unquoted names of columns to include in the tooltip.  
+#' @return HTML code for a tooltip where the first line is bold. 
+#' @import tidyverse
+#' @import rlang
+#' @export
+#' @examples
+#' #See `https://github.com/bmacGTPM/pubtheme` for examples.
+
 tooltip.text = function(...){
   uq = ensyms(...) 
   #print(uq)
+  
   q = purrr::map(uq, rlang::as_string) %>%
     unlist()
   #print(q)
+  
   m = matrix(rep(paste0('<br>', q, ': '), 
                  each = nrow(data.frame(...))), 
              ncol = length(q))
-  
   #print(head(m,2))
-  temp.df = data.frame(..., m)
   
+  temp.df = data.frame(..., m)
   #print(temp.df[1:2,])
   
   cols = matrix(1:(length(q)*2), 
                 ncol=length(q), 
                 byrow = T) %>% 
-    data.frame() %>% 
-    arrange(desc(X1)) %>%
+    data.frame() 
+  cols
+  
+  cols = cols %>%
+    arrange(desc(.data$X1)) %>%
     unlist() %>% 
     as.numeric()
   cols
+  
   #print(cols)
   temp.df = temp.df[,cols]
   #print(temp.df[1:2,])
@@ -43,11 +58,10 @@ tooltip.text = function(...){
   #print(temp.df[1:2,])
 
   #temp.df = temp.df[]
-  .Internal(paste(temp.df, 
-                  sep="", 
-                  collapse=NULL, 
-                  recycle0=FALSE))
-  
+  temp.df2 = apply(temp.df, 2, paste)
+  temp.df3 = apply(temp.df2, 1, paste, collapse = '')
+  temp.df3
+
 }
 
 # mtcars %>% 
