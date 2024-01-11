@@ -1,5 +1,7 @@
-## relative widths of characters for Arial font from 
-## https://gist.github.com/aminnj/5ca372aa2def72fb017b531c894afdca
+#' relative widths of characters for Arial font from 
+#' https://gist.github.com/aminnj/5ca372aa2def72fb017b531c894afdca
+#' Used by pubtheme to automatically position legends 
+#' 
 arial.widths = c(
   " ", 4.4453125,
   "!", 4.4453125,
@@ -99,5 +101,7 @@ arial.widths = c(
   matrix(ncol = 2, 
          byrow = TRUE) %>%
   as.data.frame() %>%
-  mutate(V2 = as.numeric(V2))
+  mutate(V2 = as.numeric(V2)) %>%
+  rename(char  = V1, 
+         width = V2)
 
