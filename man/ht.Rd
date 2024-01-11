@@ -12,6 +12,8 @@ ht(x, n = 2, keepnums = FALSE, ...)
 \item{n}{An integer vector as in `head`.}
 
 \item{keepnums}{Same as in `head`.}
+
+\item{...}{Additional arguments to be passed to `head` and `tail`.}
 }
 \value{
 When used with a data frame, returns the first `n` and last `n` rows.

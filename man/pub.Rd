@@ -43,6 +43,10 @@ pub(
 
 \item{ylabels}{(Optional) A vector of length $n$, specifying the labels for the y-axis}
 
+\item{xtrans}{(Optional) A function to transform the x-axis, e.g 'reverse'}
+
+\item{ytrans}{(Optional) A function to transform the y-axis, e.g 'reverse'}
+
 \item{int}{If TRUE, make the plot interactive using `ggplotly` and `layoutpub`. Default is FALSE.}
 
 \item{tooltip}{If `int=TRUE` then this `tooltip` argument is passed to `ggplotly`. If `int=FALSE`, this is ignored. If left blank, this default is 'all', which is the default for `ggplotly`.}
@@ -54,6 +58,9 @@ pub(
 \item{legend.rows}{(Same as in `layoutpub`.) How many rows are needed for the legend? Default is 0. This affects spacing. Ignored if `int=FALSE`.}
 
 \item{...}{Other arguments passed to `theme_pub`}
+}
+\value{
+A `ggplot` object with `theme_pub` theme applied and other useful options set.
 }
 \description{
 This function adds theme_pub to a ggplot and changes other non-theme related options like `scale_*` and `coord_*`.
