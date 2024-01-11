@@ -32,7 +32,7 @@ pubblue        = rgb(  5, 140, 200, max=255) ## blue for highlighted data
 publightblue   = rgb(130, 180, 210, max=255) ## blue for background data
 
 #' A color used in `pubtheme`
-default.pal    = c(pubred, pubblue, pubtextgray, publightred, publightblue)
+default.pal    = c(pubblue, pubred, pubtextgray, publightblue, publightred)
 
 #' colorblind friendly color palette
 #' @source https://jacksonlab.agronomy.wisc.edu/2016/05/23/15-level-colorblind-friendly-palette/
