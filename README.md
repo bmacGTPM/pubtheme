@@ -168,6 +168,7 @@ ggsave(filename = paste0("img/",
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+
 To save to a file, we again need `base_size = 36`. We simply copy and
 paste the `pub` code and add `base_size = 36`.
 
@@ -317,7 +318,7 @@ dg = economics %>%
 title = "Title in Upper Lower" 
 g  = ggplot(dg, 
             aes(x = value)) +
-  geom_histogram(fill     = pubred, 
+  geom_histogram(fill     = pubblue, 
                  color    = pubbackgray, 
                  binwidth = 500) + ## set a reasonable binwidth
   labs(title    = title,
@@ -440,16 +441,23 @@ title = "Title in Upper Lower"
 g = ggplot(dg, 
            aes(x    = x, 
                y    = y, 
-               fill = value)) +
+               fill = value, 
+               alpha = '')) + ## hacky way to add a legend for NA values. See below
   geom_tile(linewidth   = 0.4, 
-            show.legend = F, 
+            show.legend = T, 
             color       = pubdarkgray) +
-  scale_fill_gradient(low      = pubbackgray,
-                      high     = pubred,
-                      na.value = 'white',
+  scale_fill_gradient(low      = pubgradgray,
+                      high     = pubblue, 
+                      na.value = pubmediumgray, ## same color as below
                       oob      = squish, 
-                      breaks   = c(60, 75, 90), 
-                      guide    = guide_colorbar(frame.colour = pubdarkgray)) +
+                      breaks   = c(60, 75, 90)) +
+  
+  ## hacky way to add a legend for NA values
+  scale_alpha_manual(values = NA) +              
+  guides(alpha = guide_legend(
+    title = "No data",
+    override.aes = list(fill = pubmediumgray))) + ## same color as above
+    
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
@@ -494,26 +502,13 @@ dg = economics_long %>%
               names_sep = '') %>%
   mutate(diff = yend - y, 
          perc = diff/y*100, 
-         label1 = paste0(name
-                         #, ' ', round(y, 2)
-                         ), 
+         label1 = paste0(name, ', ', 
+                         round(y, 2)),
          label2 = paste0(
-           # round(yend, 2), 
-           #               ' (', 
-           #               #'Change: ', 
-           #               sprintf("%+.2f", diff), ## show a plus when positive
-           #               # ', ', 
-           #               # round(perc,1), '%', 
-           #               ') ',
-                         name))
-head(dg)
-#> # A tibble: 4 × 9
-#>   name     x          xend            y  yend   diff   perc label1   label2  
-#>   <chr>    <chr>      <chr>       <dbl> <dbl>  <dbl>  <dbl> <chr>    <chr>   
-#> 1 POP      1967-07-01 2015-04-01 0      1      1      Inf   POP      POP     
-#> 2 PSAVERT  1967-07-01 2015-04-01 0.689  0.358 -0.331  -48.1 PSAVERT  PSAVERT 
-#> 3 UEMPMED  1967-07-01 2015-04-01 0.0236 0.354  0.330 1400   UEMPMED  UEMPMED 
-#> 4 UNEMPLOY 1967-07-01 2015-04-01 0.0204 0.461  0.441 2155.  UNEMPLOY UNEMPLOY
+           round(yend, 2), ' (',
+           sprintf("%+.2f", diff), '), ', ## show a plus when positive
+           name
+           ))
 ```
 
 ``` r
@@ -529,42 +524,27 @@ g = ggplot(dg,
   ## lines
   geom_segment(aes(xend = xend,
                    yend = yend)) +
-  
+
   ## text labels
-  geom_text_repel(aes(label = label1),
-                  color = pubtextgray,
-                  nudge_x   = -1,
-                  hjust     =  0, 
-                  #vjust     = 0.4,
-                  direction = 'y') +
+  geom_text_repel(aes(label = label1, 
+                      color = name),
+                  #color = pubtextgray,
+                  nudge_x   =  -0.08,
+                  hjust     =  1, 
+                  vjust     = 0.5,
+                  direction = 'y', 
+                  min.segment.length = 1) +
   
   geom_text_repel(aes(x     = xend,
                       y     = yend,
-                      label = label2), 
-                  color = pubtextgray,
-                  nudge_x = 1,
-                  hjust   = 1, 
-                  #vjust   = 0.4,
-                  direction = 'y') +
-  
-  ## numeric labels
-  geom_label(aes(label = round(y,2)), 
-             color = pubtextgray, 
-             fill  = pubbackgray,
-             hjust = 1,
-             vjust = 0.4,
-             nudge_x = -0.025,
-             label.size = 0) + 
-  
-  geom_label(aes(x = xend, 
-                 y = yend, 
-                 label = round(yend,2)), 
-             color = pubtextgray, 
-             fill  = pubbackgray, 
-             hjust = 0,
-             vjust = 0.4,
-             nudge_x = 0.025,
-             label.size = 0) + 
+                      label = label2, 
+                      color = name), 
+                  #color = pubtextgray,
+                  nudge_x = 0.08,
+                  hjust   = 0, 
+                  vjust   = 0.5,
+                  direction = 'y', 
+                  min.segment.length = 1) +
   
   ## points
   geom_point(show.legend = F) + 
@@ -577,12 +557,13 @@ g = ggplot(dg,
        caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y = NULL)  +  ## Optional. Upper Lower.
+  
   guides(size      = 'none', 
          linewidth = 'none', 
          color     = 'none') 
 
 g %>% 
-  pub(type = 'slope')
+  pub(type = 'slope') 
  
 ## Save to a file using base_size = 36
 gg = g %>%
@@ -607,6 +588,7 @@ will eventually be printed since the lollipop plot used far less
 ink/toner.
 
 ``` r
+
 dg = airquality %>%
   mutate(Month = month.abb[Month],
          Month = factor(Month, 
@@ -622,15 +604,15 @@ g = ggplot(dg,
            aes(x     = value, 
                y     = name, 
                label = round(value,2), 
-               size  = 5,         ## these are constant put these in aes() anyway
+               size  = 1,         ## these are constant put these in aes() anyway
                linewidth = .75)) +  ## so they change when base_size changes
-  geom_point(color = pubred, 
-             show.legend = F) + 
   geom_segment(aes(x    = 0, 
                    xend = value, 
                    y    = name, 
                    yend = name), 
                color = pubred) +
+  geom_point(color = pubred, 
+             show.legend = F) + 
   geom_text(hjust = -0.3) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -695,16 +677,14 @@ g %>%
   pub(type    = 'pop', 
       xlim    = c(0, 10), 
       ylim    = c(0, .3), 
-      xbreaks = 0:10,
-      ybreaks = c(0, .1, .2, .3))
+      xbreaks = 0:10)
 
 ## Save to a file using base_size = 36
 gg = g %>% 
   pub(type      = 'pop', 
       xlim      = c(0, 10), 
       ylim      = c(0, .3), 
-      xbreaks   = 0:10, 
-      ybreaks   = c(0, .1, .2, .3), 
+      xbreaks   = 0:10,
       base_size = 36)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
@@ -826,6 +806,9 @@ g = ggplot(dg,
                    yend  = var), 
                color = pubred) +
   geom_point(color = pubred) +
+  geom_text(aes(label = round(coef, 2)), 
+            vjust = -1, 
+            nudge_y = 0) + 
   geom_vline(xintercept = 0, 
              color      = pubmediumgray) +
   labs(title    = title,
@@ -837,12 +820,12 @@ g = ggplot(dg,
          linewidth = 'none')
  
 g %>% 
-  pub(type = 'pop', 
+  pub(type = 'dot', 
       xlim = c(-5, 5))
 
 ## Save to a file using base_size = 36
 gg = g %>% 
-  pub(type      = 'pop', 
+  pub(type      = 'dot', 
       xlim      = c(-5, 5),
       base_size = 36)
 
@@ -1104,8 +1087,17 @@ title = 'Title in Upper Lower'
 g = ggplot(dg, 
            aes(x = psavert, 
                y = uempmed)) +
-    geom_hex(color = pubbackgray, 
-             bins  = 20) +
+  geom_hex(color = pubbackgray,
+           bins  = 20, 
+           show.legend = TRUE) +
+  scale_fill_gradient(low      = pubbackgray,
+                      high     = pubblue,
+                      na.value = pubmediumgray,
+                      oob      = squish,
+                      limits = c(0,20),
+                      breaks = c(0, 10, 20)
+                      ) +
+  guides(fill = guide_colourbar())+
   labs(title    = title, 
        subtitle = 'Optional Subtitle In Upper Lower',
        caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme", 
@@ -1115,15 +1107,13 @@ g = ggplot(dg,
 
 g %>% 
   pub(xlim = c(0, 20), 
-      ylim = c(0, 30)) +
-  scale_size(range = c(1, 5)) ## adjust the max, and maybe the min, manually 
+      ylim = c(0, 30)) 
 
 ## Save to a file using base_size = 36
 gg = g %>%
   pub(xlim      = c(0, 20), 
       ylim      = c(0, 30),
-      base_size = 36) + 
-  scale_size(range = c(1, 5)*3) ## same but times 3, b/c base_size changed
+      base_size = 36)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = gg,   
@@ -1220,7 +1210,7 @@ gg = g %>%
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = gg,   
        width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       height = 20,   ## can change, but hexagons may look distorted
        units  = 'in', ## do not change
        dpi    = 72)   ## do not change
 ```
@@ -1386,10 +1376,7 @@ ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
 
 The images are smaller and less fuzzy when saved using `ggsave`:
 
-<figure>
-<img src="img/flag.example.jpg" alt="flags" />
-<figcaption aria-hidden="true">flags</figcaption>
-</figure>
+!(img/flag.example.jpg)
 
 ## Images as axes labels
 
@@ -1514,8 +1501,8 @@ knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%2
 
 <a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-33-1.png" style="display: block; margin: auto;" /></a>
 
-Note that the caption at the bottom of the plot is currently not
-functioning properly.
+Note that the subtitle and the caption at the bottom of the plot are
+currently not functioning properly.
 
 ## ggplotly
 
@@ -1628,6 +1615,12 @@ dg = mtcars %>%
                              Weight, 
                              MPG, 
                              Cylinders))
+#>    X1              name           X2 Weight        X3 MPG              X4
+#> 1 <b>     Mazda RX4</b> <br>Weight:   2.620 <br>MPG:   21 <br>Cylinders: 
+#> 2 <b> Mazda RX4 Wag</b> <br>Weight:   2.875 <br>MPG:   21 <br>Cylinders: 
+#>   Cylinders
+#> 1         6
+#> 2         6
 
 g = ggplot(dg,
            aes(x = Weight, 
