@@ -46,8 +46,8 @@ theme_pub <- function (type = 'scatter',
   update_geom_defaults("label"  , list(     size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("text_repel" , list( size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("label_repel", list( size = .35*base_size   , color = pubtextgray, family = base_family))
-  update_geom_defaults("bar"    ,     list(                          color = NA, fill = pubred)) ## width makes things 
-  update_geom_defaults("col"    ,     list(                          color = NA, fill = pubred)) ## fail, sadly
+  update_geom_defaults("bar"    ,     list(                          color = NA, fill = pubblue)) ## width makes things 
+  update_geom_defaults("col"    ,     list(                          color = NA, fill = pubblue)) ## fail, sadly
   
   # ## Define a new geom_col with width = 0.8 as default. 
   # geom_col <- function(mapping = NULL, data = NULL,
@@ -177,7 +177,7 @@ theme_pub <- function (type = 'scatter',
              axis.line.y.right  = NULL,
              
              legend.background = element_rect(),
-             legend.margin     = margin(0, 20*px, 0, 0, 'in'),
+             legend.margin     = margin(0, 30*px, 0, 0, 'in'),
              legend.spacing    = NULL,
              legend.spacing.x  = unit(10*px, 'in'),
              legend.spacing.y  = NULL,
@@ -298,7 +298,7 @@ theme_pub <- function (type = 'scatter',
                     panel.grid.major.y = element_blank())
   }
   
-  if(type == 'pop'){
+  if(type %in% c('pop', 'dot')){
     th = th + theme(axis.line           = element_blank(),
                     axis.ticks          = element_blank(),
                     axis.ticks.length.y = unit(0, "pt"))
