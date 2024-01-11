@@ -10,12 +10,20 @@
 #' @param ybreaks (Optional) A vector of length $n$, specifying the breaks for the y-axis
 #' @param xlabels (Optional) A vector of length $n$, specifying the labels for the x-axis
 #' @param ylabels (Optional) A vector of length $n$, specifying the labels for the y-axis
+#' @param xtrans (Optional) A function to transform the x-axis, e.g 'reverse'
+#' @param ytrans (Optional) A function to transform the y-axis, e.g 'reverse'
 #' @param int If TRUE, make the plot interactive using `ggplotly` and `layoutpub`. Default is FALSE.
 #' @param tooltip If `int=TRUE` then this `tooltip` argument is passed to `ggplotly`. If `int=FALSE`, this is ignored. If left blank, this default is 'all', which is the default for `ggplotly`.
 #' @param subtitle (Same as in `layoutpub`.) Is there a subtitle? Default is FALSE. This affects spacing. Ignored if `int=FALSE`.
 #' @param legend.rows (Same as in `layoutpub`.) How many rows are needed for the legend? Default is 0. This affects spacing. Ignored if `int=FALSE`.
 #' @param caption (Same as in `layoutpub`.) Is there a caption? Default is FALSE. This affects spacing. Ignored if `int=FALSE`.
 #' @param ... Other arguments passed to `theme_pub`
+#' @import tidyverse
+#' @import dplyr
+#' @import stringr
+#' @import utils
+#' @importFrom rlang .data
+#' @return A `ggplot` object with `theme_pub` theme applied and other useful options set.
 
 pub = function (g, 
                 type      = 'scatter',
@@ -69,8 +77,12 @@ pub = function (g,
   ## https://coolbutuseless.github.io/2019/04/26/reverse-engineer-the-ggplot-call-from-a-ggplot-object/
   ## I found it to be cool but useFUL
   
+  ## When checking the package, 
+  ## I was getting an error about using ggplot2:::snakeize, 
+  ## so I used utils::getFromNamespace to define a local snakeize function
+  snakeize =  utils::getFromNamespace("snakeize", "ggplot2")
   geoms = g$layers %>% 
-    lapply(function(x) ggplot2:::snakeize(class(x$geom))[1]) %>% 
+    lapply(function(x) snakeize(class(x$geom))[1]) %>% 
     unlist()
   
   text = ifelse(sum(grepl('geom_text', geoms) > 0), TRUE, FALSE)
@@ -90,8 +102,9 @@ pub = function (g,
   
   if(type=='hist'                    ){expandx = expansion(mult = c(0.05, 0.05))}
   if(type=='bar' & text==T & !bg.bars){expandx = expansion(mult = c(0   , 0.1 ))}
+  if(type=='dot'                     ){expandy = expansion(mult = c(0   , 0.1 ))}
   if(type=='timeline'                ){expandy = expansion(mult = c(0.1 , 0.1 ))}
-  if(type=='slope'                   ){expandx = expansion(mult = c(0.5 , 0.5 ))
+  if(type=='slope'                   ){expandx = expansion(mult = c(1.1 , 1.1 ))
                                        expandy = expansion(mult = c(0.1 , 0.1 ))}
   
   ## Modify the scales
@@ -118,7 +131,7 @@ pub = function (g,
   ## scales
   #breaks=trans_breaks('identity', identity, 2), ## weird right bound
   if(type %in% c('scatter', 'line', 'hist', 'bar', 
-                 'grid', 'pop', 'map', 'slope')){
+                 'grid', 'pop', 'dot', 'map', 'slope')){
     
     ### if axis type is cont use scale_x_continuous 
     if(x.axis.type == 'cont'){
@@ -192,7 +205,7 @@ pub = function (g,
     
     if(y.axis.type=='dis'){
       scalesy = 
-        scale_y_discrete(expand = c(0,0),
+        scale_y_discrete(expand = expandy,
                          breaks = if(is.null(ybreaks)) waiver() else ybreaks, 
                          labels = if(is.null(ylabels)) waiver() else ylabels)
     }
@@ -220,8 +233,8 @@ pub = function (g,
     sizes = scale_size(range=c(3,18)*base_size/36)
     linewidths = NULL
     
-    if(type == 'pop'){
-      sizes      = scale_size(     range = c( 3,  3)*3*base_size/36)
+    if(type %in% c('pop', 'dot')){
+      sizes      = scale_size(     range = c( 3.5,  3.5)*3*base_size/36)
       linewidths = scale_linewidth(range = c(.5, .5)*3*base_size/36)
     }
     
@@ -300,11 +313,16 @@ pub = function (g,
   cols = paste0('lab', 1:length(y.labels))
   arial.widths[,cols] = NA
   
+  
   ## rescale so a zero is 20 pixels wide 
-  zero.width = arial.widths$V2[arial.widths$V1 == 0]
+  ## the use of .data$
+  ## avoids the note "pub: no visible binding for global variable 'width'
+  ## some message boards use suggest utils::globalVariables("width"), 
+  ## but that didn't work
+  zero.width = arial.widths$width[arial.widths$char == 0]
   zero.width
   arial.widths = arial.widths %>%
-    mutate(V2 = V2/zero.width*20)
+    mutate(width = .data$width/zero.width*20)
   head(arial.widths)
   
   for(j in 1:nrow(arial.widths)){
@@ -312,8 +330,9 @@ pub = function (g,
     arial.widths[j,cols] = n.chars
   }
   
+  ## find the widths of the labels
   widths = arial.widths %>% 
-    mutate(across(all_of(cols), ~.x*V2)) %>%
+    mutate(across(all_of(cols), ~.x*.data$width)) %>%
     summarise(across(starts_with('lab'), sum))
     
   max.width = max(widths)
@@ -324,7 +343,7 @@ pub = function (g,
   if(!is.null(y.title)){title.width = 30 + 50} ## 50 is fudging it
   #title.width %>% print()
   
-  tick.width = if(type %in% c('bar', 'grid')) -3 else 20
+  tick.width = if(type %in% c('bar', 'grid')) 20 else 20 ## changed from -3
   #print(tick.width)
   #browser()
  
@@ -363,7 +382,8 @@ pub = function (g,
                 base_size = base_size, 
                 subtitle  = subtitle, 
                 caption   = caption, 
-                legend    = ifelse(legend.rows == 0, F, T)) %>%
+                #legend    = ifelse(legend.rows == 0, F, T)
+                legend.rows = legend.rows) %>%
       style(marker.sizeref = 1.5)
     
     }
