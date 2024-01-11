@@ -12,6 +12,12 @@ Depends:
     scales,
     ggrepel,
     R (>= 2.10)
+Imports:
+    purrr, 
+    rlang, 
+    utils, 
+    dplyr, 
+    stringr
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
