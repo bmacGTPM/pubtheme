@@ -256,13 +256,15 @@ g = ggplot(dg,
 
 g %>% 
   pub(type = 'line', 
-      ylim = c(0, 1))
+      ylim = c(0, 1)) + 
+  theme(legend.text.align = 0)
 
 ## Save to a file using base_size = 36
 gg = g %>% 
   pub(type = 'line', 
       ylim = c(0, 1), 
-      base_size = 36)
+      base_size = 36) + 
+  theme(legend.text.align = 0)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = gg,
@@ -295,7 +297,8 @@ g = ggplot(dg,
        caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
        x     = 'Horizontal Axis Label in Upper Lower', 
        y     = 'Vertical Axis Label in Upper Lower', 
-       color = 'Legend Label')
+       color = 'Legend Label') +
+  guides(color = guide_legend(nrow = 2))
 
 g %>% 
   pub(type = 'line', 
@@ -303,7 +306,8 @@ g %>%
       xbreaks = as.Date(c('1970-01-01', 
                           '1990-01-01', 
                           '2010-01-01')), ## optional
-      xlabels = function(x) format(x, '%b%e, %Y')) ## optional
+      xlabels = function(x) format(x, '%b%e, %Y')) + ## optional
+  theme(legend.text.align = 0)
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
@@ -1615,12 +1619,6 @@ dg = mtcars %>%
                              Weight, 
                              MPG, 
                              Cylinders))
-#>    X1              name           X2 Weight        X3 MPG              X4
-#> 1 <b>     Mazda RX4</b> <br>Weight:   2.620 <br>MPG:   21 <br>Cylinders: 
-#> 2 <b> Mazda RX4 Wag</b> <br>Weight:   2.875 <br>MPG:   21 <br>Cylinders: 
-#>   Cylinders
-#> 1         6
-#> 2         6
 
 g = ggplot(dg,
            aes(x = Weight, 
