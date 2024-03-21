@@ -140,6 +140,7 @@ pub = function (g,
         oob    = squish, 
         labels = if(is.null(xlabels)) comma else xlabels, 
         expand = expandx,
+        trans = if(is.null(xtrans)) "identity" else xtrans,
         limits = if(is.null(xlim)) NULL else xlim, 
         breaks = 
           if(is.null(xbreaks) & is.null(xlim)) 
@@ -189,6 +190,7 @@ pub = function (g,
           oob    = squish, 
           labels = if(is.null(ylabels)) comma else ylabels, 
           expand = expandy,
+          trans  = if(is.null(ytrans)) "identity" else ytrans,
           limits = if(is.null(ylim)) NULL else ylim, 
           breaks = 
             if(is.null(ybreaks) & is.null(ylim)) 
