@@ -309,36 +309,41 @@ pub = function (g,
   ## but I had trouble doing that 
 
   ## Get the labels that will be used for the y axis
-  y.labels = ggplot_build(g)$layout$panel_params[[1]]$y$breaks
-  y.labels = y.labels[!is.na(y.labels)]
-  y.labels
-  cols = paste0('lab', 1:length(y.labels))
-  arial.widths[,cols] = NA
+  if(type == 'map'){max.width = 0}
+  if(type != 'map'){
+    y.labels = ggplot_build(g)$layout$panel_params[[1]]$y$breaks
+    y.labels = y.labels[!is.na(y.labels)]
+    y.labels
+    cols = paste0('lab', 1:length(y.labels))
+    arial.widths[,cols] = NA
+ 
   
-  
-  ## rescale so a zero is 20 pixels wide 
-  ## the use of .data$
-  ## avoids the note "pub: no visible binding for global variable 'width'
-  ## some message boards use suggest utils::globalVariables("width"), 
-  ## but that didn't work
-  zero.width = arial.widths$width[arial.widths$char == 0]
-  zero.width
-  arial.widths = arial.widths %>%
-    mutate(width = .data$width/zero.width*20)
-  head(arial.widths)
-  
-  for(j in 1:nrow(arial.widths)){
-    n.chars = str_count(y.labels, fixed(arial.widths[j,1]))
-    arial.widths[j,cols] = n.chars
-  }
-  
-  ## find the widths of the labels
-  widths = arial.widths %>% 
-    mutate(across(all_of(cols), ~.x*.data$width)) %>%
-    summarise(across(starts_with('lab'), sum))
     
-  max.width = max(widths)
-  #max.width %>% print()
+    ## rescale so a zero is 20 pixels wide 
+    ## the use of .data$
+    ## avoids the note "pub: no visible binding for global variable 'width'
+    ## some message boards use suggest utils::globalVariables("width"), 
+    ## but that didn't work
+    zero.width = arial.widths$width[arial.widths$char == 0]
+    zero.width
+    arial.widths = arial.widths %>%
+      mutate(width = .data$width/zero.width*20)
+    head(arial.widths)
+    
+    
+    for(j in 1:nrow(arial.widths)){
+      n.chars = str_count(y.labels, fixed(arial.widths[j,1]))
+      arial.widths[j,cols] = n.chars
+    }
+    
+    ## find the widths of the labels
+    widths = arial.widths %>% 
+      mutate(across(all_of(cols), ~.x*.data$width)) %>%
+      summarise(across(starts_with('lab'), sum))
+      
+    max.width = max(widths)
+    #max.width %>% print()
+    }
   
   y.title = g$labels$y
   title.width = 0
