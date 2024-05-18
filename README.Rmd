@@ -163,6 +163,214 @@ ggsave(filename = paste0("img/",
 
 To save to a file, we again need `base_size = 36`. We simply copy and paste the `pub` code and add `base_size = 36`.
 
+## Correlation plot
+
+```{r fig.height = 7, fig.width = 7}
+## choose order of variables
+cols = sort(unique(colnames(mtcars)))
+
+corr <- round(cor(mtcars[,cols]), 2)
+head(corr,2)
+
+
+# title = "Title in Upper Lower"
+# g = ggcorrplot(corr) + 
+#   scale_fill_gradientn(colors = c('red4', 
+#                                   pubred, 
+#                                   publightred, 
+#                                   pubbackgray, 
+#                                   publightblue, 
+#                                   pubblue, 
+#                                   'navy'),
+#                        na.value = pubmediumgray, ## same color as below
+#                        oob      = squish,
+#                        breaks   = c(-1, 0, 1),
+#                        limits   = c(-1,    1)) +
+#   labs(title    = title,
+#        subtitle = 'Optional Subtitle In Upper Lower',
+#        #caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+#        x    = 'Day (Optional Axis Label in Upper Lower)', 
+#        y    = NULL, ## Optional
+#        fill = 'Value') #+ 
+# g
+# 
+# g %>% 
+#   pub(type    = 'grid', base_size = 10) + 
+#   theme(axis.text.x.top = element_text(angle = 90, 
+#                                        hjust = 0, 
+#                                        vjust = 0.7))
+
+
+dg = corr %>%
+  as.data.frame() %>%
+  
+  ## longer format
+  rownames_to_column(var = 'x') %>%
+  pivot_longer(cols      = -x, 
+               names_to  = 'y', 
+               values_to = 'value') %>%
+  
+  ## order them however you'd like
+  mutate(x = factor(x, levels = rev(sort(unique(x)))), 
+         y = factor(y, levels = sort(unique(y))))
+
+title = "Title in Upper Lower"
+g = ggplot(dg) + 
+  geom_tile(aes(x    = x, 
+                y    = y, 
+               fill = value),
+           linewidth   = 0.4, 
+            show.legend = T, 
+            color       = pubdarkgray) +
+  scale_fill_gradientn(colors = c('red4', 
+                                  pubred, 
+                                  publightred, 
+                                  pubbackgray, 
+                                  publightblue, 
+                                  pubblue, 
+                                  'navy'),
+                       na.value = pubmediumgray, ## same color as below
+                       oob      = squish,
+                       breaks   = c(-1, 0, 1),
+                       limits   = c(-1,    1)) +
+
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = 'Day (Optional Axis Label in Upper Lower)', 
+       y    = NULL, ## Optional
+       fill = 'Value') 
+
+g %>% 
+  pub(type    = 'grid') + 
+  theme(axis.text.x.top = element_text(angle = 90, 
+                                   hjust = 0, 
+                                   vjust = 0.3))
+
+gg = g %>%
+  pub(type      = 'grid', 
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+
+```
+
+Adding rectangles around clusters.
+
+```{r fig.height = 7, fig.width = 6}
+
+# ## note that the function corrRect.hclust is used there
+# corrplot::corrplot
+# 
+# ## note that this converts corr to a distance matrix, and then uses cutree to get the clusters
+# corrplot::corrRect.hclust
+
+## let's try
+corr = cor(mtcars)
+ds = as.dist(1-corr)
+dh = hclust(ds)
+hc = cutree(dh, k = 4)
+
+dr = data.frame(order = dh$order,
+                cluster = hc) %>%
+  mutate(cluster = factor(cluster, 
+                          levels = c(1,3,4,2))) %>% ## this order looks better
+  arrange(cluster, order) %>%
+  mutate(x = 1:n(),
+         y = n():1) ## gotta reverse the order
+dr
+
+dg = corr %>%
+  as.data.frame() %>%
+  
+  ## longer format
+  rownames_to_column(var = 'x') %>%
+  pivot_longer(cols      = -x, 
+               names_to  = 'y', 
+               values_to = 'value') %>%
+  
+  ## order them the same way as dr
+  mutate(x = factor(x, levels =     rownames(dr)),
+         y = factor(y, levels = rev(rownames(dr))))
+
+polys = dr %>%
+  group_by(cluster) %>%
+  summarise(xmin = min(x),
+            xmax = max(x),
+            ymin = min(y),
+            ymax = max(y)) %>%
+  mutate(xmin = xmin - 0.5,
+         xmax = xmax + 0.5,
+         ymin = ymin - 0.5,
+         ymax = ymax + 0.5, 
+         linewidth = 1.5)
+polys
+
+g = ggplot(dg) + 
+  
+  ## Tiles
+  geom_tile(aes(x    = x, 
+                y    = y, 
+                fill = value),
+            linewidth   = 0.4, 
+            show.legend = T, 
+            color       = pubdarkgray) +
+  
+  ## Rectangles
+  geom_rect(data = polys,
+            aes(xmin = xmin,
+                xmax = xmax,
+                ymin = ymin,
+                ymax = ymax,
+                group = cluster, 
+                linewidth = linewidth),
+            fill = NA,
+            color = 'black') +
+  
+  guides(linewidth = 'none') +
+  
+  scale_fill_gradientn(colors = c('red4', 
+                                  pubred, 
+                                  publightred, 
+                                  pubbackgray, 
+                                  publightblue, 
+                                  pubblue, 
+                                  'navy'),
+                       na.value = pubmediumgray, ## same color as below
+                       oob      = squish,
+                       breaks   = c(-1, 0, 1),
+                       limits   = c(-1,    1)) +
+
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = 'Day (Optional Axis Label in Upper Lower)', 
+       y    = NULL, ## Optional
+       fill = 'Value') 
+  
+
+g %>% 
+  pub(type = 'grid') 
+
+gg = g %>%
+  pub(type      = 'grid', 
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+
+```
+
+
 ## Pairs plot
 
 ```{r fig.height = 7, fig.width = 7}
