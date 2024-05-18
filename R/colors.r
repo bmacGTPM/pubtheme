@@ -1,3 +1,6 @@
+#' Default dark red used by `pubtheme`
+pubdarkred     = rgb(125,  5,  5, max=255) ## red for color gradients
+
 #' Default red used by `pubtheme`
 pubred         = rgb(200,  20,  40, max=255) ## red for highlighted data
 
@@ -26,13 +29,16 @@ pubgradgraylight = rgb(235, 235, 235, max=255) ## very light gray for color grad
 pubbackgray    = rgb(245, 245, 245, max=255) ## very light gray for image background
 
 #' A color used in `pubtheme` 
+pubdarkblue    = rgb(  5, 50, 150, max=255) ## blue for color gradients
+
+#' A color used in `pubtheme` 
 pubblue        = rgb(  5, 140, 200, max=255) ## blue for highlighted data
 
 #' A color used in `pubtheme`
 publightblue   = rgb(130, 180, 210, max=255) ## blue for background data
 
 #' A color used in `pubtheme`
-default.pal    = c(pubblue, pubred, pubtextgray, publightblue, publightred)
+default.pal    = c(pubblue, pubred, pubtextgray, publightblue, publightred, pubdarkblue, pubdarkred)
 
 #' colorblind friendly color palette
 #' @source https://jacksonlab.agronomy.wisc.edu/2016/05/23/15-level-colorblind-friendly-palette/
