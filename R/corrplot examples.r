@@ -1,3 +1,5 @@
+library(ggcorrplot)
+library(pubtheme)
 
 ## choose order of variables
 cols = sort(unique(colnames(mtcars)))
@@ -5,6 +7,11 @@ cols = sort(unique(colnames(mtcars)))
 corr <- round(cor(mtcars[,cols]), 2)
 head(corr,2)
 
+rows = c('wt', 'cyl', 'disp', 'hp', 
+         'carb', 'qsec', 'vs', 'mpg', 
+         'gear', 'am', 'drat')
+
+corr = corr[rows, rev(rows)]
 
 title = "Title in Upper Lower"
 g = ggcorrplot(corr) + 
@@ -33,6 +40,22 @@ g %>%
                                        hjust = 0, 
                                        vjust = 0.7))
 
+(g + ## Rectangles
+  geom_rect(data = polys,
+            aes(x = NULL, 
+                y = NULL, 
+                xmin = xmin,
+                xmax = xmax,
+                ymin = ymin,
+                ymax = ymax,
+                group = cluster, 
+                linewidth = linewidth),
+            fill = NA,
+            color = 'black')) %>% 
+  pub(type    = 'grid', base_size = 10) + 
+  theme(axis.text.x.top = element_text(angle = 90, 
+                                       hjust = 0, 
+                                       vjust = 0.7))
 
 dg = corr %>%
   as.data.frame() %>%
