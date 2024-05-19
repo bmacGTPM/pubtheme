@@ -38,10 +38,11 @@ theme_pub <- function (type = 'scatter',
   ## Use the 0.35 conversion for points to mm here for geom_text.
   ## Necessary because geom_text and themes define font sizes differently.
   ## save default settings, then update defaults, then return to old settings at the end of the
-  update_geom_defaults("point"  , list(size      =   7*base_size/36, color = pubtextgray))
-  update_geom_defaults("line"   , list(linewidth =   3*base_size/36, color = pubtextgray))
-  update_geom_defaults("smooth" , list(linewidth =   3*base_size/36, color = pubtextgray))
-  update_geom_defaults("segment", list(linewidth =   3*base_size/36, color = pubtextgray))
+  update_geom_defaults("point"    , list(size      =   7*base_size/36, color = pubtextgray))
+  update_geom_defaults("line"     , list(linewidth =   3*base_size/36, color = pubtextgray))
+  update_geom_defaults("smooth"   , list(linewidth =   3*base_size/36, color = pubtextgray))
+  update_geom_defaults("segment"  , list(linewidth =   3*base_size/36, color = pubtextgray))
+  update_geom_defaults("errorbarh", list(linewidth =   3*base_size/36, color = pubtextgray))
   update_geom_defaults("text"   , list(     size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("label"  , list(     size = .35*base_size   , color = pubtextgray, family = base_family))
   update_geom_defaults("text_repel" , list( size = .35*base_size   , color = pubtextgray, family = base_family))
