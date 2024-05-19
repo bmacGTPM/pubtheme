@@ -661,15 +661,19 @@ dg = mtcars %>%
   rename(name  = cyl, 
          value = mpg) 
 
+## Use if you want the optional gray bars in the background.
+## Change so that text fits and doesn't flow over the right side of the plot
+x.max = 30 
+
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
            aes(x = value, 
                y = name, 
                label = round(value,2))) +
-  geom_col(aes(x = 30), 
+  geom_col(aes(x = x.max),        ## optional background bars. 
            fill = publightgray, 
-           width = 0.8) + ## optional background bars. 
-  geom_col(width = 0.8) + 
+           width = 0.8) + 
+  geom_col(width = 0.8) +       
   geom_text(hjust = -0.1) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
