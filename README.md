@@ -172,6 +172,362 @@ ggsave(filename = paste0("img/",
 To save to a file, we again need `base_size = 36`. We simply copy and
 paste the `pub` code and add `base_size = 36`.
 
+## Correlation plot
+
+Make a correlation plot in the look of `pubtheme`. Since `corrplot`
+gives a `corrplot` object, `pub` can’t be used with it, so we have to
+make a correlation plot from scratch using `ggcorrplot`.
+
+We can instead use `geom_tile`.
+
+``` r
+## choose order of variables
+cols = sort(unique(colnames(mtcars)))
+
+corr <- round(cor(mtcars[,cols]), 2)
+head(corr,2)
+#>        am carb   cyl  disp  drat gear    hp   mpg  qsec    vs    wt
+#> am   1.00 0.06 -0.52 -0.59  0.71 0.79 -0.24  0.60 -0.23  0.17 -0.69
+#> carb 0.06 1.00  0.53  0.39 -0.09 0.27  0.75 -0.55 -0.66 -0.57  0.43
+
+
+# title = "Title in Upper Lower"
+# g = ggcorrplot(corr) + 
+#   scale_fill_gradientn(colors = c('red4', 
+#                                   pubred, 
+#                                   publightred, 
+#                                   pubbackgray, 
+#                                   publightblue, 
+#                                   pubblue, 
+#                                   'navy'),
+#                        na.value = pubmediumgray, ## same color as below
+#                        oob      = squish,
+#                        breaks   = c(-1, 0, 1),
+#                        limits   = c(-1,    1)) +
+#   labs(title    = title,
+#        subtitle = 'Optional Subtitle In Upper Lower',
+#        #caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+#        x    = 'Day (Optional Axis Label in Upper Lower)', 
+#        y    = NULL, ## Optional
+#        fill = 'Value') #+ 
+# g
+# 
+# g %>% 
+#   pub(type    = 'grid', base_size = 10) + 
+#   theme(axis.text.x.top = element_text(angle = 90, 
+#                                        hjust = 0, 
+#                                        vjust = 0.7))
+
+
+dg = corr %>%
+  as.data.frame() %>%
+  
+  ## longer format
+  rownames_to_column(var = 'x') %>%
+  pivot_longer(cols      = -x, 
+               names_to  = 'y', 
+               values_to = 'value') %>%
+  
+  ## order them however you'd like
+  mutate(x = factor(x, levels = rev(sort(unique(x)))), 
+         y = factor(y, levels = sort(unique(y))))
+
+title = "Title in Upper Lower"
+g = ggplot(dg) + 
+  geom_tile(aes(x    = x, 
+                y    = y, 
+               fill = value),
+            linewidth   = 0.4, 
+            show.legend = T, 
+            color       = pubdarkgray) +
+  scale_fill_gradientn(colors = c('red4', 
+                                  pubred, 
+                                  publightred, 
+                                  'white', ## or 'pubbackgray'
+                                  publightblue, 
+                                  pubblue, 
+                                  'navy'),
+                       na.value = pubmediumgray, ## same color as below
+                       oob      = squish,
+                       breaks   = c(-1, 0, 1),
+                       limits   = c(-1,    1)) +
+
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = 'Day (Optional Axis Label in Upper Lower)', 
+       y    = NULL, ## Optional
+       fill = 'Value') 
+
+g %>% 
+  pub(type    = 'grid') + 
+  theme(axis.text.x.top = element_text(angle = 90, 
+                                   hjust = 0, 
+                                   vjust = 0.3))
+
+gg = g %>%
+  pub(type      = 'grid', 
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+
+Adding rectangles around clusters, as is often done in `corrplot`.
+
+``` r
+
+# ## note that the function corrRect.hclust is used there
+# corrplot::corrplot
+# 
+# ## note that this converts corr to a distance matrix, and then uses cutree to get the clusters
+# corrplot::corrRect.hclust
+
+corr = cor(mtcars)
+ds = as.dist(1-corr)
+dh = hclust(ds)
+hc = cutree(dh, k = 4)
+
+dr = data.frame(order = dh$order,
+                cluster = hc) %>%
+  mutate(cluster = factor(cluster, 
+                          levels = c(1,3,4,2))) %>% ## this order looks better
+  arrange(cluster, order) %>%
+  mutate(x = 1:n(),
+         y = n():1) ## gotta reverse the order
+dr
+#>      order cluster  x  y
+#> drat     3       1  1 11
+#> am       5       1  2 10
+#> gear     9       1  3  9
+#> mpg     11       1  4  8
+#> vs       1       3  5  7
+#> qsec     8       3  6  6
+#> carb    10       4  7  5
+#> hp       2       2  8  4
+#> disp     4       2  9  3
+#> cyl      6       2 10  2
+#> wt       7       2 11  1
+
+dg = corr %>%
+  as.data.frame() %>%
+  
+  ## longer format
+  rownames_to_column(var = 'x') %>%
+  pivot_longer(cols      = -x, 
+               names_to  = 'y', 
+               values_to = 'value') %>%
+  
+  ## order them the same way as dr
+  mutate(x = factor(x, levels =     rownames(dr)),
+         y = factor(y, levels = rev(rownames(dr))))
+
+polys = dr %>%
+  group_by(cluster) %>%
+  summarise(xmin = min(x),
+            xmax = max(x),
+            ymin = min(y),
+            ymax = max(y)) %>%
+  mutate(xmin = xmin - 0.5,
+         xmax = xmax + 0.5,
+         ymin = ymin - 0.5,
+         ymax = ymax + 0.5, 
+         linewidth = 1.5)
+polys
+#> # A tibble: 4 × 6
+#>   cluster  xmin  xmax  ymin  ymax linewidth
+#>   <fct>   <dbl> <dbl> <dbl> <dbl>     <dbl>
+#> 1 1         0.5   4.5   7.5  11.5       1.5
+#> 2 3         4.5   6.5   5.5   7.5       1.5
+#> 3 4         6.5   7.5   4.5   5.5       1.5
+#> 4 2         7.5  11.5   0.5   4.5       1.5
+
+g = ggplot(dg) + 
+  
+  ## Tiles
+  geom_tile(aes(x    = x, 
+                y    = y, 
+                fill = value),
+            linewidth   = 0.4, 
+            show.legend = T, 
+            color       = pubdarkgray) +
+  
+  ## Rectangles
+  geom_rect(data = polys,
+            aes(xmin = xmin,
+                xmax = xmax,
+                ymin = ymin,
+                ymax = ymax,
+                group = cluster, 
+                linewidth = linewidth),
+            fill = NA,
+            color = 'black', 
+            linejoin = 'mitre',    ## mitre or round
+            lineend = 'square') +  ## square or round
+  
+  guides(linewidth = 'none') +
+  
+  scale_fill_gradientn(colors = c('red4', 
+                                  pubred, 
+                                  publightred, 
+                                  pubbackgray, 
+                                  publightblue, 
+                                  pubblue, 
+                                  'navy'),
+                       na.value = pubmediumgray, ## same color as below
+                       oob      = squish,
+                       breaks   = c(-1, 0, 1),
+                       limits   = c(-1,    1)) +
+
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = 'Day (Optional Axis Label in Upper Lower)', 
+       y    = NULL, ## Optional
+       fill = 'Value') 
+  
+
+g %>% 
+  pub(type = 'grid') 
+
+
+gg = g %>%
+  pub(type      = 'grid', 
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+
+This could be made with `ggcorrplot` as well. I’m not sure if the method
+above or below will be more convenient, so I’m leaving both examples
+here for now.
+
+``` r
+library(ggcorrplot)
+corr = cor(mtcars)
+ds = as.dist(1-corr)
+dh = hclust(ds)
+hc = cutree(dh, k = 4)
+
+dr = data.frame(order = dh$order,
+                cluster = hc) %>%
+  mutate(cluster = factor(cluster, 
+                          levels = c(1,3,4,2))) %>% ## this order looks better
+  arrange(cluster, order) %>%
+  mutate(x = 1:n(),
+         y = n():1) ## gotta reverse the order
+dr
+#>      order cluster  x  y
+#> drat     3       1  1 11
+#> am       5       1  2 10
+#> gear     9       1  3  9
+#> mpg     11       1  4  8
+#> vs       1       3  5  7
+#> qsec     8       3  6  6
+#> carb    10       4  7  5
+#> hp       2       2  8  4
+#> disp     4       2  9  3
+#> cyl      6       2 10  2
+#> wt       7       2 11  1
+
+polys = dr %>%
+  group_by(cluster) %>%
+  summarise(xmin = min(x),
+            xmax = max(x),
+            ymin = min(y),
+            ymax = max(y)) %>%
+  mutate(xmin = xmin - 0.5,
+         xmax = xmax + 0.5,
+         ymin = ymin - 0.5,
+         ymax = ymax + 0.5, 
+         linewidth = 1.5)
+polys
+#> # A tibble: 4 × 6
+#>   cluster  xmin  xmax  ymin  ymax linewidth
+#>   <fct>   <dbl> <dbl> <dbl> <dbl>     <dbl>
+#> 1 1         0.5   4.5   7.5  11.5       1.5
+#> 2 3         4.5   6.5   5.5   7.5       1.5
+#> 3 4         6.5   7.5   4.5   5.5       1.5
+#> 4 2         7.5  11.5   0.5   4.5       1.5
+
+corr = corr[    rownames(dr), 
+            rev(rownames(dr))]
+
+
+title = "Title in Upper Lower"
+g = ggcorrplot(corr, 
+               outline.color = pubbackgray) + 
+  geom_rect(data = polys,
+            aes(x = NULL, 
+                y = NULL, 
+                xmin = xmin,
+                xmax = xmax,
+                ymin = ymin,
+                ymax = ymax,
+                group = cluster, 
+                linewidth = linewidth
+                ),
+            fill = NA,
+            color = 'black', 
+            linejoin = 'mitre',    ## mitre or round
+            lineend = 'square') +  ## square or round
+  
+  guides(linewidth = 'none') +
+  
+  scale_fill_gradientn(colors = c('red4', 
+                                  pubred, 
+                                  publightred, 
+                                  pubbackgray, 
+                                  publightblue, 
+                                  pubblue, 
+                                  'navy'),
+                       na.value = pubmediumgray, ## same color as below
+                       oob      = squish,
+                       breaks   = c(-1, 0, 1),
+                       limits   = c(-1,    1)) +
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       #caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = 'Day (Optional Axis Label in Upper Lower)', 
+       y    = NULL, ## Optional
+       fill = 'Value') #+ 
+
+g %>% 
+  pub(type    = 'grid', base_size = 10) #+ 
+  # theme(axis.text.x.top = element_text(angle = 90, 
+  #                                      hjust = 0, 
+  #                                      vjust = 0.7))
+
+gg = g %>%
+  pub(type      = 'grid', 
+      base_size = 36) #+ 
+  # theme(axis.text.x.top = element_text(angle = 90, 
+  #                                      hjust = 0, 
+  #                                      vjust = 0.7))
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+
 ## Pairs plot
 
 ``` r
@@ -207,7 +563,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 Note that since the object `g` resulting from using `ggpairs` is not a
 `ggplot` object, `pub` can’t be used with it.
@@ -274,7 +630,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change  
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 Note that once again we set breaks for the y-axis at the top, middle,
 and bottom.
@@ -310,7 +666,7 @@ g %>%
   theme(legend.text.align = 0)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 ## Histogram
 
@@ -347,7 +703,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 The `binwidth` will almost surely need to be changed for your data.
 
@@ -405,7 +761,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
 
 If you are using digits next to the bars, you can increase the `max` so
 the text fits.
@@ -487,7 +843,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
 ## Slope Chart
 
@@ -582,7 +938,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
 
 ## Lollipop plot
 
@@ -644,7 +1000,51 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+
+Same plot using `geom_linerange` instead of `geom_segment`. We have to
+switch the `x` and `y` aesthetics and use `coord_flip`.
+
+``` r
+# title = "Title in Upper Lower" 
+# g = ggplot(dg, 
+#            aes(x     = name, 
+#                y     = value, 
+#                label = round(value,2), 
+#                size  = 1,         ## these are constant put these in aes() anyway
+#                linewidth = .75)) +  ## so they change when base_size changes
+#   geom_linerange(aes(ymin = 0, 
+#                      ymax = value), 
+#                color = pubred) #+
+#   # geom_point(color = pubred, 
+#   #            show.legend = F) + 
+#   # geom_text(vjust = -0.3) + ## optional numbers with reasonable number of digits
+#   # coord_flip() + 
+#   # labs(title    = title,
+#   #      subtitle = 'Optional Subtitle In Upper Lower',
+#   #      caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+#   #      x = 'Horizontal Axis Label in Upper Lower', ## Optional. 
+#   #      y = NULL) +  ## Optional. Upper Lower.
+#   # guides(size      = 'none', 
+#   #        linewidth = 'none')
+# 
+# g %>%
+#   pub(type = 'pop', 
+#       xlim = c(0, 120), ) 
+# 
+# ## Save to a file using base_size = 36
+# gg = g %>% 
+#   pub(type      = 'pop',
+#       xlim      = c(0, 120),
+#       base_size = 36)
+# 
+# ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
+#        plot   = gg,
+#        width  = 20,   ## do not change
+#        height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+#        units  = 'in', ## do not change
+#        dpi    = 72)   ## do not change
+```
 
 ## Lollipop for discrete distributions
 
@@ -699,7 +1099,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
 
 ## Barbell plot
 
@@ -760,7 +1160,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
 
 ## Dot and Whiskers Plot
 
@@ -793,10 +1193,8 @@ dg = summary(m1)$coefficients %>%
   select(var, 
          coef, 
          se) %>%
-  mutate(var = toupper(gsub('[(]|[)]', 
-                            '', 
-                            var))) %>%
-  filter(var != 'INTERCEPT')
+  filter(var != '(Intercept)') %>%
+  mutate(var = toupper(var))
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
@@ -841,7 +1239,83 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+
+## Error bars
+
+Use the same data as above
+
+``` r
+## standardize predictors so they are roughly the same scale
+d = mtcars %>%
+  mutate(wt   = scale(wt),  
+         cyl  = scale(cyl), 
+         disp = scale(disp), 
+         hp   = scale(hp))
+
+m1 = lm(mpg ~ wt + cyl + disp +  hp, 
+        data = d)
+
+#summary(m1)
+
+dg = summary(m1)$coefficients %>% 
+  as.data.frame() %>%
+  rownames_to_column(var = 'var') %>%
+  rename(coef = Estimate, 
+         se   = `Std. Error`) %>%
+  select(var, 
+         coef, 
+         se) %>%
+  filter(var != '(Intercept)') %>%
+  mutate(var = toupper(var))
+  
+
+title = "Title in Upper Lower" 
+g = ggplot(dg, 
+           aes(x         = coef, 
+               y         = var, 
+               size      = 4, 
+               linewidth = 0.5)) +
+  geom_errorbarh(aes(xmin = coef - se, 
+                     xmax = coef + se), 
+                 color = pubred, 
+                 height = 0.2) +
+  geom_point(color = pubred) +
+  geom_text(aes(label = round(coef, 2)), 
+            vjust = -1, 
+            nudge_y = 0) + 
+  geom_vline(xintercept = 0, 
+             color      = pubmediumgray) +
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x = 'Coefficient', 
+       y = NULL) + ## Optional. 
+  guides(size      = 'none', 
+         linewidth = 'none')
+ 
+g %>% 
+  pub(type = 'dot', 
+      xlim = c(-5, 5))
+
+## Save to a file using base_size = 36
+gg = g %>% 
+  pub(type      = 'dot', 
+      xlim      = c(-5, 5),
+      base_size = 36)
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 12,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+```
+
+<img src="man/figures/README-unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+
+For vertical error bars, use `geom_errorbar()` instead of
+`geom_errorbarh()`.
 
 ## Faceting
 
@@ -892,7 +1366,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 
 ## Timeline
 
@@ -1006,7 +1480,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" style="display: block; margin: auto;" />
 
 ## Default colors
 
@@ -1051,7 +1525,7 @@ g %>%
       facet = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
 
 ## Maps
 
@@ -1076,7 +1550,7 @@ g %>%
   pub(type = 'map')
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-28-1.png" style="display: block; margin: auto;" />
 
 ## Hex bins
 
@@ -1127,7 +1601,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-29-1.png" style="display: block; margin: auto;" />
 
 If you want to size the hexagons by count, and color by another
 variable, the only way I know is to use `geom_star` with
@@ -1219,7 +1693,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-30-1.png" style="display: block; margin: auto;" />
 
 ## Images as labels
 
@@ -1238,8 +1712,10 @@ First, let’s get a couple of PNG files from the web.
 # can = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/35px-Flag_of_Canada_%28Pantone%29.svg.png'
 # download.file(url = us , destfile = "img/US.png" , method='curl')
 # download.file(url = can, destfile = "img/CAN.png", method='curl')
+
+## if you need to write a PNG file from an image you can use `writePNG`
 # us  = png::readPNG(us )
-# can = png::readPNG(can) 
+# can = png::readPNG(can)
 # writePNG('img/US.png')
 # writePNG('img/CAN.png')
 ```
@@ -1264,16 +1740,16 @@ it appears on screen.
 
 ``` r
 df = df %>% 
-  mutate(label = paste0('<img src="', 
+  mutate(label = paste0("<img src='", 
                           image, 
-                          '" style = "display:inline-block; vertical-align:middle" width="72" height="36">'))
+                          "' style = 'display:inline-block; vertical-align:middle' width='72' height='36'/>"))
 df
 #>   country GDP.per.cap       image
 #> 1     USA       80412  img/US.png
 #> 2  Canada       53247 img/CAN.png
-#>                                                                                                  label
-#> 1  <img src="img/US.png" style = "display:inline-block; vertical-align:middle" width="72" height="36">
-#> 2 <img src="img/CAN.png" style = "display:inline-block; vertical-align:middle" width="72" height="36">
+#>                                                                                                   label
+#> 1  <img src='img/US.png' style = 'display:inline-block; vertical-align:middle' width='72' height='36'/>
+#> 2 <img src='img/CAN.png' style = 'display:inline-block; vertical-align:middle' width='72' height='36'/>
 ```
 
 One way to add images is to use `geom_image` from `ggimage`. This
@@ -1324,7 +1800,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-29-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-34-1.png" style="display: block; margin: auto;" />
 
 Now we’ll use `geom_richtext` instead of `geom_text` to add labels to
 points. These images have a better aspect ratio.
@@ -1376,7 +1852,7 @@ ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-30-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
 
 The images are smaller and less fuzzy when saved using `ggsave`:
 
@@ -1432,7 +1908,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-31-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-36-1.png" style="display: block; margin: auto;" />
 
 ## plotly
 
@@ -1503,7 +1979,7 @@ or click on the image below to view the interactive version of the plot.
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-33-1.png" style="display: block; margin: auto;" /></a>
+<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-38-1.png" style="display: block; margin: auto;" /></a>
 
 Note that the subtitle and the caption at the bottom of the plot are
 currently not functioning properly.
@@ -1553,7 +2029,7 @@ p = g %>%
 p
 ```
 
-<img src="man/figures/README-unnamed-chunk-34-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-39-1.png" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -1589,7 +2065,7 @@ g %>%
       legend.rows = 1) 
 ```
 
-<img src="man/figures/README-unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-40-1.png" style="display: block; margin: auto;" />
 
 If you want to customize the tooltip (e.g. when you are unable to
 specify the order that you want), you can create a `text` column that
@@ -1646,4 +2122,4 @@ g %>%
   layout(legend = list(itemsizing = 'constant'))
 ```
 
-<img src="man/figures/README-unnamed-chunk-36-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-41-1.png" style="display: block; margin: auto;" />
