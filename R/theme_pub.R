@@ -324,6 +324,26 @@ theme_pub <- function (type = 'scatter',
                     )
   }
   
+  if(type == 'cal'){
+    th = th + theme(axis.ticks        = element_blank(),
+                    axis.ticks.length = unit(0, "pt"),
+                    axis.line         = element_blank(),
+                    strip.background  = element_blank(),
+                    axis.title.x.top  = element_text(
+                      margin = margin(t = -6*px, 
+                                      b = 20*px, 
+                                      unit = 'in'), 
+                      vjust = 0),
+                    panel.grid.major = element_blank(), 
+                    axis.text.y  = element_blank(), 
+                    axis.title.y = element_blank(),
+                    axis.text.x.top = element_text(
+                      size   = base_size*.75, 
+                      margin = margin(b = 10*px, unit = 'in'), 
+                      vjust  = 0)
+    )
+  }
+  
   if(type == 'timeline'){
     th = th + theme(axis.ticks.x        = element_blank(),
                     axis.ticks.length.x = unit(0, "pt"),

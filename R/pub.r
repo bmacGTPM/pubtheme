@@ -131,7 +131,7 @@ pub = function (g,
   ## scales
   #breaks=trans_breaks('identity', identity, 2), ## weird right bound
   if(type %in% c('scatter', 'line', 'hist', 'bar', 
-                 'grid', 'pop', 'dot', 'map', 'slope')){
+                 'grid', 'pop', 'dot', 'map', 'slope', 'cal')){
     
     ### if axis type is cont use scale_x_continuous 
     if(x.axis.type == 'cont'){
@@ -160,7 +160,7 @@ pub = function (g,
         scale_x_discrete(expand   = expandx, 
                          breaks   = if(is.null(xbreaks)) waiver() else xbreaks, 
                          labels   = if(is.null(xlabels)) waiver() else xlabels, 
-                         position = ifelse(type %in% c('grid', 'slope'), 
+                         position = ifelse(type %in% c('grid', 'slope', 'cal'), 
                                            'top', 
                                            waiver()))
     }
@@ -238,6 +238,11 @@ pub = function (g,
     if(type %in% c('pop', 'dot')){
       sizes      = scale_size(     range = c( 3.5,  3.5)*3*base_size/36)
       linewidths = scale_linewidth(range = c(.5, .5)*3*base_size/36)
+    }
+    
+    if(type %in% c('cal')){
+      sizes      = scale_size(     range = c(2.5, 2.5)*3*base_size/36)
+      
     }
     
     if(type == 'slope'){
@@ -345,12 +350,15 @@ pub = function (g,
     #max.width %>% print()
     }
   
+  max.width = if(type %in% c('cal')) 0 else max.width
   y.title = g$labels$y
   title.width = 0
   if(!is.null(y.title)){title.width = 30 + 50} ## 50 is fudging it
   #title.width %>% print()
   
-  tick.width = if(type %in% c('bar', 'grid')) 20 else 20 ## changed from -3
+  tick.width = case_when(type %in% c('bar', 'grid') ~ 20, 
+                         type %in% c('cal') ~ 0, 
+                         TRUE ~ 20) ## changed from -3
   #print(tick.width)
   #browser()
  

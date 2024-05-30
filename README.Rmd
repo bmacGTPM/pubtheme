@@ -177,35 +177,6 @@ cols = sort(unique(colnames(mtcars)))
 corr <- round(cor(mtcars[,cols]), 2)
 head(corr,2)
 
-
-# title = "Title in Upper Lower"
-# g = ggcorrplot(corr) + 
-#   scale_fill_gradientn(colors = c('red4', 
-#                                   pubred, 
-#                                   publightred, 
-#                                   pubbackgray, 
-#                                   publightblue, 
-#                                   pubblue, 
-#                                   'navy'),
-#                        na.value = pubmediumgray, ## same color as below
-#                        oob      = squish,
-#                        breaks   = c(-1, 0, 1),
-#                        limits   = c(-1,    1)) +
-#   labs(title    = title,
-#        subtitle = 'Optional Subtitle In Upper Lower',
-#        #caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
-#        x    = 'Day (Optional Axis Label in Upper Lower)', 
-#        y    = NULL, ## Optional
-#        fill = 'Value') #+ 
-# g
-# 
-# g %>% 
-#   pub(type    = 'grid', base_size = 10) + 
-#   theme(axis.text.x.top = element_text(angle = 90, 
-#                                        hjust = 0, 
-#                                        vjust = 0.7))
-
-
 dg = corr %>%
   as.data.frame() %>%
   
@@ -223,7 +194,7 @@ title = "Title in Upper Lower"
 g = ggplot(dg) + 
   geom_tile(aes(x    = x, 
                 y    = y, 
-               fill = value),
+                fill = value),
             linewidth   = 0.4, 
             show.legend = T, 
             color       = pubdarkgray) +
@@ -287,7 +258,7 @@ dr = data.frame(order = dh$order,
   arrange(cluster, order) %>%
   mutate(x = 1:n(),
          y = n():1) ## gotta reverse the order
-dr
+
 
 dg = corr %>%
   as.data.frame() %>%
@@ -313,8 +284,8 @@ polys = dr %>%
          ymin = ymin - 0.5,
          ymax = ymax + 0.5, 
          linewidth = 1.5)
-polys
 
+title = "Title in Upper Lower"
 g = ggplot(dg) + 
   
   ## Tiles
@@ -705,6 +676,7 @@ You may want to remove `x` and `y` axis titles.  If not used, use `x = NULL` and
 
 
 ## Grid plot
+
 ```{r fig.height = 4, fig.width = 7}
 dg = airquality %>%
   mutate(Month = month.abb[Month],
@@ -780,6 +752,167 @@ p = g %>%
             caption   = F, 
             legend.rows = 2) 
 p
+```
+
+## Calendar heat map
+
+```{r}
+library(ggTimeSeries) ## devtools::install_github('Ather-Energy/ggTimeSeries')
+dg = airquality %>%
+  mutate(#Month = month.abb[Month],
+         month = str_pad(Month, 2, 
+                          pad = '0',
+                          side = 'left'),
+         day = str_pad(Day, 2, 
+                       pad = '0',
+                       side = 'left'), 
+         date = as.Date(paste0('2020-', month, '-', day))) %>%
+  rename(value = Temp) %>%
+  select(date, value)
+         #Month = factor(Month, levels = rev(month.abb[month.abb %in% Month])), 
+         #Day   = factor(Day, levels = 1:31)) %>% 
+  # rename(x = Day,
+  #        y = Month,
+  #        value = Temp)
+
+g = ggplot_calendar_heatmap(
+   dg,
+   'date',
+   'value'
+) 
+  #scale_x_reverse() + 
+  #coord_flip() 
+  
+g %>% 
+  pub(type = 'cal')
+```
+
+Inspired by [this post]
+(https://thisisdaryn.netlify.app/post/making-a-calendar-visualization-with-ggplot2/)
+
+Note that we make the day numbers smaller by putting `size` *inside* `aes`. This is so that the text will auto resize when different `base_size` is used.  If `size` is outside of `aes`, it will remain that fixed number and won't auto resize with different `base_size`.
+
+First, we start with a `data.frame` that has `date` and `value` (the var by which we'll color the heatmap) columns.
+
+```{r}
+df = data.frame(date = seq.Date(from = as.Date('2024-01-01'), 
+                                to   = as.Date('2024-12-31'), 
+                                by   = 'day'),
+                value = rep(1:7, 
+                            length.out = 366))
+head(df)
+```
+
+
+
+```{r fig.height = 7, fig.width = 7}
+## create month (for faceting), 
+## day of week (columns), 
+## week number (rows)
+## and month-year (for faceting, for multi-year calendars)
+dg = df %>%
+  
+  ## fill in missing dates from day 1 of the first month to 
+  ## the last day of the last month, 
+  ## which could be 31, 30, 29, or 28, depending on the last month
+  complete(date = seq.Date(from =   floor_date(min(date), 'month'),
+                           to   = ceiling_date(max(date), 'month') - 1,
+                           by   = 'day'),
+           fill = list(value = 0)) %>%
+  
+  mutate(month = months(date, 
+                        abbreviate = F), 
+         month = factor(month, 
+                        levels = month.name),
+         day.of.week = weekdays(date, 
+                                abbreviate = T),
+         day.of.week = factor(day.of.week, 
+                              levels = c('Sun', 'Mon', 'Tue', 'Wed', 
+                                         'Thu', 'Fri', 'Sat')),
+         day  =  day(date),
+         year = year(date), 
+         month.year = paste(month, year)) %>%
+  
+  group_by(month, year) %>%
+  
+  mutate(week = ifelse(day == 1 | day.of.week == 'Sun', 1, 0), 
+         week = cumsum(week), 
+         day = as.character(day)) %>%
+  
+  ## fill in missing days of the week in first row and last row with NA
+  complete(week, 
+           day.of.week, 
+           fill = list(value = NA, 
+                       day = '')) ## to avoid warning about missing values
+ 
+## plot
+title = "Title in Upper Lower"
+g = ggplot(dg, 
+           aes(x = day.of.week, 
+               y = week, 
+               fill = value)) + ## hacky way to add a legend for NA values. See below
+  geom_tile(linewidth   = 0.4,
+            show.legend = T, 
+            color       = pubdarkgray) +
+  
+  geom_text(aes(label = day, 
+                size = week), ## so text resizes with base_size. Min/max is 2.5
+            color = pubdarkgray, 
+            hjust = 0, 
+            vjust = 1,
+            nudge_x = -0.45, 
+            nudge_y =  0.45, 
+            show.legend = F) +
+  
+  facet_wrap(~month, 
+             scales = 'free_x', ## so day of week labels appear on each facet
+             ncol = 4) +
+  
+  scale_fill_gradient(low      = pubgradgray,
+                      high     = pubblue, 
+                      na.value = pubbackgray, 
+                      oob      = squish, 
+                      breaks   = c(60, 75, 90)) +
+  
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = NULL, 
+       y    = NULL, ## Optional
+       fill = 'Value') +
+  guides(size = 'none') 
+
+g %>% 
+  pub(type = 'cal', 
+      xlabels = c('Su', 'M', 'Tu', 'W', 
+                  'Th', 'F', 'Sa'),
+      ytrans = 'reverse') +
+  theme(axis.text.x.top = element_text(
+                      size   = 12*.75,
+                      margin = margin(b = 5*1/72*1/3, unit = 'in'),
+                      vjust  = 0))
+
+  
+
+## Save to a file using base_size = 36
+gg = g %>%
+  pub(type   = 'cal', 
+      xlabels = c('Su', 'M', 'Tu', 'W', 
+                  'Th', 'F', 'Sa'),
+      ytrans = 'reverse',
+      base_size = 36) +
+  theme(axis.text.x.top = element_text(
+                      size   = 36*.75,
+                      margin = margin(b = 5*1/72*36/36, unit = 'in'),
+                      vjust  = 0))
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+
 ```
 
 
@@ -1810,6 +1943,7 @@ dg = mtcars %>%
   rownames_to_column('name')
 
 base_size = 12
+title = 'Title in Upper Lower'
 p = plot_ly(data = dg,
             width  = 1440*base_size/36, 
             height = 1440*base_size/36) %>%
@@ -1851,7 +1985,7 @@ htmlwidgets::saveWidget(widget = p,
                                         gsub("%", " Perc", title),
                                         ".html"),
                         libdir = "lib", 
-                        selfcontained = T)
+                        selfcontained = F)
 ```
 
 Click [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html) or click on the image below to view the interactive version of the plot. 
