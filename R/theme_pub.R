@@ -238,7 +238,7 @@ theme_pub <- function (type = 'scatter',
                                           margin = margin(t = -40*px, 
                                                           r = 0, 
                                                           b = 70*px, 
-                                                          l = 50*px, 
+                                                          l = 0, #50*px, 
                                                           unit = 'in'), 
                                           color  = pubmediumgray), ## black is not an option
              plot.caption  = element_text(size   = 33/36*base_size, 
