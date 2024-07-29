@@ -100,7 +100,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 g.scatter = g ## save for later
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-scatter.old-1.png" style="display: block; margin: auto;" />
 
 You must have a subfolder called `img` in order for the `ggsave` chunk
 above to work.
@@ -167,18 +167,16 @@ ggsave(filename = paste0("img/",
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-scatter-1.png" style="display: block; margin: auto;" />
 
 To save to a file, we again need `base_size = 36`. We simply copy and
 paste the `pub` code and add `base_size = 36`.
 
 ## Correlation plot
 
-Make a correlation plot in the look of `pubtheme`. Since `corrplot`
-gives a `corrplot` object, `pub` can’t be used with it, so we have to
-make a correlation plot from scratch using `ggcorrplot`.
-
-We can instead use `geom_tile`.
+Let’s make a correlation plot in the look of `pubtheme`. Since
+`corrplot` gives a `corrplot` object, `pub` can’t be used with it, so we
+have to make a correlation plot from scratch using `geom_tile`.
 
 ``` r
 ## choose order of variables
@@ -189,35 +187,9 @@ head(corr,2)
 #>        am carb   cyl  disp  drat gear    hp   mpg  qsec    vs    wt
 #> am   1.00 0.06 -0.52 -0.59  0.71 0.79 -0.24  0.60 -0.23  0.17 -0.69
 #> carb 0.06 1.00  0.53  0.39 -0.09 0.27  0.75 -0.55 -0.66 -0.57  0.43
+```
 
-
-# title = "Title in Upper Lower"
-# g = ggcorrplot(corr) + 
-#   scale_fill_gradientn(colors = c('red4', 
-#                                   pubred, 
-#                                   publightred, 
-#                                   pubbackgray, 
-#                                   publightblue, 
-#                                   pubblue, 
-#                                   'navy'),
-#                        na.value = pubmediumgray, ## same color as below
-#                        oob      = squish,
-#                        breaks   = c(-1, 0, 1),
-#                        limits   = c(-1,    1)) +
-#   labs(title    = title,
-#        subtitle = 'Optional Subtitle In Upper Lower',
-#        #caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
-#        x    = 'Day (Optional Axis Label in Upper Lower)', 
-#        y    = NULL, ## Optional
-#        fill = 'Value') #+ 
-# g
-# 
-# g %>% 
-#   pub(type    = 'grid', base_size = 10) + 
-#   theme(axis.text.x.top = element_text(angle = 90, 
-#                                        hjust = 0, 
-#                                        vjust = 0.7))
-
+``` r
 
 dg = corr %>%
   as.data.frame() %>%
@@ -236,7 +208,7 @@ title = "Title in Upper Lower"
 g = ggplot(dg) + 
   geom_tile(aes(x    = x, 
                 y    = y, 
-               fill = value),
+                fill = value),
             linewidth   = 0.4, 
             show.legend = T, 
             color       = pubdarkgray) +
@@ -277,7 +249,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-corrplot-1.png" style="display: block; margin: auto;" />
 
 Adding rectangles around clusters, as is often done in `corrplot`.
 
@@ -301,19 +273,7 @@ dr = data.frame(order = dh$order,
   arrange(cluster, order) %>%
   mutate(x = 1:n(),
          y = n():1) ## gotta reverse the order
-dr
-#>      order cluster  x  y
-#> drat     3       1  1 11
-#> am       5       1  2 10
-#> gear     9       1  3  9
-#> mpg     11       1  4  8
-#> vs       1       3  5  7
-#> qsec     8       3  6  6
-#> carb    10       4  7  5
-#> hp       2       2  8  4
-#> disp     4       2  9  3
-#> cyl      6       2 10  2
-#> wt       7       2 11  1
+
 
 dg = corr %>%
   as.data.frame() %>%
@@ -339,15 +299,8 @@ polys = dr %>%
          ymin = ymin - 0.5,
          ymax = ymax + 0.5, 
          linewidth = 1.5)
-polys
-#> # A tibble: 4 × 6
-#>   cluster  xmin  xmax  ymin  ymax linewidth
-#>   <fct>   <dbl> <dbl> <dbl> <dbl>     <dbl>
-#> 1 1         0.5   4.5   7.5  11.5       1.5
-#> 2 3         4.5   6.5   5.5   7.5       1.5
-#> 3 4         6.5   7.5   4.5   5.5       1.5
-#> 4 2         7.5  11.5   0.5   4.5       1.5
 
+title = "Title in Upper Lower"
 g = ggplot(dg) + 
   
   ## Tiles
@@ -409,7 +362,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-corrplot2-1.png" style="display: block; margin: auto;" />
 
 This could be made with `ggcorrplot` as well. I’m not sure if the method
 above or below will be more convenient, so I’m leaving both examples
@@ -442,6 +395,9 @@ dr
 #> disp     4       2  9  3
 #> cyl      6       2 10  2
 #> wt       7       2 11  1
+```
+
+``` r
 
 polys = dr %>%
   group_by(cluster) %>%
@@ -462,6 +418,9 @@ polys
 #> 2 3         4.5   6.5   5.5   7.5       1.5
 #> 3 4         6.5   7.5   4.5   5.5       1.5
 #> 4 2         7.5  11.5   0.5   4.5       1.5
+```
+
+``` r
 
 corr = corr[    rownames(dr), 
             rev(rownames(dr))]
@@ -526,7 +485,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-corrplot3-1.png" style="display: block; margin: auto;" />
 
 ## Pairs plot
 
@@ -563,7 +522,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-pairs-1.png" style="display: block; margin: auto;" />
 
 Note that since the object `g` resulting from using `ggpairs` is not a
 `ggplot` object, `pub` can’t be used with it.
@@ -595,6 +554,9 @@ head(dg)
 #> 4 1967-10-01    92 PCE   0.000471
 #> 5 1967-11-01   123 PCE   0.000916
 #> 6 1967-12-01   153 PCE   0.00157
+```
+
+``` r
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
@@ -630,7 +592,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change  
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-line-1.png" style="display: block; margin: auto;" />
 
 Note that once again we set breaks for the y-axis at the top, middle,
 and bottom.
@@ -666,7 +628,7 @@ g %>%
   theme(legend.text.align = 0)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-linedate-1.png" style="display: block; margin: auto;" />
 
 ## Histogram
 
@@ -703,7 +665,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-hist-1.png" style="display: block; margin: auto;" />
 
 The `binwidth` will almost surely need to be changed for your data.
 
@@ -729,15 +691,19 @@ dg = mtcars %>%
   rename(name  = cyl, 
          value = mpg) 
 
+## Use if you want the optional gray bars in the background.
+## Change so that text fits and doesn't flow over the right side of the plot
+x.max = 30 
+
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
            aes(x = value, 
                y = name, 
                label = round(value,2))) +
-  geom_col(aes(x = 30), 
+  geom_col(aes(x = x.max),        ## optional background bars. 
            fill = publightgray, 
-           width = 0.8) + ## optional background bars. 
-  geom_col(width = 0.8) + 
+           width = 0.8) + 
+  geom_col(width = 0.8) +       
   geom_text(hjust = -0.1) + ## optional numbers with reasonable number of digits
   labs(title    = title,
        subtitle = 'Optional Subtitle In Upper Lower',
@@ -761,7 +727,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-bar-1.png" style="display: block; margin: auto;" />
 
 If you are using digits next to the bars, you can increase the `max` so
 the text fits.
@@ -796,6 +762,9 @@ head(dg)
 #> 4 1     Jun      NA     286   8.6    78
 #> 5 1     May      41     190   7.4    67
 #> 6 2     Sep      78     197   5.1    92
+```
+
+``` r
 
 title = "Title in Upper Lower"
 g = ggplot(dg, 
@@ -843,7 +812,149 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-grid-1.png" style="display: block; margin: auto;" />
+
+Interactive version, still in very early beta testing:
+
+## Calendar heat map
+
+Inspired by \[this post\]
+(<https://thisisdaryn.netlify.app/post/making-a-calendar-visualization-with-ggplot2/>)
+
+Note that we make the day numbers smaller by putting `size` *inside*
+`aes`. This is so that the text will auto resize when different
+`base_size` is used. If `size` is outside of `aes`, it will remain that
+fixed number and won’t auto resize with different `base_size`.
+
+First, we start with a `data.frame` that has `date` and `value` (the var
+by which we’ll color the heatmap) columns.
+
+``` r
+df = data.frame(date = seq.Date(from = as.Date('2024-01-01'), 
+                                to   = as.Date('2024-12-31'), 
+                                by   = 'day'),
+                value = rep(1:7, 
+                            length.out = 366))
+head(df)
+#>         date value
+#> 1 2024-01-01     1
+#> 2 2024-01-02     2
+#> 3 2024-01-03     3
+#> 4 2024-01-04     4
+#> 5 2024-01-05     5
+#> 6 2024-01-06     6
+```
+
+``` r
+## create month (for faceting), 
+## day of week (columns), 
+## week number (rows)
+## and month-year (for faceting, for multi-year calendars)
+dg = df %>%
+  
+  ## fill in missing dates from day 1 of the first month to 
+  ## the last day of the last month, 
+  ## which could be 31, 30, 29, or 28, depending on the last month
+  complete(date = seq.Date(from =   floor_date(min(date), 'month'),
+                           to   = ceiling_date(max(date), 'month') - 1,
+                           by   = 'day'),
+           fill = list(value = 0)) %>%
+  
+  mutate(month = months(date, 
+                        abbreviate = F), 
+         month = factor(month, 
+                        levels = month.name),
+         day.of.week = weekdays(date, 
+                                abbreviate = T),
+         day.of.week = factor(day.of.week, 
+                              levels = c('Sun', 'Mon', 'Tue', 'Wed', 
+                                         'Thu', 'Fri', 'Sat')),
+         day  =  day(date),
+         year = year(date), 
+         month.year = paste(month, year)) %>%
+  
+  group_by(month, year) %>%
+  
+  mutate(week = ifelse(day == 1 | day.of.week == 'Sun', 1, 0), 
+         week = cumsum(week), 
+         day = as.character(day)) %>%
+  
+  ## fill in missing days of the week in first row and last row with NA
+  complete(week, 
+           day.of.week, 
+           fill = list(value = NA, 
+                       day = '')) ## to avoid warning about missing values
+ 
+## plot
+title = "Title in Upper Lower"
+g = ggplot(dg, 
+           aes(x = day.of.week, 
+               y = week, 
+               fill = value)) + ## hacky way to add a legend for NA values. See below
+  geom_tile(linewidth   = 0.4,
+            show.legend = T, 
+            color       = pubdarkgray) +
+  
+  geom_text(aes(label = day, 
+                size = week), ## so text resizes with base_size. Min/max is 2.5
+            color = pubdarkgray, 
+            hjust = 0, 
+            vjust = 1,
+            nudge_x = -0.45, 
+            nudge_y =  0.45, 
+            show.legend = F) +
+  
+  facet_wrap(~month, 
+             scales = 'free_x', ## so day of week labels appear on each facet
+             ncol = 4) +
+  
+  scale_fill_gradient(low      = pubgradgray,
+                      high     = pubblue, 
+                      na.value = pubbackgray, 
+                      oob      = squish, 
+                      breaks   = c(60, 75, 90)) +
+  
+  labs(title    = title,
+       subtitle = 'Optional Subtitle In Upper Lower',
+       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
+       x    = NULL, 
+       y    = NULL, ## Optional
+       fill = 'Value') +
+  guides(size = 'none') 
+
+g %>% 
+  pub(type = 'cal', 
+      xlabels = c('Su', 'M', 'Tu', 'W', 
+                  'Th', 'F', 'Sa'),
+      ytrans = 'reverse') +
+  theme(axis.text.x.top = element_text(
+                      size   = 12*.75,
+                      margin = margin(b = 5*1/72*1/3, unit = 'in'),
+                      vjust  = 0))
+
+  
+
+## Save to a file using base_size = 36
+gg = g %>%
+  pub(type   = 'cal', 
+      xlabels = c('Su', 'M', 'Tu', 'W', 
+                  'Th', 'F', 'Sa'),
+      ytrans = 'reverse',
+      base_size = 36) +
+  theme(axis.text.x.top = element_text(
+                      size   = 36*.75,
+                      margin = margin(b = 5*1/72*36/36, unit = 'in'),
+                      vjust  = 0))
+
+ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
+       plot   = gg,
+       width  = 20,   ## do not change
+       height = 20,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       units  = 'in', ## do not change
+       dpi    = 72)   ## do not change
+```
+
+<img src="man/figures/README-cal-1.png" style="display: block; margin: auto;" />
 
 ## Slope Chart
 
@@ -938,7 +1049,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-slope-1.png" style="display: block; margin: auto;" />
 
 ## Lollipop plot
 
@@ -1000,7 +1111,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-pop-1.png" style="display: block; margin: auto;" />
 
 Same plot using `geom_linerange` instead of `geom_segment`. We have to
 switch the `x` and `y` aesthetics and use `coord_flip`.
@@ -1099,7 +1210,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-pop.discrete-1.png" style="display: block; margin: auto;" />
 
 ## Barbell plot
 
@@ -1160,7 +1271,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-barbell-1.png" style="display: block; margin: auto;" />
 
 ## Dot and Whiskers Plot
 
@@ -1194,7 +1305,11 @@ dg = summary(m1)$coefficients %>%
          coef, 
          se) %>%
   filter(var != '(Intercept)') %>%
-  mutate(var = toupper(var))
+  mutate(var = toupper(var), 
+         label    = round(coef, 2),
+         label.se = paste0(sprintf("%.1f", coef), 
+                        ' \u00B1 ', ## unicode for +/-
+                        sprintf("%.1f", se))) 
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
@@ -1208,7 +1323,7 @@ g = ggplot(dg,
                    yend  = var), 
                color = pubred) +
   geom_point(color = pubred) +
-  geom_text(aes(label = round(coef, 2)), 
+  geom_text(aes(label = label.se), 
             vjust = -1, 
             nudge_y = 0) + 
   geom_vline(xintercept = 0, 
@@ -1239,7 +1354,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-dot.whiskers-1.png" style="display: block; margin: auto;" />
 
 ## Error bars
 
@@ -1256,8 +1371,6 @@ d = mtcars %>%
 m1 = lm(mpg ~ wt + cyl + disp +  hp, 
         data = d)
 
-#summary(m1)
-
 dg = summary(m1)$coefficients %>% 
   as.data.frame() %>%
   rownames_to_column(var = 'var') %>%
@@ -1267,7 +1380,11 @@ dg = summary(m1)$coefficients %>%
          coef, 
          se) %>%
   filter(var != '(Intercept)') %>%
-  mutate(var = toupper(var))
+  mutate(var = toupper(var), 
+         label    = round(coef, 2),
+         label.se = paste0(sprintf("%.1f", coef), 
+                        ' \u00B1 ', ## unicode for +/-
+                        sprintf("%.1f", se))) 
   
 
 title = "Title in Upper Lower" 
@@ -1281,7 +1398,7 @@ g = ggplot(dg,
                  color = pubred, 
                  height = 0.2) +
   geom_point(color = pubred) +
-  geom_text(aes(label = round(coef, 2)), 
+  geom_text(aes(label = label.se), 
             vjust = -1, 
             nudge_y = 0) + 
   geom_vline(xintercept = 0, 
@@ -1312,7 +1429,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-24-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-errorbars-1.png" style="display: block; margin: auto;" />
 
 For vertical error bars, use `geom_errorbar()` instead of
 `geom_errorbarh()`.
@@ -1366,7 +1483,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-facet-1.png" style="display: block; margin: auto;" />
 
 ## Timeline
 
@@ -1413,6 +1530,9 @@ dg
 #> 6 2025-07-04 Independence Day, 2025-07-04     Indep
 #> 7 2025-12-25    Christmas Day, 2025-12-25 Christmas
 #> 8 2025-12-31   New Year's Eve, 2025-12-31     Other
+```
+
+``` r
 
 ## Now make the timeline using ggrepel for the text
 library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
@@ -1480,7 +1600,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-26-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-timeline-1.png" style="display: block; margin: auto;" />
 
 ## Default colors
 
@@ -1525,7 +1645,7 @@ g %>%
       facet = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-colors-1.png" style="display: block; margin: auto;" />
 
 ## Maps
 
@@ -1550,7 +1670,7 @@ g %>%
   pub(type = 'map')
 ```
 
-<img src="man/figures/README-unnamed-chunk-28-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-maps-1.png" style="display: block; margin: auto;" />
 
 ## Hex bins
 
@@ -1601,7 +1721,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-29-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-hexbins-1.png" style="display: block; margin: auto;" />
 
 If you want to size the hexagons by count, and color by another
 variable, the only way I know is to use `geom_star` with
@@ -1634,6 +1754,9 @@ head(hh)
 #> 4 12.0150 4.000000   14     3 11.83333 4.30
 #> 5 13.5250 4.000000   16     1 13.30000 4.10
 #> 6  4.8425 4.917987   25     1  4.50000 5.20
+```
+
+``` r
 
 df$cell = h@cID
 
@@ -1693,7 +1816,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-30-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-hexbins2-1.png" style="display: block; margin: auto;" />
 
 ## Images as labels
 
@@ -1715,7 +1838,7 @@ First, let’s get a couple of PNG files from the web.
 
 ## if you need to write a PNG file from an image you can use `writePNG`
 # us  = png::readPNG(us )
-# can = png::readPNG(can)
+# can = png::readPNG(can) 
 # writePNG('img/US.png')
 # writePNG('img/CAN.png')
 ```
@@ -1800,7 +1923,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-34-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-images-1.png" style="display: block; margin: auto;" />
 
 Now we’ll use `geom_richtext` instead of `geom_text` to add labels to
 points. These images have a better aspect ratio.
@@ -1852,7 +1975,7 @@ ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-images2-1.png" style="display: block; margin: auto;" />
 
 The images are smaller and less fuzzy when saved using `ggsave`:
 
@@ -1908,7 +2031,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
        dpi    = 72)   ## do not change
 ```
 
-<img src="man/figures/README-unnamed-chunk-36-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-images_axes-1.png" style="display: block; margin: auto;" />
 
 ## plotly
 
@@ -1929,6 +2052,7 @@ dg = mtcars %>%
   rownames_to_column('name')
 
 base_size = 12
+title = 'Title in Upper Lower'
 p = plot_ly(data = dg,
             width  = 1440*base_size/36, 
             height = 1440*base_size/36) %>%
@@ -1966,7 +2090,9 @@ p = plot_ly(data = dg,
 print(p)
 
 htmlwidgets::saveWidget(widget = p,
-                        file   = paste0("img/", gsub("%", " Perc", title), ".html"),
+                        file   = paste0("img/", 
+                                        gsub("%", " Perc", title),
+                                        ".html"),
                         libdir = "lib", 
                         selfcontained = F)
 ```
@@ -1979,7 +2105,8 @@ or click on the image below to view the interactive version of the plot.
 knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
 ```
 
-<a href="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" target="_blank"><img src="man/figures/README-unnamed-chunk-38-1.png" style="display: block; margin: auto;" /></a>
+<iframe src="https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html" width="100%" height="400px" data-external="1">
+</iframe>
 
 Note that the subtitle and the caption at the bottom of the plot are
 currently not functioning properly.
@@ -2029,7 +2156,8 @@ p = g %>%
 p
 ```
 
-<img src="man/figures/README-unnamed-chunk-39-1.png" style="display: block; margin: auto;" />
+<div id="htmlwidget-95e885aaa9abcb6976c6" style="width:480px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-95e885aaa9abcb6976c6">{"x":{"data":[{"x":[2.3199999999999998,3.1899999999999999,3.1499999999999999,2.2000000000000002,1.615,1.835,2.4649999999999999,1.9350000000000001,2.1400000000000001,1.5129999999999999,2.7799999999999998],"y":[22.800000000000001,24.399999999999999,22.800000000000001,32.399999999999999,30.399999999999999,33.899999999999999,21.5,27.300000000000001,26,30.399999999999999,21.399999999999999],"text":["Weight: 2.320<br />MPG: 22.8<br />Cylinders: 4<br />Datsun 710","Weight: 3.190<br />MPG: 24.4<br />Cylinders: 4<br />Merc 240D","Weight: 3.150<br />MPG: 22.8<br />Cylinders: 4<br />Merc 230","Weight: 2.200<br />MPG: 32.4<br />Cylinders: 4<br />Fiat 128","Weight: 1.615<br />MPG: 30.4<br />Cylinders: 4<br />Honda Civic","Weight: 1.835<br />MPG: 33.9<br />Cylinders: 4<br />Toyota Corolla","Weight: 2.465<br />MPG: 21.5<br />Cylinders: 4<br />Toyota Corona","Weight: 1.935<br />MPG: 27.3<br />Cylinders: 4<br />Fiat X1-9","Weight: 2.140<br />MPG: 26.0<br />Cylinders: 4<br />Porsche 914-2","Weight: 1.513<br />MPG: 30.4<br />Cylinders: 4<br />Lotus Europa","Weight: 2.780<br />MPG: 21.4<br />Cylinders: 4<br />Volvo 142E"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(5,140,200,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(5,140,200,1)"},"sizeref":1.5},"hoveron":"points","name":"4","legendgroup":"4","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2.6200000000000001,2.875,3.2149999999999999,3.46,3.4399999999999999,3.4399999999999999,2.77],"y":[21,21,21.399999999999999,18.100000000000001,19.199999999999999,17.800000000000001,19.699999999999999],"text":["Weight: 2.620<br />MPG: 21.0<br />Cylinders: 6<br />Mazda RX4","Weight: 2.875<br />MPG: 21.0<br />Cylinders: 6<br />Mazda RX4 Wag","Weight: 3.215<br />MPG: 21.4<br />Cylinders: 6<br />Hornet 4 Drive","Weight: 3.460<br />MPG: 18.1<br />Cylinders: 6<br />Valiant","Weight: 3.440<br />MPG: 19.2<br />Cylinders: 6<br />Merc 280","Weight: 3.440<br />MPG: 17.8<br />Cylinders: 6<br />Merc 280C","Weight: 2.770<br />MPG: 19.7<br />Cylinders: 6<br />Ferrari Dino"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(200,20,40,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(200,20,40,1)"},"sizeref":1.5},"hoveron":"points","name":"6","legendgroup":"6","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3.4399999999999999,3.5699999999999998,4.0700000000000003,3.73,3.7799999999999998,5.25,5.4240000000000004,5.3449999999999998,3.52,3.4350000000000001,3.8399999999999999,3.8450000000000002,3.1699999999999999,3.5699999999999998],"y":[18.699999999999999,14.300000000000001,16.399999999999999,17.300000000000001,15.199999999999999,10.4,10.4,14.699999999999999,15.5,15.199999999999999,13.300000000000001,19.199999999999999,15.800000000000001,15],"text":["Weight: 3.440<br />MPG: 18.7<br />Cylinders: 8<br />Hornet Sportabout","Weight: 3.570<br />MPG: 14.3<br />Cylinders: 8<br />Duster 360","Weight: 4.070<br />MPG: 16.4<br />Cylinders: 8<br />Merc 450SE","Weight: 3.730<br />MPG: 17.3<br />Cylinders: 8<br />Merc 450SL","Weight: 3.780<br />MPG: 15.2<br />Cylinders: 8<br />Merc 450SLC","Weight: 5.250<br />MPG: 10.4<br />Cylinders: 8<br />Cadillac Fleetwood","Weight: 5.424<br />MPG: 10.4<br />Cylinders: 8<br />Lincoln Continental","Weight: 5.345<br />MPG: 14.7<br />Cylinders: 8<br />Chrysler Imperial","Weight: 3.520<br />MPG: 15.5<br />Cylinders: 8<br />Dodge Challenger","Weight: 3.435<br />MPG: 15.2<br />Cylinders: 8<br />AMC Javelin","Weight: 3.840<br />MPG: 13.3<br />Cylinders: 8<br />Camaro Z28","Weight: 3.845<br />MPG: 19.2<br />Cylinders: 8<br />Pontiac Firebird","Weight: 3.170<br />MPG: 15.8<br />Cylinders: 8<br />Ford Pantera L","Weight: 3.570<br />MPG: 15.0<br />Cylinders: 8<br />Maserati Bora"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(100,100,100,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(100,100,100,1)"},"sizeref":1.5},"hoveron":"points","name":"8","legendgroup":"8","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":97.999999999999986,"r":16.666666666666664,"b":61.999999999999993,"l":61.999999999999993,"pad":0},"plot_bgcolor":"#F5F5F5","paper_bgcolor":"#F5F5F5","font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"<b> Title in Upper Lower <\/b>","font":{"color":"#1E1E1E","family":"Arial","size":16.666666666666664},"x":0,"xref":"container","pad":{"t":30,"b":30,"l":16.666666666666664,"r":16.666666666666664},"xanchor":"left","y":1,"yanchor":"top","yref":"container"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,6],"tickmode":"array","ticktext":["0","3","6"],"tickvals":[0,3,6],"categoryorder":"array","categoryarray":["0","3","6"],"nticks":3,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"y","title":{"text":"Horizontal Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":10},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,40],"tickmode":"array","ticktext":["0","20","40"],"tickvals":[0,20,40],"categoryorder":"array","categoryarray":["0","20","40"],"nticks":null,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"x","title":{"text":"Vertical Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":6.6666666666666661},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"#F5F5F5","bordercolor":"transparent","borderwidth":0.44094488188976372,"font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"Cylinders","font":{"color":"#646464","family":"Arial","size":12}},"grouptitlefont":{"family":"Arial","color":"#646464"},"orientation":"h","itemclick":"toggleothers","itemdoubleclick":"toggle","itemsizing":"constant","itemwidth":3.333333333333333,"xref":"paper","x":-0.105,"xanchor":"left","y":1.03,"yanchor":"bottom","tracegroupgap":6.6666666666666661,"valign":"top"},"hovermode":"closest","width":480,"height":480,"barmode":"relative","autosize":true,"hoverlabel":{"bgcolor":"#F5F5F5"},"colorway":["#058CC8","#C81428","#646464","#82B4D2","#E68C8C","#035478","#780C18","#D2D2D2"],"colorscale":["#D2D2D2","#058CC8"]},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"973441526262":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"}},"cur_data":"973441526262","visdat":{"973441526262":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 ``` r
 
@@ -2038,9 +2166,6 @@ htmlwidgets::saveWidget(widget = p,
                         libdir = "lib",
                         selfcontained = F)
 ```
-
-The plot isn’t interactive here. Run the code to see the interactive
-plot.
 
 Note that the subtitle does not currently display. And the points in the
 legend are different sizes for some reason \#shrugs.
@@ -2065,7 +2190,8 @@ g %>%
       legend.rows = 1) 
 ```
 
-<img src="man/figures/README-unnamed-chunk-40-1.png" style="display: block; margin: auto;" />
+<div id="htmlwidget-9c8ca2de41825b4743b3" style="width:480px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9c8ca2de41825b4743b3">{"x":{"data":[{"x":[2.3199999999999998,3.1899999999999999,3.1499999999999999,2.2000000000000002,1.615,1.835,2.4649999999999999,1.9350000000000001,2.1400000000000001,1.5129999999999999,2.7799999999999998],"y":[22.800000000000001,24.399999999999999,22.800000000000001,32.399999999999999,30.399999999999999,33.899999999999999,21.5,27.300000000000001,26,30.399999999999999,21.399999999999999],"text":["Weight: 2.320<br />MPG: 22.8<br />Cylinders: 4<br />Datsun 710","Weight: 3.190<br />MPG: 24.4<br />Cylinders: 4<br />Merc 240D","Weight: 3.150<br />MPG: 22.8<br />Cylinders: 4<br />Merc 230","Weight: 2.200<br />MPG: 32.4<br />Cylinders: 4<br />Fiat 128","Weight: 1.615<br />MPG: 30.4<br />Cylinders: 4<br />Honda Civic","Weight: 1.835<br />MPG: 33.9<br />Cylinders: 4<br />Toyota Corolla","Weight: 2.465<br />MPG: 21.5<br />Cylinders: 4<br />Toyota Corona","Weight: 1.935<br />MPG: 27.3<br />Cylinders: 4<br />Fiat X1-9","Weight: 2.140<br />MPG: 26.0<br />Cylinders: 4<br />Porsche 914-2","Weight: 1.513<br />MPG: 30.4<br />Cylinders: 4<br />Lotus Europa","Weight: 2.780<br />MPG: 21.4<br />Cylinders: 4<br />Volvo 142E"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(5,140,200,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(5,140,200,1)"},"sizeref":1.5},"hoveron":"points","name":"4","legendgroup":"4","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2.6200000000000001,2.875,3.2149999999999999,3.46,3.4399999999999999,3.4399999999999999,2.77],"y":[21,21,21.399999999999999,18.100000000000001,19.199999999999999,17.800000000000001,19.699999999999999],"text":["Weight: 2.620<br />MPG: 21.0<br />Cylinders: 6<br />Mazda RX4","Weight: 2.875<br />MPG: 21.0<br />Cylinders: 6<br />Mazda RX4 Wag","Weight: 3.215<br />MPG: 21.4<br />Cylinders: 6<br />Hornet 4 Drive","Weight: 3.460<br />MPG: 18.1<br />Cylinders: 6<br />Valiant","Weight: 3.440<br />MPG: 19.2<br />Cylinders: 6<br />Merc 280","Weight: 3.440<br />MPG: 17.8<br />Cylinders: 6<br />Merc 280C","Weight: 2.770<br />MPG: 19.7<br />Cylinders: 6<br />Ferrari Dino"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(200,20,40,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(200,20,40,1)"},"sizeref":1.5},"hoveron":"points","name":"6","legendgroup":"6","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3.4399999999999999,3.5699999999999998,4.0700000000000003,3.73,3.7799999999999998,5.25,5.4240000000000004,5.3449999999999998,3.52,3.4350000000000001,3.8399999999999999,3.8450000000000002,3.1699999999999999,3.5699999999999998],"y":[18.699999999999999,14.300000000000001,16.399999999999999,17.300000000000001,15.199999999999999,10.4,10.4,14.699999999999999,15.5,15.199999999999999,13.300000000000001,19.199999999999999,15.800000000000001,15],"text":["Weight: 3.440<br />MPG: 18.7<br />Cylinders: 8<br />Hornet Sportabout","Weight: 3.570<br />MPG: 14.3<br />Cylinders: 8<br />Duster 360","Weight: 4.070<br />MPG: 16.4<br />Cylinders: 8<br />Merc 450SE","Weight: 3.730<br />MPG: 17.3<br />Cylinders: 8<br />Merc 450SL","Weight: 3.780<br />MPG: 15.2<br />Cylinders: 8<br />Merc 450SLC","Weight: 5.250<br />MPG: 10.4<br />Cylinders: 8<br />Cadillac Fleetwood","Weight: 5.424<br />MPG: 10.4<br />Cylinders: 8<br />Lincoln Continental","Weight: 5.345<br />MPG: 14.7<br />Cylinders: 8<br />Chrysler Imperial","Weight: 3.520<br />MPG: 15.5<br />Cylinders: 8<br />Dodge Challenger","Weight: 3.435<br />MPG: 15.2<br />Cylinders: 8<br />AMC Javelin","Weight: 3.840<br />MPG: 13.3<br />Cylinders: 8<br />Camaro Z28","Weight: 3.845<br />MPG: 19.2<br />Cylinders: 8<br />Pontiac Firebird","Weight: 3.170<br />MPG: 15.8<br />Cylinders: 8<br />Ford Pantera L","Weight: 3.570<br />MPG: 15.0<br />Cylinders: 8<br />Maserati Bora"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(100,100,100,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(100,100,100,1)"},"sizeref":1.5},"hoveron":"points","name":"8","legendgroup":"8","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":97.999999999999986,"r":16.666666666666664,"b":61.999999999999993,"l":61.999999999999993,"pad":0},"plot_bgcolor":"#F5F5F5","paper_bgcolor":"#F5F5F5","font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"<b> Title in Upper Lower <\/b>","font":{"color":"#1E1E1E","family":"Arial","size":16.666666666666664},"x":0,"xref":"container","pad":{"t":30,"b":30,"l":16.666666666666664,"r":16.666666666666664},"xanchor":"left","y":1,"yanchor":"top","yref":"container"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,6],"tickmode":"array","ticktext":["0","3","6"],"tickvals":[0,3,6],"categoryorder":"array","categoryarray":["0","3","6"],"nticks":3,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"y","title":{"text":"Horizontal Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":10},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,40],"tickmode":"array","ticktext":["0","20","40"],"tickvals":[0,20,40],"categoryorder":"array","categoryarray":["0","20","40"],"nticks":null,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"x","title":{"text":"Vertical Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":6.6666666666666661},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"#F5F5F5","bordercolor":"transparent","borderwidth":0.44094488188976372,"font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"Cylinders","font":{"color":"#646464","family":"Arial","size":12}},"grouptitlefont":{"family":"Arial","color":"#646464"},"orientation":"h","itemclick":"toggleothers","itemdoubleclick":"toggle","itemsizing":"constant","itemwidth":3.333333333333333,"xref":"paper","x":-0.105,"xanchor":"left","y":1.03,"yanchor":"bottom","tracegroupgap":6.6666666666666661,"valign":"top"},"hovermode":"closest","width":480,"height":480,"barmode":"relative","autosize":true,"hoverlabel":{"bgcolor":"#F5F5F5"},"colorway":["#058CC8","#C81428","#646464","#82B4D2","#E68C8C","#035478","#780C18","#D2D2D2"],"colorscale":["#D2D2D2","#058CC8"]},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"97347ef67aff":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"}},"cur_data":"97347ef67aff","visdat":{"97347ef67aff":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 If you want to customize the tooltip (e.g. when you are unable to
 specify the order that you want), you can create a `text` column that
@@ -2122,4 +2248,5 @@ g %>%
   layout(legend = list(itemsizing = 'constant'))
 ```
 
-<img src="man/figures/README-unnamed-chunk-41-1.png" style="display: block; margin: auto;" />
+<div id="htmlwidget-118709d1c0ffe0747223" style="width:480px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-118709d1c0ffe0747223">{"x":{"data":[{"x":[2.3199999999999998,3.1899999999999999,3.1499999999999999,2.2000000000000002,1.615,1.835,2.4649999999999999,1.9350000000000001,2.1400000000000001,1.5129999999999999,2.7799999999999998],"y":[22.800000000000001,24.399999999999999,22.800000000000001,32.399999999999999,30.399999999999999,33.899999999999999,21.5,27.300000000000001,26,30.399999999999999,21.399999999999999],"text":["<b>Datsun 710<\/b><br>Weight: 2.320<br>MPG: 22.8<br>Cylinders: 4","<b>Merc 240D<\/b><br>Weight: 3.190<br>MPG: 24.4<br>Cylinders: 4","<b>Merc 230<\/b><br>Weight: 3.150<br>MPG: 22.8<br>Cylinders: 4","<b>Fiat 128<\/b><br>Weight: 2.200<br>MPG: 32.4<br>Cylinders: 4","<b>Honda Civic<\/b><br>Weight: 1.615<br>MPG: 30.4<br>Cylinders: 4","<b>Toyota Corolla<\/b><br>Weight: 1.835<br>MPG: 33.9<br>Cylinders: 4","<b>Toyota Corona<\/b><br>Weight: 2.465<br>MPG: 21.5<br>Cylinders: 4","<b>Fiat X1-9<\/b><br>Weight: 1.935<br>MPG: 27.3<br>Cylinders: 4","<b>Porsche 914-2<\/b><br>Weight: 2.140<br>MPG: 26.0<br>Cylinders: 4","<b>Lotus Europa<\/b><br>Weight: 1.513<br>MPG: 30.4<br>Cylinders: 4","<b>Volvo 142E<\/b><br>Weight: 2.780<br>MPG: 21.4<br>Cylinders: 4"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(5,140,200,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(5,140,200,1)"},"sizeref":1.5},"hoveron":"points","name":"4","legendgroup":"4","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2.6200000000000001,2.875,3.2149999999999999,3.46,3.4399999999999999,3.4399999999999999,2.77],"y":[21,21,21.399999999999999,18.100000000000001,19.199999999999999,17.800000000000001,19.699999999999999],"text":["<b>Mazda RX4<\/b><br>Weight: 2.620<br>MPG: 21.0<br>Cylinders: 6","<b>Mazda RX4 Wag<\/b><br>Weight: 2.875<br>MPG: 21.0<br>Cylinders: 6","<b>Hornet 4 Drive<\/b><br>Weight: 3.215<br>MPG: 21.4<br>Cylinders: 6","<b>Valiant<\/b><br>Weight: 3.460<br>MPG: 18.1<br>Cylinders: 6","<b>Merc 280<\/b><br>Weight: 3.440<br>MPG: 19.2<br>Cylinders: 6","<b>Merc 280C<\/b><br>Weight: 3.440<br>MPG: 17.8<br>Cylinders: 6","<b>Ferrari Dino<\/b><br>Weight: 2.770<br>MPG: 19.7<br>Cylinders: 6"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(200,20,40,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(200,20,40,1)"},"sizeref":1.5},"hoveron":"points","name":"6","legendgroup":"6","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[3.4399999999999999,3.5699999999999998,4.0700000000000003,3.73,3.7799999999999998,5.25,5.4240000000000004,5.3449999999999998,3.52,3.4350000000000001,3.8399999999999999,3.8450000000000002,3.1699999999999999,3.5699999999999998],"y":[18.699999999999999,14.300000000000001,16.399999999999999,17.300000000000001,15.199999999999999,10.4,10.4,14.699999999999999,15.5,15.199999999999999,13.300000000000001,19.199999999999999,15.800000000000001,15],"text":["<b>Hornet Sportabout<\/b><br>Weight: 3.440<br>MPG: 18.7<br>Cylinders: 8","<b>Duster 360<\/b><br>Weight: 3.570<br>MPG: 14.3<br>Cylinders: 8","<b>Merc 450SE<\/b><br>Weight: 4.070<br>MPG: 16.4<br>Cylinders: 8","<b>Merc 450SL<\/b><br>Weight: 3.730<br>MPG: 17.3<br>Cylinders: 8","<b>Merc 450SLC<\/b><br>Weight: 3.780<br>MPG: 15.2<br>Cylinders: 8","<b>Cadillac Fleetwood<\/b><br>Weight: 5.250<br>MPG: 10.4<br>Cylinders: 8","<b>Lincoln Continental<\/b><br>Weight: 5.424<br>MPG: 10.4<br>Cylinders: 8","<b>Chrysler Imperial<\/b><br>Weight: 5.345<br>MPG: 14.7<br>Cylinders: 8","<b>Dodge Challenger<\/b><br>Weight: 3.520<br>MPG: 15.5<br>Cylinders: 8","<b>AMC Javelin<\/b><br>Weight: 3.435<br>MPG: 15.2<br>Cylinders: 8","<b>Camaro Z28<\/b><br>Weight: 3.840<br>MPG: 13.3<br>Cylinders: 8","<b>Pontiac Firebird<\/b><br>Weight: 3.845<br>MPG: 19.2<br>Cylinders: 8","<b>Ford Pantera L<\/b><br>Weight: 3.170<br>MPG: 15.8<br>Cylinders: 8","<b>Maserati Bora<\/b><br>Weight: 3.570<br>MPG: 15.0<br>Cylinders: 8"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(100,100,100,1)","opacity":1,"size":8.8188976377952759,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(100,100,100,1)"},"sizeref":1.5},"hoveron":"points","name":"8","legendgroup":"8","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":97.999999999999986,"r":16.666666666666664,"b":61.999999999999993,"l":61.999999999999993,"pad":0},"plot_bgcolor":"#F5F5F5","paper_bgcolor":"#F5F5F5","font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"<b> Title in Upper Lower <\/b>","font":{"color":"#1E1E1E","family":"Arial","size":16.666666666666664},"x":0,"xref":"container","pad":{"t":30,"b":30,"l":16.666666666666664,"r":16.666666666666664},"xanchor":"left","y":1,"yanchor":"top","yref":"container"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,6],"tickmode":"array","ticktext":["0","3","6"],"tickvals":[0,3,6],"categoryorder":"array","categoryarray":["0","3","6"],"nticks":3,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"y","title":{"text":"Horizontal Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":10},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0,40],"tickmode":"array","ticktext":["0","20","40"],"tickvals":[0,20,40],"categoryorder":"array","categoryarray":["0","20","40"],"nticks":null,"ticks":"outside","tickcolor":"#646464","ticklen":6.6666666666666661,"tickwidth":0.66666666666666663,"showticklabels":true,"tickfont":{"color":"#646464","family":"Arial","size":12},"tickangle":-0,"showline":true,"linecolor":"#646464","linewidth":0.66666666666666663,"showgrid":true,"gridcolor":"#D2D2D2","gridwidth":0.66666666666666663,"zeroline":false,"anchor":"x","title":{"text":"Vertical Axis Label in Upper Lower","font":{"color":"#646464","family":"Arial","size":12},"standoff":6.6666666666666661},"hoverformat":".2f","tick0":0,"mirror":true,"ticklabelstep":1,"layer":"below traces"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"#F5F5F5","bordercolor":"transparent","borderwidth":0.44094488188976372,"font":{"color":"#646464","family":"Arial","size":12},"title":{"text":"Cylinders","font":{"color":"#646464","family":"Arial","size":12}},"grouptitlefont":{"family":"Arial","color":"#646464"},"orientation":"h","itemclick":"toggleothers","itemdoubleclick":"toggle","itemsizing":"constant","itemwidth":3.333333333333333,"xref":"paper","x":-0.105,"xanchor":"left","y":1.03,"yanchor":"bottom","tracegroupgap":6.6666666666666661,"valign":"top"},"hovermode":"closest","width":480,"height":480,"barmode":"relative","autosize":true,"hoverlabel":{"bgcolor":"#F5F5F5"},"colorway":["#058CC8","#C81428","#646464","#82B4D2","#E68C8C","#035478","#780C18","#D2D2D2"],"colorscale":["#D2D2D2","#058CC8"]},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"97341c77e97":{"x":{},"y":{},"colour":{},"text":{},"type":"scatter"}},"cur_data":"97341c77e97","visdat":{"97341c77e97":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>

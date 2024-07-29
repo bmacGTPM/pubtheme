@@ -1,5 +1,6 @@
 ---
 output: github_document
+always_allow_html: true
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -62,7 +63,7 @@ at any time. It is recommended that you update your version of `tidyverse` and e
 
 ## Scatter plot
 
-```{r fig.height = 7, fig.width=7}
+```{r scatter.old, fig.height = 7, fig.width=7}
 dg = mtcars %>% 
   select(wt, mpg, cyl) %>%
   mutate(Cylinders = as.factor(cyl)) %>%
@@ -127,7 +128,7 @@ If you are using `size` inside `aes()`, you'll need that change the scale, other
 
 We explicitly specified the `scale*` and `coord_cartesian` above. To use the default settings in `pubtheme`, you can save a lot of typing by using the function `pub`, which applies `theme_pub` and also automatically adds `scale*` and `coord*` similar to above. The function also aligns the legend with the left side of the title and subtitle.
 
-```{r fig.height = 7, fig.width = 7}
+```{r scatter, fig.height = 7, fig.width = 7}
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
            aes(x     = wt, 
@@ -165,12 +166,9 @@ To save to a file, we again need `base_size = 36`. We simply copy and paste the 
 
 ## Correlation plot
 
-Make a correlation plot in the look of `pubtheme`. Since `corrplot` gives a `corrplot` object, `pub` can't be used with it, so we have to make a correlation plot from scratch using `ggcorrplot`. 
+Let's make a correlation plot in the look of `pubtheme`. Since `corrplot` gives a `corrplot` object, `pub` can't be used with it, so we have to make a correlation plot from scratch using `geom_tile`. 
 
-
-We can instead use `geom_tile`. 
-
-```{r fig.height = 7, fig.width = 6}
+```{r corrplot, fig.height = 7, fig.width = 6, }
 ## choose order of variables
 cols = sort(unique(colnames(mtcars)))
 
@@ -238,7 +236,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 
 Adding rectangles around clusters, as is often done in `corrplot`. 
 
-```{r fig.height = 7, fig.width = 6}
+```{r corrplot2, fig.height = 7, fig.width = 6}
 
 # ## note that the function corrRect.hclust is used there
 # corrplot::corrplot
@@ -351,7 +349,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 
 This could be made with `ggcorrplot` as well. I'm not sure if the method above or below will be more convenient, so I'm leaving both examples here for now. 
 
-```{r fig.height = 7, fig.width = 6}
+```{r corrplot3, fig.height = 7, fig.width = 6}
 library(ggcorrplot)
 corr = cor(mtcars)
 ds = as.dist(1-corr)
@@ -447,7 +445,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 
 ## Pairs plot
 
-```{r fig.height = 7, fig.width = 7}
+```{r pairs, fig.height = 7, fig.width = 7}
 library(GGally) ## Needed for ggpairs function
 dg = mtcars %>%
   select(mpg, cyl, wt, carb) %>%
@@ -489,7 +487,7 @@ Since `name` and `value` will be more common column names when using these in th
 
 Continuous variables for `x` seem to be more common, so we'll convert date to days for this example, so that copying and pasting later becomes easier. We'll use `toupper()` to avoid using variables with all lowercase letters in the legend.
 
-```{r fig.height = 7, fig.width = 7}
+```{r line, fig.height = 7, fig.width = 7}
 dg = economics_long %>%
   mutate(name  = toupper(variable), 
          days  = as.numeric(date - min(date)), 
@@ -553,7 +551,7 @@ g %>%
 
 You can use the same code as Line Plot above (except use `x = date`), and `pub` will detect the date scale and format appropriately. You can change the format of the labels as shown below with `xlabels`. 
 
-```{r}
+```{r linedate}
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
            aes(x     = date, 
@@ -580,7 +578,8 @@ g %>%
 
 
 ## Histogram
-```{r}
+
+```{r hist}
 dg = economics %>%
   filter(date <= '2008-01-01') %>%
   rename(value = unemploy)
@@ -620,7 +619,7 @@ The `binwidth` will almost surely need to be changed for your data.
 We'll use the `mtcars` data again, with some modifications. For cylinder, we'll add `-cylinder` to the numbers so it looks nice. We'll then convert it a factor so that we can specify the order. We'll also create a column called `max` which controls the length of the lightgray bars in the background. Finally, we'll rename `cyl` and `mpg` to `name` and `value`, which will be convenient when copying and pasting this code. 
 
 
-```{r fig.height = 7*.75}
+```{r bar, fig.height = 7*.75}
 dg = mtcars %>%
   group_by(cyl) %>%
   summarise(mpg = mean(mpg)) %>%
@@ -677,7 +676,7 @@ You may want to remove `x` and `y` axis titles.  If not used, use `x = NULL` and
 
 ## Grid plot
 
-```{r fig.height = 4, fig.width = 7}
+```{r grid, fig.height = 4, fig.width = 7}
 dg = airquality %>%
   mutate(Month = month.abb[Month],
          Month = factor(Month, levels = rev(month.abb[month.abb %in% Month])), 
@@ -738,6 +737,9 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
        units  = 'in', ## do not change
        dpi    = 72)   ## do not change
 ```
+
+Interactive version, still in very early beta testing:
+
 ```{r eval=F, echo=F, include=F}
 base_size = 12
 p = g %>% 
@@ -755,37 +757,6 @@ p
 ```
 
 ## Calendar heat map
-
-```{r}
-library(ggTimeSeries) ## devtools::install_github('Ather-Energy/ggTimeSeries')
-dg = airquality %>%
-  mutate(#Month = month.abb[Month],
-         month = str_pad(Month, 2, 
-                          pad = '0',
-                          side = 'left'),
-         day = str_pad(Day, 2, 
-                       pad = '0',
-                       side = 'left'), 
-         date = as.Date(paste0('2020-', month, '-', day))) %>%
-  rename(value = Temp) %>%
-  select(date, value)
-         #Month = factor(Month, levels = rev(month.abb[month.abb %in% Month])), 
-         #Day   = factor(Day, levels = 1:31)) %>% 
-  # rename(x = Day,
-  #        y = Month,
-  #        value = Temp)
-
-g = ggplot_calendar_heatmap(
-   dg,
-   'date',
-   'value'
-) 
-  #scale_x_reverse() + 
-  #coord_flip() 
-  
-g %>% 
-  pub(type = 'cal')
-```
 
 Inspired by [this post]
 (https://thisisdaryn.netlify.app/post/making-a-calendar-visualization-with-ggplot2/)
@@ -805,7 +776,7 @@ head(df)
 
 
 
-```{r fig.height = 7, fig.width = 7}
+```{r cal, fig.height = 7, fig.width = 7}
 ## create month (for faceting), 
 ## day of week (columns), 
 ## week number (rows)
@@ -943,7 +914,7 @@ dg = economics_long %>%
 
 ```
 
-```{r fig.height = 6, fig.width = 6}
+```{r slope, fig.height = 6, fig.width = 6}
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
@@ -1015,7 +986,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 We'll make a horizontal lollipop plot. It can be used an alternative to a bar plot, and it is often preferred, especially when the visualization will eventually be printed since the lollipop plot used far less ink/toner. 
 
-```{r fig.height = 4}
+```{r pop, fig.height = 4}
 
 dg = airquality %>%
   mutate(Month = month.abb[Month],
@@ -1117,7 +1088,7 @@ Same plot using `geom_linerange` instead of `geom_segment`. We have to switch th
 
 This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
-```{r}
+```{r pop.discrete}
 dg = data.frame(name  = 0:10, 
                 value = dbinom(0:10, 10, .5))
 
@@ -1170,7 +1141,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
-```{r fig.height = 4}
+```{r barbell, fig.height = 4}
 dg = airquality %>%
   mutate(Month = month.abb[Month],
          Month = factor(Month, 
@@ -1233,7 +1204,7 @@ It is often desirable to visualize regression coefficients using a dot and whisk
 
 This still uses `type = 'pop'` but we'll use a different template for copying/pasting.
 
-```{r fig.height = 7*10/20}
+```{r dot.whiskers, fig.height = 7*10/20}
 ## standardize predictors so they are roughly the same scale
 d = mtcars %>%
   mutate(wt   = scale(wt),  
@@ -1310,7 +1281,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 
 Use the same data as above
 
-```{r}
+```{r errorbars}
 ## standardize predictors so they are roughly the same scale
 d = mtcars %>%
   mutate(wt   = scale(wt),  
@@ -1385,7 +1356,7 @@ For vertical error bars, use `geom_errorbar()` instead of `geom_errorbarh()`.
 
 We'll use our scatter plot example, but with `facet_wrap` to make separate plots for each `cyl`, and we add a `facet = T` argument to make some formatting more appropriate for faceted plots. 
 
-```{r fig.height = 7*13/20}
+```{r facet, fig.height = 7*13/20}
 dg = mtcars %>%
   select(wt, 
          mpg, 
@@ -1433,7 +1404,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 Let's make up some data. Let's also define a new "`reverse_trans`" function called `reverse2_trans`.
 
-```{r  fig.height = 7, fig.width = 5}
+```{r timeline, fig.height = 7, fig.width = 5}
 current.year = as.numeric(format(Sys.Date(), "%Y"))
 
 dg = data.frame(date = 
@@ -1544,7 +1515,7 @@ can be used by adding
 `+ scale_color_manual(values = cb.pal)` or 
 `+ scale_fill_manual( values = cb.pal)` to a plot. For example,
 
-```{r fig.height = 8, fig.width = 7}
+```{r colors, fig.height = 8, fig.width = 7}
 dg = mtcars %>%
   mutate(gear = paste0(gear, ' gear'), 
          cyl  = paste0(cyl , ' cyl'  ), 
@@ -1576,7 +1547,7 @@ g %>%
 
 ## Maps
 
-```{r fig.width = 7, fig.height = 5}
+```{r maps, fig.width = 7, fig.height = 5}
 
 dg = data.frame(city = c('New York', 'Los Angeles'), 
                 lat  = c( 40.7128,   34.0522),
@@ -1602,7 +1573,7 @@ g %>%
 
 The function `geom_hex` can be used for making a heat map with hexagonal bins. Those can be colored by count. 
 
-```{r fig.width = 7, fig.height = 8}
+```{r hexbins, fig.width = 7, fig.height = 8}
 dg = economics
 
 title = 'Title in Upper Lower'
@@ -1649,7 +1620,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 If you want to size the hexagons by count, and color by another variable, the only way I know is to use `geom_star` with `starshape = 'hexagon'`. The following code creates some data with `cell` ID, cell location `x` and `y`, the `count` to be used for size, and a column `mean.pop` to be used for fill. This is a reasonable solution but it is not ideal and is still under development. 
 
-```{r fig.width = 7, fig.height = 8}
+```{r hexbins2, fig.width = 7, fig.height = 8}
 library(hexbin)
 library(ggstar)
 
@@ -1773,7 +1744,7 @@ df
 One way to add images is to use `geom_image` from `ggimage`. This results in a stretched looking image, but we'll leave it here anyway. 
 
 
-```{r}
+```{r images}
 library(ggimage)
 title = "Title in Upper Lower" 
 g = ggplot(df, 
@@ -1824,7 +1795,7 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 Now we'll use `geom_richtext` instead of `geom_text` to add labels to points. These images have a better aspect ratio. 
 
-```{r}
+```{r images2}
 title = "Title in Upper Lower" 
 g = ggplot(df, 
            aes(x     = GDP.per.cap, 
@@ -1881,7 +1852,7 @@ The images are smaller and less fuzzy when saved using `ggsave`:
 For this we can use `label` as the y-axis label and use `theme(axis.text.y = element_markdown())` to render the HTML code. 
 
 
-```{r}
+```{r images_axes}
 title = "Title in Upper Lower" 
 g = ggplot(df, 
            aes(x     = GDP.per.cap, 
@@ -1933,7 +1904,7 @@ You can use `layout_pub` to get similar formatting for `plotly` figures that use
 
 Here is an example using `plot_ly`:
 
-```{r fig.height = 20/3, fig.width = 20/3}
+```{r plotly, fig.height = 20/3, fig.width = 20/3}
 library(htmlwidgets)
 dg = mtcars %>% 
   select(wt, 
@@ -1999,7 +1970,7 @@ Note that the subtitle and the caption at the bottom of the plot are currently n
 ## ggplotly 
 Here is an example using `ggplotly`.
 
-```{r fig.height = 20/3, fig.width = 20/3}
+```{r ggplotly, fig.height = 20/3, fig.width = 20/3}
 dg = mtcars %>% 
   select(wt, 
          mpg, 
