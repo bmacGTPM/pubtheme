@@ -1959,15 +1959,19 @@ htmlwidgets::saveWidget(widget = p,
                         selfcontained = F)
 ```
 
-Click [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html) or click on the image below to view the interactive version of the plot. 
-
 ```{r}
-knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
+#### This broke ####
+
+# Click [here](https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html) or click on the image below to view the interactive version of the plot. 
+# knitr::include_url("https://bmacgtpm.github.io/pubtheme/img/Title%20in%20Upper%20Lower.html")
+
+# Note that the subtitle and the caption at the bottom of the plot are currently not functioning properly. 
 ```
 
-Note that the subtitle and the caption at the bottom of the plot are currently not functioning properly. 
+
 
 ## ggplotly 
+
 Here is an example using `ggplotly`.
 
 ```{r ggplotly, fig.height = 20/3, fig.width = 20/3}
@@ -2008,7 +2012,7 @@ p = g %>%
             caption   = F, 
             legend.rows = 1) %>%
   style(marker.sizeref = 1.5)
-p
+#p
 
 htmlwidgets::saveWidget(widget = p,
                         file   = paste0("img/", gsub("%", " Perc", title), ".html"),
@@ -2022,7 +2026,7 @@ Note that the subtitle does not currently display. And the points in the legend 
 
 As with non-interactive plots above, you can use `pub` to save a lot of typing if you are ok with accepting more default settings. If you use `pub` with `int = TRUE` (`int` for interactive), the `ggplot` object will be converted to a `plotly` object using the `ggplotly` and `layoutpub` code above. You'll just need to specify the arguments `subtitle`, `caption` and `legend.rows` required by `layoutpub`. This is in development and works for this example but may not work for other plots. 
 
-```{r}
+```{r eval=F}
 g %>% 
   pub(xlim = c(0, 6),
       ylim = c(0, 40), 
@@ -2071,6 +2075,7 @@ labs(title    = title,
      y    = 'Vertical Axis Label in Upper Lower', 
      #size = "MPG"
      )
+
 
 # g %>% 
 #   pub(xlim        = c(0, 6),
