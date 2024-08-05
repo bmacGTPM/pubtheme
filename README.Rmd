@@ -2072,15 +2072,15 @@ labs(title    = title,
      #size = "MPG"
      )
 
-g %>% 
-  pub(xlim        = c(0, 6),
-      ylim        = c(0, 40), 
-      int         = T,
-      tooltip     = 'text',
-      subtitle    = T, 
-      caption     = F, 
-      legend.rows = 1) %>%
-  layout(legend = list(itemsizing = 'constant'))
+# g %>% 
+#   pub(xlim        = c(0, 6),
+#       ylim        = c(0, 40), 
+#       int         = T,
+#       tooltip     = 'text',
+#       subtitle    = T, 
+#       caption     = F, 
+#       legend.rows = 1) %>%
+#   layout(legend = list(itemsizing = 'constant'))
 ```
 
 
