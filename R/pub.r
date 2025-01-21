@@ -351,22 +351,24 @@ pub = function (g,
     }
   
   max.width = if(type %in% c('cal')) 0 else max.width
+  max.width %>% print()
+  
   y.title = g$labels$y
   title.width = 0
-  if(!is.null(y.title)){title.width = 30 + 50} ## 50 is fudging it
-  #title.width %>% print()
+  if(!is.null(y.title) | type == 'map'){title.width = 30 + 50} ## 50 is fudging it
+  title.width %>% print()
   
   tick.width = case_when(type %in% c('bar', 'grid') ~ 20, 
                          type %in% c('cal') ~ 0, 
                          TRUE ~ 20) ## changed from -3
-  #print(tick.width)
+  print(tick.width)
   #browser()
  
    legend.shift = 
     tick.width + ## axis.ticks
     max.width  + ## axis text
     title.width  ## axis title
- #print(legend.shift)
+ print(legend.shift)
   ## Add the theme
 
   g = g + 

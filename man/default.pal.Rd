@@ -5,7 +5,7 @@
 \alias{default.pal}
 \title{A color used in `pubtheme`}
 \format{
-An object of class \code{character} of length 7.
+An object of class \code{character} of length 8.
 }
 \usage{
 default.pal

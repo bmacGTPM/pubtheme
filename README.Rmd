@@ -1898,6 +1898,8 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 ```
 
+# Under development
+
 ## plotly 
 
 You can use `layout_pub` to get similar formatting for `plotly` figures that use `ggplotly` or `plot_ly`. This is under development. Only using `type = 'scatter'` with `plot_ly` is currently supported. Others may work and will be added "soon", according to some definition of "soon". 

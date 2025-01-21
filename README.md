@@ -2033,6 +2033,8 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 
 <img src="man/figures/README-images_axes-1.png" style="display: block; margin: auto;" />
 
+# Under development
+
 ## plotly
 
 You can use `layout_pub` to get similar formatting for `plotly` figures
