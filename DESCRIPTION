@@ -1,7 +1,7 @@
 Package: pubtheme
 Type: Package
 Title: A ggplot theme and plotly theme
-Version: 0.3.1
+Version: 0.3.2
 Author: Brian Macdonald
 Maintainer: Brian Macdonald <tbd@tbd.com>
 Description: A ggplot and plotly theme for creating publication quality visualizations for web and mobile.
