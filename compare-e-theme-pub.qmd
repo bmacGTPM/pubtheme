@@ -1,16 +1,28 @@
 ---
 title: "theme_pub vs e_theme_pub"
-subtitle: "ggplot on the left, echarts4r on the right. base_size = 10."
+subtitle: "ggplot on the left, echarts4r on the right. base_size = 10. Both panels are 480×480 px."
 format:
   html:
     embed-resources: true
     toc: true
     code-fold: true
     code-summary: "Show code"
-    fig-width: 6
-    fig-height: 6
-    fig-dpi: 120
+    fig-width: 5
+    fig-height: 5
+    fig-dpi: 96
 ---
+
+```{=html}
+<style>
+.compare-plot img,
+.compare-plot .html-widget,
+.compare-plot .echarts4r {
+  width: 480px !important;
+  height: 480px !important;
+  max-width: 480px !important;
+}
+</style>
+```
 
 ```{r}
 #| label: setup
@@ -22,6 +34,7 @@ library(echarts4r)
 library(scales)
 
 base_size = 10
+plot.px = 480
 
 dg.sc = mtcars |>
   select(wt, mpg, cyl) |>
@@ -31,7 +44,7 @@ dg.sc = mtcars |>
 dg.ln = economics
 ```
 
-Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 10`. Code is hidden; expand a chunk if you want the source.
+Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 10`. Both figures are drawn as 480×480 squares. Code is hidden; expand a chunk if you want the source.
 
 ## Scatter
 
@@ -40,10 +53,14 @@ Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size =
 
 **ggplot + `pub()`**
 
+::: {.compare-plot}
+
 ```{r}
 #| label: fig-gg-scatter
-#| fig-width: 6
-#| fig-height: 6
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "480px"
+#| out-height: "480px"
 g.sc = ggplot(dg.sc, aes(x = wt, y = MPG, color = Cylinders)) +
   geom_point() +
   labs(
@@ -64,15 +81,19 @@ g.sc
 ```
 
 :::
+
+:::
 ::: {.column width="50%"}
 
 **echarts4r + `e_theme_pub()`**
+
+::: {.compare-plot}
 
 ```{r}
 #| label: fig-ec-scatter
 dg.sc |>
   group_by(Cylinders) |>
-  e_charts(wt, height = "540px") |>
+  e_charts(wt, width = plot.px, height = plot.px) |>
   e_scatter(MPG) |>
   e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
   e_x_axis(name = "Horizontal Axis Label in Upper Lower") |>
@@ -87,6 +108,8 @@ dg.sc |>
 ```
 
 :::
+
+:::
 ::::
 
 ## Line
@@ -96,10 +119,14 @@ dg.sc |>
 
 **ggplot + `pub()`**
 
+::: {.compare-plot}
+
 ```{r}
 #| label: fig-gg-line
-#| fig-width: 6
-#| fig-height: 6
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "480px"
+#| out-height: "480px"
 g.ln = ggplot(dg.ln, aes(x = date, y = unemploy)) +
   geom_line(color = pubblue, linewidth = 3 * base_size / 36) +
   labs(
@@ -114,14 +141,18 @@ g.ln
 ```
 
 :::
+
+:::
 ::: {.column width="50%"}
 
 **echarts4r + `e_theme_pub()`**
 
+::: {.compare-plot}
+
 ```{r}
 #| label: fig-ec-line
 dg.ln |>
-  e_charts(date, height = "540px") |>
+  e_charts(date, width = plot.px, height = plot.px) |>
   e_line(unemploy, legend = FALSE) |>
   e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
   e_x_axis(name = "Date") |>
@@ -132,6 +163,8 @@ dg.ln |>
     caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme"
   )
 ```
+
+:::
 
 :::
 ::::
