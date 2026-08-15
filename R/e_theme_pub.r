@@ -176,7 +176,8 @@ e_theme_pub = function(e,
   )
   e = .pub.style.tooltip(e, type = type, family = family, base_size = base_size)
   e = .pub.style.visualmap(e, family = family, base_size = base_size)
-  e = .pub.style.series(e, base_size = base_size)
+  e = .pub.style.series(e, type = type, base_size = base_size)
+  e = .pub.fill.background(e)
 
   e
 }
@@ -219,8 +220,7 @@ pub.echarts.theme = function(base_size = 12,
   family = .pub.font.family(base_family)
   scale = base_size / 36
   fs.body = .pub.fs(base_size)
-  line.width = max(1, 3 * base_size / 36)
-  point.size = 7 * base_size / 12
+  line.width = .pub.axis.line.px(base_size)
   tick.len = .pub.sp(20, base_size)
   label.margin = .pub.sp(20, base_size)
   name.gap = .pub.axis.name.gap(base_size)
@@ -250,7 +250,7 @@ pub.echarts.theme = function(base_size = 12,
     ),
     splitLine = list(
       show = TRUE,
-      lineStyle = list(color = publightgray, width = max(1, 3 * base_size / 36))
+      lineStyle = list(color = publightgray, width = .pub.axis.line.px(base_size))
     ),
     splitArea = list(show = FALSE)
   )
@@ -315,9 +315,8 @@ pub.echarts.theme = function(base_size = 12,
     logAxis = value.axis,
     timeAxis = value.axis,
     line = list(
-      symbol = "circle",
-      symbolSize = max(4, point.size / 2),
-      lineStyle = list(width = 3 * base_size / 36),
+      symbol = "none",
+      lineStyle = list(width = .pub.geom.px(3, base_size)),
       smooth = FALSE
     ),
     bar = list(
@@ -325,11 +324,11 @@ pub.echarts.theme = function(base_size = 12,
     ),
     scatter = list(
       symbol = "circle",
-      symbolSize = point.size
+      symbolSize = .pub.geom.px(7, base_size)
     ),
     effectScatter = list(
       symbol = "circle",
-      symbolSize = point.size
+      symbolSize = .pub.geom.px(7, base_size)
     ),
     heatmap = list(
       itemStyle = list(borderColor = pubdarkgray, borderWidth = 0.4)
@@ -390,6 +389,32 @@ pub.echarts.theme = function(base_size = 12,
 .pub.axis.name.gap = function(base_size) {
   .pub.sp(20, base_size) + .pub.sp(20, base_size) +
     .pub.fs(base_size) + .pub.sp(30, base_size)
+}
+
+# theme_pub geom sizes are in mm (mult * base_size/36). Convert to CSS px
+# on the same 6in / 720px figure used by .pub.sp().
+.pub.mm.to.px = function(mm) mm / 25.4 / 6 * 720
+
+.pub.geom.px = function(mult, base_size) {
+  .pub.mm.to.px(mult * base_size / 36)
+}
+
+.pub.axis.line.px = function(base_size) {
+  # theme_pub base_line_size = base_size * 0.35 / 36 * 3 mm
+  max(1, .pub.mm.to.px(base_size * 0.35 / 36 * 3))
+}
+
+.pub.fill.background = function(e) {
+  css = paste0(
+    "html,body{margin:0;padding:0;background-color:", pubbackgray, " !important;}",
+    ".html-widget,.echarts4r,.html-widget-static-bound{",
+    "background-color:", pubbackgray, " !important;}"
+  )
+  if (requireNamespace("htmlwidgets", quietly = TRUE) &&
+      requireNamespace("htmltools", quietly = TRUE)) {
+    e = htmlwidgets::prependContent(e, htmltools::tags$style(css))
+  }
+  e
 }
 
 .pub.has.title = function(e) {
@@ -500,7 +525,7 @@ pub.echarts.theme = function(base_size = 12,
 
 .pub.axis.style = function(which, type, facet, family, base_size, scale) {
   fs.body = .pub.fs(base_size)
-  line.width = max(1, 3 * base_size / 36)
+  line.width = .pub.axis.line.px(base_size)
   tick.len = .pub.sp(20, base_size)
   label.margin = .pub.sp(20, base_size)
   name.gap = .pub.axis.name.gap(base_size)
@@ -603,7 +628,7 @@ pub.echarts.theme = function(base_size = 12,
     ),
     splitLine = list(
       show = show.split,
-      lineStyle = list(color = publightgray, width = max(1, 3 * base_size / 36))
+      lineStyle = list(color = publightgray, width = .pub.axis.line.px(base_size))
     ),
     splitArea = list(show = FALSE)
   )
@@ -626,6 +651,25 @@ pub.echarts.theme = function(base_size = 12,
     for (nm in names(style)) ax[[nm]] = style[[nm]]
     ax
   })
+}
+
+.pub.series.y = function(e) {
+  series = e$x$opts$series
+  if (is.null(series)) return(numeric())
+  vals = lapply(series, function(s) {
+    d = s$data
+    if (is.null(d)) return(numeric())
+    unlist(lapply(d, function(pt) {
+      if (is.list(pt) && !is.null(pt$value)) {
+        v = pt$value
+        if (length(v) >= 2) return(suppressWarnings(as.numeric(v[length(v)])))
+        return(suppressWarnings(as.numeric(v)))
+      }
+      suppressWarnings(as.numeric(pt))
+    }))
+  })
+  nums = unlist(vals)
+  nums[is.finite(nums)]
 }
 
 .pub.comma.formatter = function() {
@@ -673,9 +717,9 @@ pub.echarts.theme = function(base_size = 12,
   }
 
   drop.cat.formatter = function(ax) {
-    if (!is.null(ax$type) && ax$type == "category" && !is.null(ax$axisLabel)) {
-      ax$axisLabel$formatter = NULL
-    }
+    if (is.null(ax$type) || is.null(ax$axisLabel)) return(ax)
+    if (ax$type == "category") ax$axisLabel$formatter = NULL
+    if (ax$type == "time") ax$axisLabel$formatter = "{yyyy}"
     ax
   }
 
@@ -694,6 +738,21 @@ pub.echarts.theme = function(base_size = 12,
       function(ax) .pub.apply.lims(ax, ylim, ybreaks)
     )
     e$x$opts$yAxis = .pub.walk.axes(e$x$opts$yAxis, drop.cat.formatter)
+  }
+  # ggplot line axes use expand=0 and scales::extended_breaks, not 0.
+  if (type %in% c("line") && is.null(ylim) && !is.null(e$x$opts$yAxis)) {
+    nums = .pub.series.y(e)
+    if (length(nums) >= 2) {
+      br = scales::extended_breaks(5)(range(nums))
+      e$x$opts$yAxis = .pub.walk.axes(e$x$opts$yAxis, function(ax) {
+        if (is.null(ax$min) && is.null(ax$max) && length(br) >= 2) {
+          ax$min = min(br)
+          ax$max = max(br)
+          ax$interval = diff(br)[1]
+        }
+        ax
+      })
+    }
   }
   e
 }
@@ -773,12 +832,12 @@ pub.echarts.theme = function(base_size = 12,
   e
 }
 
-.pub.style.series = function(e, base_size) {
+.pub.style.series = function(e, type, base_size) {
   series = e$x$opts$series
   if (is.null(series) || length(series) == 0) return(e)
 
-  line.width = 3 * base_size / 36
-  point.size = 7 * base_size / 12
+  line.width = .pub.geom.px(3, base_size)
+  point.size = .pub.geom.px(7, base_size)
 
   style.one = function(s) {
     if (is.null(s) || !is.list(s) || is.null(s$type)) return(s)
@@ -788,11 +847,16 @@ pub.echarts.theme = function(base_size = 12,
       if (is.null(s$lineStyle)) s$lineStyle = list()
       if (is.null(s$lineStyle$width)) s$lineStyle$width = line.width
       if (is.null(s$smooth)) s$smooth = FALSE
+      # theme_pub lines have no point symbols
+      if (is.null(s$symbol) || identical(s$symbol, "emptyCircle")) {
+        s$symbol = "none"
+      }
     }
 
     if (stype %in% c("scatter", "effectScatter")) {
       if (is.null(s$symbol)) s$symbol = "circle"
-      if (is.null(s$symbolSize)) s$symbolSize = point.size
+      # echarts4r sets a tiny default; keep JS sizes from a size aesthetic
+      if (!inherits(s$symbolSize, "JS_EVAL")) s$symbolSize = point.size
     }
 
     if (stype == "bar") {

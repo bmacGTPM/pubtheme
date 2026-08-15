@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^img$
+^compare-e-theme-pub\.qmd$
+^compare-e-theme-pub\.html$
+^tmp_

@@ -1,0 +1,137 @@
+---
+title: "theme_pub vs e_theme_pub"
+subtitle: "ggplot on the left, echarts4r on the right. base_size = 10."
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: true
+    code-summary: "Show code"
+    fig-width: 6
+    fig-height: 6
+    fig-dpi: 120
+---
+
+```{r}
+#| label: setup
+#| include: false
+pkgload::load_all(".", quiet = TRUE)
+library(ggplot2)
+library(dplyr)
+library(echarts4r)
+library(scales)
+
+base_size = 10
+
+dg.sc = mtcars |>
+  select(wt, mpg, cyl) |>
+  mutate(Cylinders = as.factor(cyl)) |>
+  rename(MPG = mpg)
+
+dg.ln = economics
+```
+
+Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 10`. Code is hidden; expand a chunk if you want the source.
+
+## Scatter
+
+:::: {.columns}
+::: {.column width="50%"}
+
+**ggplot + `pub()`**
+
+```{r}
+#| label: fig-gg-scatter
+#| fig-width: 6
+#| fig-height: 6
+g.sc = ggplot(dg.sc, aes(x = wt, y = MPG, color = Cylinders)) +
+  geom_point() +
+  labs(
+    title = "Title in Upper Lower",
+    subtitle = "Optional Subtitle In Upper Lower",
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
+    x = "Horizontal Axis Label in Upper Lower",
+    y = "Vertical Axis Label in Upper Lower"
+  )
+g.sc = pub(
+  g.sc,
+  type = "scatter",
+  base_size = base_size,
+  xlim = c(0, 6),
+  ylim = c(0, 40)
+)
+g.sc
+```
+
+:::
+::: {.column width="50%"}
+
+**echarts4r + `e_theme_pub()`**
+
+```{r}
+#| label: fig-ec-scatter
+dg.sc |>
+  group_by(Cylinders) |>
+  e_charts(wt, height = "540px") |>
+  e_scatter(MPG) |>
+  e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
+  e_x_axis(name = "Horizontal Axis Label in Upper Lower") |>
+  e_y_axis(name = "Vertical Axis Label in Upper Lower") |>
+  e_theme_pub(
+    type = "scatter",
+    base_size = base_size,
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
+    xlim = c(0, 6),
+    ylim = c(0, 40)
+  )
+```
+
+:::
+::::
+
+## Line
+
+:::: {.columns}
+::: {.column width="50%"}
+
+**ggplot + `pub()`**
+
+```{r}
+#| label: fig-gg-line
+#| fig-width: 6
+#| fig-height: 6
+g.ln = ggplot(dg.ln, aes(x = date, y = unemploy)) +
+  geom_line(color = pubblue, linewidth = 3 * base_size / 36) +
+  labs(
+    title = "Title in Upper Lower",
+    subtitle = "Optional Subtitle In Upper Lower",
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
+    x = "Date",
+    y = "Unemployed (thousands)"
+  )
+g.ln = pub(g.ln, type = "line", base_size = base_size)
+g.ln
+```
+
+:::
+::: {.column width="50%"}
+
+**echarts4r + `e_theme_pub()`**
+
+```{r}
+#| label: fig-ec-line
+dg.ln |>
+  e_charts(date, height = "540px") |>
+  e_line(unemploy, legend = FALSE) |>
+  e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
+  e_x_axis(name = "Date") |>
+  e_y_axis(name = "Unemployed (thousands)") |>
+  e_theme_pub(
+    type = "line",
+    base_size = base_size,
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme"
+  )
+```
+
+:::
+::::
