@@ -4,6 +4,7 @@
 # pubtheme
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The package `pubtheme` contains a `ggplot` theme `theme_pub` for
@@ -84,18 +85,13 @@ g = ggplot(dg,
   theme_pub(type = 'scatter') 
 print(g)
 
-## Save to a file using base_size = 36
-gg = g +
-  scale_size(range = c(6, 18)) +
-  theme_pub(type = 'scatter', 
-            base_size = 36)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 
 g.scatter = g ## save for later
 ```
@@ -106,13 +102,11 @@ You must have a subfolder called `img` in order for the `ggsave` chunk
 above to work.
 
 Note that the default is `base_size = 12`, which works well when viewing
-the image in RStudio. Use `ggsave` and `base_size = 36` when saving an
-image instead of exporting from the RStudio viewer. Do not adjust the
-`width = 20` in ggsave.
+the image in Positron and when saving with `ggsave`.
 
-Do not change `width = 20`, `units  = 'in'`, or `dpi    = 72`. Height
+Do not change `width = 6`, `units  = 'in'`, or `dpi    = 300`. Height
 can be adjusted if desired. A square image is often preferred, so when
-in doubt, keep height at 20.
+in doubt, keep height at 6.
 
 Upper Lower means First letter of each word is capitalized. The option
 `expand = FALSE` removes the default padding. The option
@@ -121,9 +115,8 @@ certainly add lines if there is a reason to, but when in doubt you can
 stick with just 3 lines (left/middle/right) only. Similarly, for the
 y-axis, top/middle/bottom only.
 
-You’ll notice a `scale_size(range = c(6, 18)` when preparing the plot to
-be saved. If you are using `size` inside `aes()`, you’ll need that
-change the scale, otherwise the points will be too small.
+If you are using `size` inside `aes()`, you may need to adjust
+`scale_size()` so the points are a reasonable size.
 
 ## `pub` function
 
@@ -147,30 +140,22 @@ g = ggplot(dg,
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')
 
-g %>% 
+g = g %>% 
   pub(xlim = c(0, 6),
       ylim = c(0, 40))
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(xlim = c(0, 6), 
-      ylim = c(0, 40), 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", 
                          gsub("%", " Perc", title), 
                          ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-scatter-1.png" style="display: block; margin: auto;" />
-
-To save to a file, we again need `base_size = 36`. We simply copy and
-paste the `pub` code and add `base_size = 36`.
 
 ## Correlation plot
 
@@ -187,9 +172,6 @@ head(corr,2)
 #>        am carb   cyl  disp  drat gear    hp   mpg  qsec    vs    wt
 #> am   1.00 0.06 -0.52 -0.59  0.71 0.79 -0.24  0.60 -0.23  0.17 -0.69
 #> carb 0.06 1.00  0.53  0.39 -0.09 0.27  0.75 -0.55 -0.66 -0.57  0.43
-```
-
-``` r
 
 dg = corr %>%
   as.data.frame() %>%
@@ -231,22 +213,19 @@ g = ggplot(dg) +
        y    = NULL, ## Optional
        fill = 'Value') 
 
-g %>% 
+g = g %>% 
   pub(type    = 'grid') + 
   theme(axis.text.x.top = element_text(angle = 90, 
                                    hjust = 0, 
                                    vjust = 0.3))
-
-gg = g %>%
-  pub(type      = 'grid', 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 7.2,   ## can change from 6 if desired. We use 7.2 here to make the tiles square
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-corrplot-1.png" style="display: block; margin: auto;" />
@@ -346,20 +325,16 @@ g = ggplot(dg) +
        fill = 'Value') 
   
 
-g %>% 
+g = g %>% 
   pub(type = 'grid') 
-
-
-gg = g %>%
-  pub(type      = 'grid', 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 7.2,   ## can change from 6 if desired. We use 7.2 here to make the tiles square
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-corrplot2-1.png" style="display: block; margin: auto;" />
@@ -395,9 +370,6 @@ dr
 #> disp     4       2  9  3
 #> cyl      6       2 10  2
 #> wt       7       2 11  1
-```
-
-``` r
 
 polys = dr %>%
   group_by(cluster) %>%
@@ -418,9 +390,6 @@ polys
 #> 2 3         4.5   6.5   5.5   7.5       1.5
 #> 3 4         6.5   7.5   4.5   5.5       1.5
 #> 4 2         7.5  11.5   0.5   4.5       1.5
-```
-
-``` r
 
 corr = corr[    rownames(dr), 
             rev(rownames(dr))]
@@ -464,25 +433,19 @@ g = ggcorrplot(corr,
        y    = NULL, ## Optional
        fill = 'Value') #+ 
 
-g %>% 
+g = g %>% 
   pub(type    = 'grid', base_size = 10) #+ 
   # theme(axis.text.x.top = element_text(angle = 90, 
   #                                      hjust = 0, 
   #                                      vjust = 0.7))
-
-gg = g %>%
-  pub(type      = 'grid', 
-      base_size = 36) #+ 
-  # theme(axis.text.x.top = element_text(angle = 90, 
-  #                                      hjust = 0, 
-  #                                      vjust = 0.7))
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 7,   ## can change from 6 if desired. We use 7 here to make the tiles square
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-corrplot3-1.png" style="display: block; margin: auto;" />
@@ -500,32 +463,35 @@ g = ggpairs(dg,
             aes(color = Cylinders, 
                 fill  = Cylinders), 
             columns = c('mpg', 'wt', 'carb'),
-            diag    = list(continuous = pub.density)) +
-  labs(title    = title,
-       subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
-       x     = 'Horizontal Axis Label in Upper Lower',
-       y     = 'Vertical Axis Label in Upper Lower') +
+            diag    = list(continuous = pub.density),
+            title   = title,
+            xlab    = 'Horizontal Axis Label in Upper Lower',
+            ylab    = 'Vertical Axis Label in Upper Lower') +
   theme_pub(type = 'pairs')
 print(g)
 
-## Save to a file using base_size = 36
-gg = g +
-  theme_pub(type      = 'pairs', 
-            base_size = 36)
+
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-pairs-1.png" style="display: block; margin: auto;" />
 
 Note that since the object `g` resulting from using `ggpairs` is not a
 `ggplot` object, `pub` can’t be used with it.
+
+Also note that `title`, `xlab`, and `ylab` are set via `ggpairs`
+arguments rather than `labs()`. As of ggplot2 4.0, `labs()` returns an
+object with class `ggplot2::labels` rather than the bare `labels` class
+that GGally 2.2.1 checks for, so `+ labs(...)` on a `ggmatrix` object
+throws an error. This also means subtitle and caption aren’t currently
+supported for pairs plots, since `ggpairs` has no arguments for them and
+`labs()` can’t be added directly. .
 
 ## Line plot
 
@@ -554,9 +520,6 @@ head(dg)
 #> 4 1967-10-01    92 PCE   0.000471
 #> 5 1967-11-01   123 PCE   0.000916
 #> 6 1967-12-01   153 PCE   0.00157
-```
-
-``` r
 
 title = "Title in Upper Lower" 
 g = ggplot(dg, 
@@ -572,24 +535,18 @@ g = ggplot(dg,
        color = 'Legend Label') +
   guides(color = guide_legend(nrow = 2))
 
-g %>% 
+g = g %>% 
   pub(type = 'line', 
       ylim = c(0, 1)) + 
   theme(legend.text.align = 0)
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type = 'line', 
-      ylim = c(0, 1), 
-      base_size = 36) + 
-  theme(legend.text.align = 0)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change  
+       dpi    = 300)   ## do not change  
 ```
 
 <img src="man/figures/README-line-1.png" style="display: block; margin: auto;" />
@@ -649,20 +606,16 @@ g  = ggplot(dg,
        x = 'Horizontal Axis Label in Upper Lower', ## Required.
        y = 'Count') 
 
-g %>% 
+g = g %>% 
   pub(type = 'hist')
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type = 'hist', 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-hist-1.png" style="display: block; margin: auto;" />
@@ -711,20 +664,16 @@ g = ggplot(dg,
        x        = 'Horizontal Axis Label in Upper Lower', ## Optional. 
        y        = NULL)  ## Optional. Upper Lower.
 
-g %>%
+g = g %>%
   pub(type = 'bar')
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type      = 'bar',
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 15,   ## can change from 20 if desired. We use 15 here b/c there are only 3 bars
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 4.5,   ## can change from 6 if desired. We use 4.5 here b/c there are only 3 bars
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-bar-1.png" style="display: block; margin: auto;" />
@@ -762,9 +711,6 @@ head(dg)
 #> 4 1     Jun      NA     286   8.6    78
 #> 5 1     May      41     190   7.4    67
 #> 6 2     Sep      78     197   5.1    92
-```
-
-``` r
 
 title = "Title in Upper Lower"
 g = ggplot(dg, 
@@ -794,22 +740,17 @@ g = ggplot(dg,
        y    = NULL, ## Optional
        fill = 'Value') 
 
-g %>% 
+g = g %>% 
   pub(type    = 'grid',
       xbreaks = seq(2, 32, by = 2))
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type      = 'grid', 
-      xbreaks   = seq(2, 32, by=2),
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 12,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here to make the tiles square
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-grid-1.png" style="display: block; margin: auto;" />
@@ -922,7 +863,7 @@ g = ggplot(dg,
        fill = 'Value') +
   guides(size = 'none') 
 
-g %>% 
+g = g %>% 
   pub(type = 'cal', 
       xlabels = c('Su', 'M', 'Tu', 'W', 
                   'Th', 'F', 'Sa'),
@@ -931,27 +872,14 @@ g %>%
                       size   = 12*.75,
                       margin = margin(b = 5*1/72*1/3, unit = 'in'),
                       vjust  = 0))
-
-  
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type   = 'cal', 
-      xlabels = c('Su', 'M', 'Tu', 'W', 
-                  'Th', 'F', 'Sa'),
-      ytrans = 'reverse',
-      base_size = 36) +
-  theme(axis.text.x.top = element_text(
-                      size   = 36*.75,
-                      margin = margin(b = 5*1/72*36/36, unit = 'in'),
-                      vjust  = 0))
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-cal-1.png" style="display: block; margin: auto;" />
@@ -1033,20 +961,16 @@ g = ggplot(dg,
          linewidth = 'none', 
          color     = 'none') 
 
-g %>% 
+g = g %>% 
   pub(type = 'slope') 
- 
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type = 'slope',
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-slope-1.png" style="display: block; margin: auto;" />
@@ -1093,22 +1017,17 @@ g = ggplot(dg,
   guides(size      = 'none', 
          linewidth = 'none')
 
-g %>%
+g = g %>%
   pub(type = 'pop', 
       xlim = c(0, 120)) 
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type      = 'pop',
-      xlim      = c(0, 120),
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-pop-1.png" style="display: block; margin: auto;" />
@@ -1139,22 +1058,17 @@ switch the `x` and `y` aesthetics and use `coord_flip`.
 #   # guides(size      = 'none', 
 #   #        linewidth = 'none')
 # 
-# g %>%
+# g = g %>%
 #   pub(type = 'pop', 
 #       xlim = c(0, 120), ) 
-# 
-# ## Save to a file using base_size = 36
-# gg = g %>% 
-#   pub(type      = 'pop',
-#       xlim      = c(0, 120),
-#       base_size = 36)
+# print(g)
 # 
 # ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-#        plot   = gg,
-#        width  = 20,   ## do not change
-#        height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+#        plot   = g,
+#        width  = 6,    ## do not change
+#        height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
 #        units  = 'in', ## do not change
-#        dpi    = 72)   ## do not change
+#        dpi    = 300)   ## do not change
 ```
 
 ## Lollipop for discrete distributions
@@ -1188,26 +1102,19 @@ g = ggplot(dg,
   guides(size = 'none', 
          linewidth = 'none')
   
-g %>% 
+g = g %>% 
   pub(type    = 'pop', 
       xlim    = c(0, 10), 
       ylim    = c(0, .3), 
       xbreaks = 0:10)
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type      = 'pop', 
-      xlim      = c(0, 10), 
-      ylim      = c(0, .3), 
-      xbreaks   = 0:10,
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 15,   ## can change from 20 if desired. We choose 15 here b/c the extra space isn't needed
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 4.5,   ## can change from 6 if desired. We choose 4.5 here b/c the extra space isn't needed
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-pop.discrete-1.png" style="display: block; margin: auto;" />
@@ -1253,22 +1160,17 @@ g = ggplot(dg,
   guides(size      = 'none', 
          linewidth = 'none')
 
-g %>% 
+g = g %>% 
   pub(type = 'pop', 
       xlim = c(0, 120))
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type = 'pop', 
-      xlim = c(0, 120), 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 15,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 4.5,   ## can change from 6 if desired. We use 4.5 here because there are only 5 barbells
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-barbell-1.png" style="display: block; margin: auto;" />
@@ -1336,22 +1238,17 @@ g = ggplot(dg,
   guides(size      = 'none', 
          linewidth = 'none')
  
-g %>% 
+g = g %>% 
   pub(type = 'dot', 
       xlim = c(-5, 5))
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type      = 'dot', 
-      xlim      = c(-5, 5),
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 10,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3,   ## can change from 6 if desired. We use 3 here because there are only 4 coefficients.
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-dot.whiskers-1.png" style="display: block; margin: auto;" />
@@ -1411,22 +1308,17 @@ g = ggplot(dg,
   guides(size      = 'none', 
          linewidth = 'none')
  
-g %>% 
+g = g %>% 
   pub(type = 'dot', 
       xlim = c(-5, 5))
-
-## Save to a file using base_size = 36
-gg = g %>% 
-  pub(type      = 'dot', 
-      xlim      = c(-5, 5),
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 12,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 4 coefficients.
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-errorbars-1.png" style="display: block; margin: auto;" />
@@ -1463,24 +1355,18 @@ g = ggplot(dg,
        x = 'Horizontal Axis Label in Upper Lower',
        y = 'Vertical Axis Label in Upper Lower')
 
-g %>% 
+g = g %>% 
   pub(xlim  = c(0, 6), 
       ylim  = c(0, 40), 
       facet = T)
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(xlim      = c(0, 6), 
-      ylim      = c(0, 40), 
-      facet     = T, 
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 13,   ## can change from 20 if desired. Here we choose 13 so each subplot is square
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.9,   ## can change from 6 if desired. Here we choose 3.9 so each subplot is square
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-facet-1.png" style="display: block; margin: auto;" />
@@ -1522,17 +1408,14 @@ dg = data.frame(date =
                                         'Other')))
 dg
 #>         date                         text      name
-#> 1 2024-01-01   New Year's Day, 2024-01-01     Other
-#> 2 2024-07-04 Independence Day, 2024-07-04     Indep
-#> 3 2024-12-25    Christmas Day, 2024-12-25 Christmas
-#> 4 2024-12-31   New Year's Eve, 2024-12-31     Other
-#> 5 2025-01-01   New Year's Day, 2025-01-01     Other
-#> 6 2025-07-04 Independence Day, 2025-07-04     Indep
-#> 7 2025-12-25    Christmas Day, 2025-12-25 Christmas
-#> 8 2025-12-31   New Year's Eve, 2025-12-31     Other
-```
-
-``` r
+#> 1 2026-01-01   New Year's Day, 2026-01-01     Other
+#> 2 2026-07-04 Independence Day, 2026-07-04     Indep
+#> 3 2026-12-25    Christmas Day, 2026-12-25 Christmas
+#> 4 2026-12-31   New Year's Eve, 2026-12-31     Other
+#> 5 2027-01-01   New Year's Day, 2027-01-01     Other
+#> 6 2027-07-04 Independence Day, 2027-07-04     Indep
+#> 7 2027-12-25    Christmas Day, 2027-12-25 Christmas
+#> 8 2027-12-31   New Year's Eve, 2027-12-31     Other
 
 ## Now make the timeline using ggrepel for the text
 library(ggrepel) ## for  geom_text_repel() or geom_label_repel()
@@ -1576,28 +1459,20 @@ g = ggplot(dg,
        x = '',
        y = '') 
 
-g %>% 
+g = g %>% 
   pub(type    = 'timeline', 
       xlim    = c(0, 5), 
       ybreaks = breaks,
       ylabels = function(x) format(x, '%b %d, %Y'), 
       ytrans  = 'reverse2')
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type      = 'timeline', 
-      xlim      = c(0, 5), 
-      ybreaks   = breaks,
-      ylabels   = function(x) format(x, '%b %d, %Y'), 
-      ytrans    = 'reverse2',
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,  
-       width  = 20,   ## do not change
-       height = 30,   ## can change if you want. Here we made it longer to have more space
+       plot   = g,  
+       width  = 6,    ## do not change
+       height = 9,   ## can change if you want. Here we made it longer to have more space
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-timeline-1.png" style="display: block; margin: auto;" />
@@ -1703,22 +1578,17 @@ g = ggplot(dg,
        y    = 'Median Duration of Unemployment', 
        fill = 'Observations')
 
-g %>% 
+g = g %>% 
   pub(xlim = c(0, 20), 
       ylim = c(0, 30)) 
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(xlim      = c(0, 20), 
-      ylim      = c(0, 30),
-      base_size = 36)
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,   
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired
+       plot   = g,   
+       width  = 6,    ## do not change
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-hexbins-1.png" style="display: block; margin: auto;" />
@@ -1754,9 +1624,6 @@ head(hh)
 #> 4 12.0150 4.000000   14     3 11.83333 4.30
 #> 5 13.5250 4.000000   16     1 13.30000 4.10
 #> 6  4.8425 4.917987   25     1  4.50000 5.20
-```
-
-``` r
 
 df$cell = h@cID
 
@@ -1796,24 +1663,18 @@ g = ggplot(dg,
          fill = guide_legend(nrow = 2, 
                              override.aes = list(size = 5)))
 
-g %>% 
+g = g %>% 
   pub(xlim = c(0, 20), 
       ylim = c(0, 30)) +
   scale_size(range = c(1, 5)) ## adjust the max, and maybe the min, manually 
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(xlim      = c(0, 20), 
-      ylim      = c(0, 30),
-      base_size = 36) + 
-  scale_size(range = c(1, 5)*3) ## same as above, but times 3
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,   
-       width  = 20,   ## do not change
-       height = 20,   ## can change, but hexagons may look distorted
+       plot   = g,   
+       width  = 6,    ## do not change
+       height = 6,    ## can change, but hexagons may look distorted
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-hexbins2-1.png" style="display: block; margin: auto;" />
@@ -1905,22 +1766,17 @@ g = ggplot(df,
   guides(size      = 'none', 
          linewidth = 'none')
 
-g %>%
+g = g %>%
   pub(type = 'pop', 
       xlim = c(0, 100000)) 
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type = 'pop', 
-      xlim = c(0, 100000),
-      base_size = 36) 
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 20,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-images-1.png" style="display: block; margin: auto;" />
@@ -1954,25 +1810,19 @@ g = ggplot(df,
   guides(size      = 'none', 
          linewidth = 'none')
 
-g %>%
+g = g %>%
   pub(type = 'pop', 
       xlim = c(0, 100000),
       base_size = 12) + 
   theme(axis.text.y = element_markdown()) ## render the HTML code
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type = 'pop', 
-      xlim = c(0, 100000),
-      base_size = 36) +
-  theme(axis.text.y = element_markdown()) 
+print(g)
 
 ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 2 categories
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-images2-1.png" style="display: block; margin: auto;" />
@@ -2010,25 +1860,19 @@ g = ggplot(df,
   guides(size      = 'none', 
          linewidth = 'none')
 
-g %>%
+g = g %>%
   pub(type = 'pop', 
       xlim = c(0, 100000),
       base_size = 12) +
   theme(axis.text.y = element_markdown())
-
-## Save to a file using base_size = 36
-gg = g %>%
-  pub(type = 'pop', 
-      xlim = c(0, 100000),
-      base_size = 36) +
-  theme(axis.text.y = element_markdown())
+print(g)
 
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
-       plot   = gg,
-       width  = 20,   ## do not change
-       height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       plot   = g,
+       width  = 6,    ## do not change
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only two categories
        units  = 'in', ## do not change
-       dpi    = 72)   ## do not change
+       dpi    = 300)   ## do not change
 ```
 
 <img src="man/figures/README-images_axes-1.png" style="display: block; margin: auto;" />

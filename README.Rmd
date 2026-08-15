@@ -213,7 +213,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       height = 7.2,   ## can change from 6 if desired. We use 7.2 here to make the tiles square
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -321,7 +321,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 24,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       height = 7.2,   ## can change from 6 if desired. We use 7.2 here to make the tiles square
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -411,7 +411,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 7,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       height = 7,   ## can change from 6 if desired. We use 7 here to make the tiles square
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -431,12 +431,10 @@ g = ggpairs(dg,
             aes(color = Cylinders, 
                 fill  = Cylinders), 
             columns = c('mpg', 'wt', 'carb'),
-            diag    = list(continuous = pub.density)) +
-  labs(title    = title,
-       subtitle = 'Optional Subtitle In Upper Lower',
-       caption  = "Optional caption giving more info, X handle, or shameless promotion of pubtheme",
-       x     = 'Horizontal Axis Label in Upper Lower',
-       y     = 'Vertical Axis Label in Upper Lower') +
+            diag    = list(continuous = pub.density),
+            title   = title,
+            xlab    = 'Horizontal Axis Label in Upper Lower',
+            ylab    = 'Vertical Axis Label in Upper Lower') +
   theme_pub(type = 'pairs')
 print(g)
 
@@ -452,6 +450,8 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"),
 
 
 Note that since the object `g` resulting from using `ggpairs` is not a `ggplot` object, `pub` can't be used with it. 
+
+Also note that `title`, `xlab`, and `ylab` are set via `ggpairs` arguments rather than `labs()`. As of ggplot2 4.0, `labs()` returns an object with class `ggplot2::labels` rather than the bare `labels` class that GGally 2.2.1 checks for, so `+ labs(...)` on a `ggmatrix` object throws an error. This also means subtitle and caption aren't currently supported for pairs plots, since `ggpairs` has no arguments for them and `labs()` can't be added directly. .
 
 ## Line plot
 
@@ -620,7 +620,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 4.5,   ## can change from 20 if desired. We use 15 here b/c there are only 3 bars
+       height = 4.5,   ## can change from 6 if desired. We use 4.5 here b/c there are only 3 bars
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -686,7 +686,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.6,   ## can change from 20 if desired. We use 12 here to make the tiles square
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here to make the tiles square
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 ```
@@ -820,7 +820,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 6,    ## can change from 6 if desired. We use 12 here to make the tiles square
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -912,7 +912,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 6,    ## can change from 6 if desired. We use 15 here because there are only 5 barbells
+       height = 6,    ## can change from 6 if desired
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 ```
@@ -965,7 +965,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.6,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 ```
@@ -1004,7 +1004,7 @@ Same plot using `geom_linerange` instead of `geom_segment`. We have to switch th
 # ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
 #        plot   = g,
 #        width  = 6,    ## do not change
-#        height = 12,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+#        height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
 #        units  = 'in', ## do not change
 #        dpi    = 300)   ## do not change
 ```
@@ -1050,7 +1050,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 4.5,   ## can change from 20 if desired. We choose 15 here b/c the extra space isn't needed
+       height = 4.5,   ## can change from 6 if desired. We choose 4.5 here b/c the extra space isn't needed
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -1104,7 +1104,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 4.5,   ## can change from 20 if desired. We use 15 here because there are only 5 barbells
+       height = 4.5,   ## can change from 6 if desired. We use 4.5 here because there are only 5 barbells
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 ```
@@ -1179,7 +1179,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 3,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       height = 3,   ## can change from 6 if desired. We use 3 here because there are only 4 coefficients.
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -1249,7 +1249,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), 
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.6,   ## can change from 20 if desired. We use 10 here because there are only 4 coefficients.
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 4 coefficients.
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 ```
@@ -1292,7 +1292,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.9,   ## can change from 20 if desired. Here we choose 13 so each subplot is square
+       height = 3.9,   ## can change from 6 if desired. Here we choose 3.9 so each subplot is square
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -1658,7 +1658,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 6,    ## can change from 6 if desired. We use 12 here because there are only 5 lollipops
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 5 lollipops
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -1705,7 +1705,7 @@ print(g)
 ggsave(filename = "img/flag.example.jpg", ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.6,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only 2 categories
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 
@@ -1754,7 +1754,7 @@ print(g)
 ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must have a subfolder called 'img'
        plot   = g,
        width  = 6,    ## do not change
-       height = 3.6,   ## can change from 20 if desired. We use 12 here because there are only 5 lollipops
+       height = 3.6,   ## can change from 6 if desired. We use 3.6 here because there are only two categories
        units  = 'in', ## do not change
        dpi    = 300)   ## do not change
 

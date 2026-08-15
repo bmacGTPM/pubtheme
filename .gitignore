@@ -43,3 +43,4 @@ vignettes/*.pdf
 tmp/
 img/Title in Upper Lower.jpg
 img/lib/
+/.quarto/
