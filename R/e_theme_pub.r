@@ -117,20 +117,24 @@ e_theme_pub = function(e,
   grid.left = pad.l + fs.body + name.gap
   grid.right = pad.r
 
+  # ECharts text boxes are taller than fontSize; 1.25 matches the
+  # observed title/subtitle/legend occupancy versus ggplot.
+  box = 1.25
   header = pad.t
   title.top = pad.t
   if (has.title) {
-    header = header + fs.title
+    header = header + fs.title * box
     header = header + if (has.subtitle) gap.title.sub else gap.after.sub
   }
   if (has.subtitle) {
-    header = header + fs.sub + gap.after.sub
+    header = header + fs.sub * box + gap.after.sub
   }
   legend.top = header
   if (legend.show) {
-    # theme_pub key height is 30px; text is base_size. Then 50px to the panel.
-    legend.h = max(fs.body, .pub.sp(30, base_size))
-    header = header + legend.h + gap.after.legend
+    # theme_pub key + text, then 50px box margin, then ggplot's 5.5pt
+    # spacer between the guide box and the panel.
+    legend.h = max(fs.body, .pub.sp(30, base_size)) * box
+    header = header + legend.h + gap.after.legend + 5.5 * .pub.dpi / 72
   }
   grid.top = header
   grid.bottom = pad.b + name.gap + fs.body
@@ -464,15 +468,18 @@ pub.echarts.theme = function(base_size = 12,
         titles[[i]]$top = title.top
       }
       titles[[i]]$itemGap = .pub.sp(30, base_size)
+      titles[[i]]$padding = 0
       titles[[i]]$textStyle = list(
         fontFamily = family,
         fontSize = .pub.fs(50 * scale),
+        lineHeight = .pub.fs(50 * scale),
         color = pubdarkgray,
         fontWeight = "bold"
       )
       titles[[i]]$subtextStyle = list(
         fontFamily = family,
         fontSize = .pub.fs(42 * scale),
+        lineHeight = .pub.fs(42 * scale),
         color = pubmediumgray,
         fontWeight = "normal"
       )
@@ -486,9 +493,11 @@ pub.echarts.theme = function(base_size = 12,
         text = as.character(caption)[1],
         left = left,
         bottom = bottom,
+        padding = 0,
         textStyle = list(
           fontFamily = family,
           fontSize = .pub.fs(33 * scale),
+          lineHeight = .pub.fs(33 * scale),
           color = pubmediumgray,
           fontWeight = "normal"
         )
@@ -783,17 +792,17 @@ pub.echarts.theme = function(base_size = 12,
 
   legend$orient = "horizontal"
   legend$left = left
-  if (is.null(legend$top) || identical(legend$top, "auto")) {
-    legend$top = top
-  }
+  legend$top = top
+  legend$padding = 0
   fs.body = .pub.fs(base_size)
   legend$itemWidth = .pub.sp(36, base_size)
-  legend$itemHeight = .pub.sp(30, base_size)
+  legend$itemHeight = fs.body
   legend$itemGap = .pub.sp(20, base_size)
   legend$icon = icon
   legend$textStyle = list(
     color = pubtextgray,
     fontSize = fs.body,
+    lineHeight = fs.body,
     fontFamily = family
   )
   e$x$opts$legend = legend
