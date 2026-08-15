@@ -43,7 +43,9 @@ dg.sc = mtcars |>
   mutate(Cylinders = as.factor(cyl)) |>
   rename(MPG = mpg)
 
-dg.ln = economics
+dg.ln = economics_long |>
+  filter(variable %in% c("unemploy", "uempmed", "psavert")) |>
+  mutate(name = toupper(variable))
 ```
 
 Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 8`. Both figures are 360×360 squares so they sit side by side without a horizontal scroll. Code is hidden; expand a chunk if you want the source.
@@ -129,14 +131,14 @@ dg.sc |>
 #| fig-height: 4
 #| out-width: "360px"
 #| out-height: "360px"
-g.ln = ggplot(dg.ln, aes(x = date, y = unemploy)) +
-  geom_line(color = pubblue, linewidth = 3 * base_size / 36) +
+g.ln = ggplot(dg.ln, aes(x = date, y = value01, color = name)) +
+  geom_line(linewidth = 3 * base_size / 36) +
   labs(
     title = "Title in Upper Lower",
     subtitle = "Optional Subtitle In Upper Lower",
     caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
     x = "Date",
-    y = "Unemployed (thousands)"
+    y = "Index (0-1)"
   )
 g.ln = pub(g.ln, type = "line", base_size = base_size)
 g.ln
@@ -154,11 +156,12 @@ g.ln
 ```{r}
 #| label: fig-ec-line
 dg.ln |>
+  group_by(name) |>
   e_charts(date, width = plot.px, height = plot.px) |>
-  e_line(unemploy, legend = FALSE) |>
+  e_line(value01) |>
   e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
   e_x_axis(name = "Date") |>
-  e_y_axis(name = "Unemployed (thousands)") |>
+  e_y_axis(name = "Index (0-1)") |>
   e_theme_pub(
     type = "line",
     base_size = base_size,
