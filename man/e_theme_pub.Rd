@@ -25,8 +25,9 @@ e_theme_pub(
 `theme_pub`: `'line'`, `'bar'`, `'hist'`, `'grid'`, `'scatter'`,
 `'pop'`, `'dot'`, `'map'`, `'slope'`, `'timeline'`, `'cal'`, `'pairs'`.}
 
-\item{base_size}{Base font size, in px. For viewing, 12 (the default)
-matches `theme_pub`. Use 36 for large exported images.}
+\item{base_size}{Base font size, matching `theme_pub` (pts). Converted
+to CSS pixels for ECharts (`1pt = 4/3px`). For viewing, 12 (the
+default) matches `theme_pub`. Use 36 for large exported images.}
 
 \item{base_family}{Base font family. The default is `'sans'`, mapped to
 CSS `'sans-serif'` so it is available cross-platform. `'serif'` and

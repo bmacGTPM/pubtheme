@@ -8,8 +8,9 @@
 #' @param type Text indicating the type of plot. Supported types match
 #'   `theme_pub`: `'line'`, `'bar'`, `'hist'`, `'grid'`, `'scatter'`,
 #'   `'pop'`, `'dot'`, `'map'`, `'slope'`, `'timeline'`, `'cal'`, `'pairs'`.
-#' @param base_size Base font size, in px. For viewing, 12 (the default)
-#'   matches `theme_pub`. Use 36 for large exported images.
+#' @param base_size Base font size, matching `theme_pub` (pts). Converted
+#'   to CSS pixels for ECharts (`1pt = 4/3px`). For viewing, 12 (the
+#'   default) matches `theme_pub`. Use 36 for large exported images.
 #' @param base_family Base font family. The default is `'sans'`, mapped to
 #'   CSS `'sans-serif'` so it is available cross-platform. `'serif'` and
 #'   `'mono'` are mapped the same way; any other string is passed through
@@ -73,6 +74,10 @@ e_theme_pub = function(e,
   pal = .pub.pal(colors)
   family = .pub.font.family(base_family)
   scale = base_size / 36
+  fs.body = .pub.fs(base_size)
+  fs.title = .pub.fs(50 / 36 * base_size)
+  fs.sub = .pub.fs(42 / 36 * base_size)
+  fs.cap = .pub.fs(33 / 36 * base_size)
 
   theme.json = pub.echarts.theme(
     base_size = base_size,
@@ -86,7 +91,7 @@ e_theme_pub = function(e,
   e = echarts4r::e_text_style(
     e,
     fontFamily = family,
-    fontSize = base_size,
+    fontSize = fs.body,
     color = pubtextgray
   )
 
@@ -103,16 +108,16 @@ e_theme_pub = function(e,
   pad.b = 50 * view
   pad.l = 50 * view
 
-  title.h = if (has.title) 50 * scale * 48 / 36 + 20 * scale else 0
-  subtitle.h = if (has.subtitle) 42 * scale * 48 / 36 + 10 * scale else 0
-  legend.item.h = if (legend.show) 36 * scale else 0
-  caption.h = if (has.caption) 33 * scale * 48 / 36 + 20 * scale else 0
+  title.h = if (has.title) fs.title + 20 * scale else 0
+  subtitle.h = if (has.subtitle) fs.sub + 10 * scale else 0
+  legend.item.h = if (legend.show) fs.body else 0
+  caption.h = if (has.caption) fs.cap + 20 * scale else 0
 
   # Title, subtitle, legend, and caption share the y-axis title's left edge
   # (theme_pub plot.title.position = 'plot' plus the left plot margin).
-  name.w = base_size
-  name.gap.y = 56 * base_size / 12
-  name.gap.x = 40 * base_size / 12
+  name.w = fs.body
+  name.gap.y = 56 * fs.body / 12
+  name.gap.x = 40 * fs.body / 12
   grid.left = pad.l + name.w + name.gap.y
   grid.right = pad.r
   ink.left = pad.l + name.w
@@ -213,11 +218,12 @@ pub.echarts.theme = function(base_size = 12,
   pal = .pub.pal(colors)
   family = .pub.font.family(base_family)
   scale = base_size / 36
+  fs.body = .pub.fs(base_size)
   line.width = max(1, 2 * base_size / 12)
   point.size = 8 * base_size / 12
   tick.len = 6 * base_size / 12
-  label.margin = 8 * base_size / 12
-  name.gap = 48 * base_size / 12
+  label.margin = 8 * fs.body / 12
+  name.gap = 48 * fs.body / 12
 
   axis = list(
     axisLine = list(
@@ -231,7 +237,7 @@ pub.echarts.theme = function(base_size = 12,
     ),
     axisLabel = list(
       color = pubtextgray,
-      fontSize = base_size,
+      fontSize = fs.body,
       fontFamily = family,
       margin = label.margin
     ),
@@ -239,7 +245,7 @@ pub.echarts.theme = function(base_size = 12,
     nameGap = name.gap,
     nameTextStyle = list(
       color = pubtextgray,
-      fontSize = base_size,
+      fontSize = fs.body,
       fontFamily = family
     ),
     splitLine = list(
@@ -258,21 +264,21 @@ pub.echarts.theme = function(base_size = 12,
     backgroundColor = pubbackgray,
     textStyle = list(
       fontFamily = family,
-      fontSize = base_size,
+      fontSize = fs.body,
       color = pubtextgray
     ),
     title = list(
       left = 50 * scale,
-      itemGap = 8 * base_size / 12,
+      itemGap = 8 * fs.body / 12,
       textStyle = list(
         fontFamily = family,
-        fontSize = 50 * scale,
+        fontSize = .pub.fs(50 * scale),
         color = pubdarkgray,
         fontWeight = "bold"
       ),
       subtextStyle = list(
         fontFamily = family,
-        fontSize = 42 * scale,
+        fontSize = .pub.fs(42 * scale),
         color = pubmediumgray,
         fontWeight = "normal"
       )
@@ -280,12 +286,12 @@ pub.echarts.theme = function(base_size = 12,
     legend = list(
       orient = "horizontal",
       left = 50 * scale,
-      itemWidth = 14 * base_size / 12,
-      itemHeight = 10 * base_size / 12,
-      itemGap = 16 * base_size / 12,
+      itemWidth = 14 * fs.body / 12,
+      itemHeight = 10 * fs.body / 12,
+      itemGap = 16 * fs.body / 12,
       textStyle = list(
         color = pubtextgray,
-        fontSize = base_size,
+        fontSize = fs.body,
         fontFamily = family
       )
     ),
@@ -295,7 +301,7 @@ pub.echarts.theme = function(base_size = 12,
       borderWidth = 1,
       textStyle = list(
         color = pubtextgray,
-        fontSize = base_size,
+        fontSize = fs.body,
         fontFamily = family
       )
     ),
@@ -335,7 +341,7 @@ pub.echarts.theme = function(base_size = 12,
       color = c(pubblue, publightgray),
       textStyle = list(
         color = pubtextgray,
-        fontSize = base_size,
+        fontSize = fs.body,
         fontFamily = family
       )
     ),
@@ -368,6 +374,9 @@ pub.echarts.theme = function(base_size = 12,
     base_family
   )
 }
+
+# theme_pub sizes are in pts. ECharts fontSize is CSS pixels (96 dpi).
+.pub.fs = function(size) size * 4 / 3
 
 .pub.has.title = function(e) {
   titles = e$x$opts$title
@@ -405,16 +414,16 @@ pub.echarts.theme = function(base_size = 12,
       if (is.null(titles[[i]]$top) && is.null(titles[[i]]$bottom)) {
         titles[[i]]$top = title.top
       }
-      titles[[i]]$itemGap = 8 * base_size / 12
+      titles[[i]]$itemGap = 8 * .pub.fs(base_size) / 12
       titles[[i]]$textStyle = list(
         fontFamily = family,
-        fontSize = 50 * scale,
+        fontSize = .pub.fs(50 * scale),
         color = pubdarkgray,
         fontWeight = "bold"
       )
       titles[[i]]$subtextStyle = list(
         fontFamily = family,
-        fontSize = 42 * scale,
+        fontSize = .pub.fs(42 * scale),
         color = pubmediumgray,
         fontWeight = "normal"
       )
@@ -430,7 +439,7 @@ pub.echarts.theme = function(base_size = 12,
         bottom = bottom,
         textStyle = list(
           fontFamily = family,
-          fontSize = 33 * scale,
+          fontSize = .pub.fs(33 * scale),
           color = pubmediumgray,
           fontWeight = "normal"
         )
@@ -476,18 +485,19 @@ pub.echarts.theme = function(base_size = 12,
 }
 
 .pub.axis.style = function(which, type, facet, family, base_size, scale) {
+  fs.body = .pub.fs(base_size)
   line.width = max(1, 2 * base_size / 12)
   tick.len = 6 * base_size / 12
-  label.margin = 8 * base_size / 12
+  label.margin = 8 * fs.body / 12
   # nameGap is from the axis line, so it must clear tick labels too
-  name.gap = if (which == "y") 56 * base_size / 12 else 40 * base_size / 12
+  name.gap = if (which == "y") 56 * fs.body / 12 else 40 * fs.body / 12
 
   show.line = TRUE
   show.tick = TRUE
   show.split = (which == "y")
   show.label = TRUE
   show.name = TRUE
-  label.size = base_size
+  label.size = fs.body
 
   if (type == "scatter") {
     show.split = TRUE
@@ -523,7 +533,7 @@ pub.echarts.theme = function(base_size = 12,
       show.label = FALSE
       show.name = FALSE
     }
-    if (which == "x") label.size = base_size * 0.75
+    if (which == "x") label.size = .pub.fs(base_size * 0.75)
   }
   if (type == "timeline") {
     show.line = FALSE
@@ -575,7 +585,7 @@ pub.echarts.theme = function(base_size = 12,
     nameGap = name.gap,
     nameTextStyle = list(
       color = if (show.name) pubtextgray else "transparent",
-      fontSize = base_size,
+      fontSize = fs.body,
       fontFamily = family
     ),
     splitLine = list(
@@ -694,13 +704,14 @@ pub.echarts.theme = function(base_size = 12,
   if (is.null(legend$top) || identical(legend$top, "auto")) {
     legend$top = top
   }
-  legend$itemWidth = 14 * base_size / 12
-  legend$itemHeight = 10 * base_size / 12
-  legend$itemGap = 16 * base_size / 12
+  fs.body = .pub.fs(base_size)
+  legend$itemWidth = 14 * fs.body / 12
+  legend$itemHeight = 10 * fs.body / 12
+  legend$itemGap = 16 * fs.body / 12
   legend$icon = icon
   legend$textStyle = list(
     color = pubtextgray,
-    fontSize = base_size,
+    fontSize = fs.body,
     fontFamily = family
   )
   e$x$opts$legend = legend
@@ -718,7 +729,7 @@ pub.echarts.theme = function(base_size = 12,
   tip$borderWidth = 1
   tip$textStyle = list(
     color = pubtextgray,
-    fontSize = base_size,
+    fontSize = .pub.fs(base_size),
     fontFamily = family
   )
   e$x$opts$tooltip = tip
@@ -735,7 +746,7 @@ pub.echarts.theme = function(base_size = 12,
     v$inRange$color = c(publightgray, pubblue)
     v$textStyle = list(
       color = pubtextgray,
-      fontSize = base_size,
+      fontSize = .pub.fs(base_size),
       fontFamily = family
     )
     v
