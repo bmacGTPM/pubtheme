@@ -128,7 +128,9 @@ e_theme_pub = function(e,
   }
   legend.top = header
   if (legend.show) {
-    header = header + fs.body + gap.after.legend
+    # theme_pub key height is 30px; text is base_size. Then 50px to the panel.
+    legend.h = max(fs.body, .pub.sp(30, base_size))
+    header = header + legend.h + gap.after.legend
   }
   grid.top = header
   grid.bottom = pad.b + name.gap + fs.body
@@ -222,7 +224,7 @@ pub.echarts.theme = function(base_size = 12,
   fs.body = .pub.fs(base_size)
   line.width = .pub.axis.line.px(base_size)
   tick.len = .pub.sp(20, base_size)
-  label.margin = .pub.sp(20, base_size)
+  label.margin = .pub.tick.label.margin(base_size)
   name.gap = .pub.axis.name.gap(base_size)
 
   axis = list(
@@ -393,14 +395,20 @@ pub.echarts.theme = function(base_size = 12,
 }
 
 .pub.axis.line.px = function(base_size) {
-  # theme_pub base_line_size = base_size * 0.35 / 36 * 3 mm
-  max(1, .pub.mm.to.px(base_size * 0.35 / 36 * 3))
+  # theme_pub base_line_size = base_size * 0.35 / 36 * 3 mm.
+  # Do not floor at 1px — that stops scaling at small base_size.
+  .pub.mm.to.px(base_size * 0.35 / 36 * 3)
 }
 
-# Axis nameGap must clear ticks (20), tick-label margin (20), the label, and
-# the axis-title margin (30) — the same 20/20/30 tokens as theme_pub.
+# ggplot: ticks (20) then axis.text margin (20) then the number.
+# ECharts axisLabel.margin is from the axis line, so it must include the tick.
+.pub.tick.label.margin = function(base_size) {
+  .pub.sp(20, base_size) + .pub.sp(20, base_size)
+}
+
+# From the axis line: ticks + label margin + label + axis-title margin (30).
 .pub.axis.name.gap = function(base_size) {
-  .pub.sp(20, base_size) + .pub.sp(20, base_size) +
+  .pub.tick.label.margin(base_size) +
     .pub.fs(base_size) + .pub.sp(30, base_size)
 }
 
@@ -529,7 +537,7 @@ pub.echarts.theme = function(base_size = 12,
   fs.body = .pub.fs(base_size)
   line.width = .pub.axis.line.px(base_size)
   tick.len = .pub.sp(20, base_size)
-  label.margin = .pub.sp(20, base_size)
+  label.margin = .pub.tick.label.margin(base_size)
   name.gap = .pub.axis.name.gap(base_size)
 
   show.line = TRUE
@@ -847,7 +855,7 @@ pub.echarts.theme = function(base_size = 12,
 
     if (stype %in% c("line", "lines")) {
       if (is.null(s$lineStyle)) s$lineStyle = list()
-      if (is.null(s$lineStyle$width)) s$lineStyle$width = line.width
+      s$lineStyle$width = line.width
       if (is.null(s$smooth)) s$smooth = FALSE
       # theme_pub lines have no point symbols
       if (is.null(s$symbol) || identical(s$symbol, "emptyCircle")) {

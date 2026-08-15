@@ -1,6 +1,6 @@
 ---
 title: "theme_pub vs e_theme_pub"
-subtitle: "ggplot on the left, echarts4r on the right. base_size = 10. Both panels are 360×360 px."
+subtitle: "ggplot on the left, echarts4r on the right. base_size = 8. Both panels are 360×360 px."
 format:
   html:
     embed-resources: true
@@ -35,7 +35,7 @@ library(dplyr)
 library(echarts4r)
 library(scales)
 
-base_size = 10
+base_size = 8
 plot.px = 360
 
 dg.sc = mtcars |>
@@ -46,7 +46,7 @@ dg.sc = mtcars |>
 dg.ln = economics
 ```
 
-Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 10`. Both figures are 360×360 squares so they sit side by side without a horizontal scroll. Code is hidden; expand a chunk if you want the source.
+Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 8`. Both figures are 360×360 squares so they sit side by side without a horizontal scroll. Code is hidden; expand a chunk if you want the source.
 
 ## Scatter
 
