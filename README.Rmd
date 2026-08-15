@@ -1779,7 +1779,9 @@ mtcars |>
   e_y_axis(name = "Vertical Axis Label in Upper Lower") |>
   e_theme_pub(
     type = "scatter",
-    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme"
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
+    xlim = c(0, 6),
+    ylim = c(0, 40)
   )
 ```
 

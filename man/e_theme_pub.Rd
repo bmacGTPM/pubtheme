@@ -11,7 +11,11 @@ e_theme_pub(
   base_family = "sans",
   facet = FALSE,
   colors = "default",
-  caption = NULL
+  caption = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  xbreaks = NULL,
+  ybreaks = NULL
 )
 }
 \arguments{
@@ -39,6 +43,15 @@ vector of colors is used as-is.}
 \item{caption}{Optional caption text. ECharts has no caption slot, so
 this is added as a second title at the bottom left, in the same
 medium gray and size as `theme_pub` captions.}
+
+\item{xlim, ylim}{Optional length-2 numeric limits for the x- and y-axis.
+When set, the axis is scaled to those limits with three grid lines:
+the two endpoints and the midpoint, matching `pub()`. Existing
+`min`/`max` on the chart are used the same way if `xlim`/`ylim`
+are left `NULL`.}
+
+\item{xbreaks, ybreaks}{Optional break locations. Overrides the
+three-line default when limits are set.}
 }
 \value{
 The `echarts4r` object, with pubtheme styling applied.
@@ -58,7 +71,7 @@ mtcars |>
   e_title("Title in Upper Lower", "Optional Subtitle in Upper Lower") |>
   e_x_axis(name = "Horizontal Axis Label in Upper Lower") |>
   e_y_axis(name = "Vertical Axis Label in Upper Lower") |>
-  e_theme_pub(type = "scatter")
+  e_theme_pub(type = "scatter", xlim = c(0, 6), ylim = c(0, 40))
 }
 }
 \seealso{
