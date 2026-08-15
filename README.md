@@ -1906,7 +1906,12 @@ mtcars |>
   )
 ```
 
-<img src="man/figures/README-echarts-scatter.png" style="display: block; margin: auto;" />
+GitHub README files cannot run JavaScript, so the figure below is a
+still. [Open the interactive echarts
+version](https://bmacgtpm.github.io/pubtheme/img/e-theme-pub-scatter.html).
+
+[![echarts
+scatter](man/figures/README-echarts-scatter.png)](https://bmacgtpm.github.io/pubtheme/img/e-theme-pub-scatter.html)
 
 A grouped bar:
 

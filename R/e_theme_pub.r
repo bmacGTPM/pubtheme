@@ -374,26 +374,19 @@ pub.echarts.theme = function(base_size = 12,
   )
 }
 
-# theme_pub sizes are in pts. ECharts fontSize is CSS pixels (96 dpi).
-.pub.fs = function(size) size * 4 / 3
+# Screen CSS pixels. ggplot theme sizes are pts (72 per inch); ECharts
+# fontSize and line widths are CSS px (96 per inch).
+.pub.dpi = 96
 
-# theme_pub: px = 1/1440 * 20 * base_size/36 inches. Those inches are
-# the same at any figure size; pubtheme figures are saved at 6in. Convert
-# n*px inches to CSS pixels on a 6in figure displayed at 720px.
+.pub.fs = function(size) size * .pub.dpi / 72
+
+# theme_pub: px = 1/1440 * 20 * base_size/36 inches on a 6in figure.
 .pub.sp = function(n, base_size) {
-  n * (20 / 1440) * (base_size / 36) / 6 * 720
+  n * (20 / 1440) * (base_size / 36) * .pub.dpi
 }
 
-# Axis nameGap must clear ticks (20), tick-label margin (20), the label, and
-# the axis-title margin (30) — the same 20/20/30 tokens as theme_pub.
-.pub.axis.name.gap = function(base_size) {
-  .pub.sp(20, base_size) + .pub.sp(20, base_size) +
-    .pub.fs(base_size) + .pub.sp(30, base_size)
-}
-
-# theme_pub geom sizes are in mm (mult * base_size/36). Convert to CSS px
-# on the same 6in / 720px figure used by .pub.sp().
-.pub.mm.to.px = function(mm) mm / 25.4 / 6 * 720
+# theme_pub geom sizes are in mm (mult * base_size/36).
+.pub.mm.to.px = function(mm) mm / 25.4 * .pub.dpi
 
 .pub.geom.px = function(mult, base_size) {
   .pub.mm.to.px(mult * base_size / 36)
@@ -404,11 +397,20 @@ pub.echarts.theme = function(base_size = 12,
   max(1, .pub.mm.to.px(base_size * 0.35 / 36 * 3))
 }
 
+# Axis nameGap must clear ticks (20), tick-label margin (20), the label, and
+# the axis-title margin (30) — the same 20/20/30 tokens as theme_pub.
+.pub.axis.name.gap = function(base_size) {
+  .pub.sp(20, base_size) + .pub.sp(20, base_size) +
+    .pub.fs(base_size) + .pub.sp(30, base_size)
+}
+
 .pub.fill.background = function(e) {
   css = paste0(
-    "html,body{margin:0;padding:0;background-color:", pubbackgray, " !important;}",
+    "html,body{margin:0;padding:0;overflow:hidden;",
+    "background-color:", pubbackgray, " !important;}",
     ".html-widget,.echarts4r,.html-widget-static-bound{",
-    "background-color:", pubbackgray, " !important;}"
+    "background-color:", pubbackgray, " !important;",
+    "border:0;outline:0;box-shadow:none;}"
   )
   if (requireNamespace("htmlwidgets", quietly = TRUE) &&
       requireNamespace("htmltools", quietly = TRUE)) {
