@@ -13,7 +13,8 @@ and formatting similar to those used by media organizations like BBC, NY
 Times, and ESPN. Several templates for scatter plot, line plots, etc.,
 are provided below for easy copying/pasting. A helpful function `pub`
 can be used to reduce then amount of code that needs to be typed when
-the user is comfortable with the default settings.
+the user is comfortable with the default settings. For `echarts4r`
+figures, use `e_theme_pub()`. For `plotly`, use `layoutpub()`.
 
 Organization-specific color palettes and logos can be used as well via
 the package `orgthemes`. See <https://github.com/bmacGTPM/orgthemes>.
@@ -1876,6 +1877,72 @@ ggsave(filename = paste0("img/", gsub("%", " Perc", title), ".jpg"), ## must hav
 ```
 
 <img src="man/figures/README-images_axes-1.png" style="display: block; margin: auto;" />
+
+## echarts4r
+
+`e_theme_pub()` applies the same colors, fonts, and type-specific axis
+rules as `theme_pub` to an `echarts4r` chart. Install `echarts4r` first
+(`install.packages("echarts4r")`), then call `e_theme_pub()` last in the
+pipeline.
+
+``` r
+library(echarts4r)
+
+dg = mtcars |>
+  tibble::rownames_to_column("name") |>
+  mutate(Cylinders = as.factor(cyl))
+
+mtcars |>
+  e_charts(wt) |>
+  e_scatter(mpg, symbol_size = 10) |>
+  e_title("Title in Upper Lower", "Optional Subtitle in Upper Lower") |>
+  e_x_axis(name = "Horizontal Axis Label in Upper Lower") |>
+  e_y_axis(name = "Vertical Axis Label in Upper Lower") |>
+  e_theme_pub(
+    type = "scatter",
+    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme"
+  )
+```
+
+<img src="man/figures/README-echarts-scatter.png" style="display: block; margin: auto;" />
+
+A grouped bar:
+
+``` r
+dg |>
+  group_by(Cylinders) |>
+  e_charts(wt) |>
+  e_bar(mpg) |>
+  e_title("Title in Upper Lower", "Optional Subtitle in Upper Lower") |>
+  e_x_axis(name = "Weight") |>
+  e_y_axis(name = "MPG") |>
+  e_theme_pub(type = "bar")
+```
+
+A line chart. `type = "line"` keeps vertical grid lines off, matching
+`theme_pub`.
+
+``` r
+economics |>
+  e_charts(date) |>
+  e_line(unemploy, legend = FALSE) |>
+  e_title("Title in Upper Lower", "Optional Subtitle in Upper Lower") |>
+  e_x_axis(name = "Date") |>
+  e_y_axis(name = "Unemployed (thousands)") |>
+  e_theme_pub(type = "line")
+```
+
+Use `colors = "cb14"` for the colorblind-friendly palette, or pass a
+vector of colors. For Shiny or R Markdown with several charts, register
+the theme once so it is not embedded in every widget:
+
+``` r
+e_theme_register(pub.echarts.theme(), name = "pub")
+# then e_theme(e, "pub") on each chart
+```
+
+`e_theme()` alone applies colors and fonts. `e_theme_pub()` also sets
+grid, axis, legend, and tooltip spacing for the plot `type`.
 
 # Under development
 
