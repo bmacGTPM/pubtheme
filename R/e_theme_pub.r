@@ -100,39 +100,39 @@ e_theme_pub = function(e,
   has.caption = .pub.has.caption(caption)
   legend.show = .pub.legend.show(e)
 
-  # theme_pub plot.margin is 50/70 px on a 1440px figure. A typical echarts
-  # widget is closer to 720px, so scale those fractions to that width.
-  view = 720 / 1440
-  pad.t = 70 * view
-  pad.r = 70 * view
-  pad.b = 50 * view
-  pad.l = 50 * view
+  # Same tokens as theme_pub (70/50/30/20), converted from inches to CSS
+  # pixels on a 6in figure. All of these scale with base_size.
+  pad.t = .pub.sp(70, base_size)
+  pad.r = .pub.sp(70, base_size)
+  pad.b = .pub.sp(50, base_size)
+  pad.l = .pub.sp(50, base_size)
+  gap.title.sub = .pub.sp(30, base_size)   # 70 below title + (-40) above subtitle
+  gap.after.sub = .pub.sp(70, base_size)
+  gap.after.legend = .pub.sp(50, base_size)
+  gap.caption = .pub.sp(50, base_size)
+  name.gap = .pub.axis.name.gap(base_size)
 
-  title.h = if (has.title) fs.title + 20 * scale else 0
-  subtitle.h = if (has.subtitle) fs.sub + 10 * scale else 0
-  legend.item.h = if (legend.show) fs.body else 0
-  caption.h = if (has.caption) fs.cap + 20 * scale else 0
-
-  # Title, subtitle, legend, and caption share the y-axis title's left edge
-  # (theme_pub plot.title.position = 'plot' plus the left plot margin).
-  name.w = fs.body
-  name.gap.y = 56 * fs.body / 12
-  name.gap.x = 40 * fs.body / 12
-  grid.left = pad.l + name.w + name.gap.y
+  # Title, subtitle, legend, and caption share the y-axis title's left edge.
+  ink.left = pad.l
+  grid.left = pad.l + fs.body + name.gap
   grid.right = pad.r
-  ink.left = pad.l + name.w
 
+  header = pad.t
   title.top = pad.t
-  legend.top = title.top + title.h + subtitle.h
-  gap.after.header = 70 * view
-  grid.top = legend.top + legend.item.h + gap.after.header
-  if (!legend.show && (has.title || has.subtitle)) {
-    grid.top = title.top + title.h + subtitle.h + 70 * view
+  if (has.title) {
+    header = header + fs.title
+    header = header + if (has.subtitle) gap.title.sub else gap.after.sub
   }
-  if (!has.title && !has.subtitle && !legend.show) {
-    grid.top = pad.t
+  if (has.subtitle) {
+    header = header + fs.sub + gap.after.sub
   }
-  grid.bottom = pad.b + name.w + name.gap.x + caption.h
+  legend.top = header
+  if (legend.show) {
+    header = header + fs.body + gap.after.legend
+  }
+  grid.top = header
+  grid.bottom = pad.b + name.gap + fs.body
+  if (has.caption) grid.bottom = grid.bottom + fs.cap + gap.caption
 
   e = .pub.style.titles(
     e,
@@ -219,11 +219,11 @@ pub.echarts.theme = function(base_size = 12,
   family = .pub.font.family(base_family)
   scale = base_size / 36
   fs.body = .pub.fs(base_size)
-  line.width = max(1, 2 * base_size / 12)
-  point.size = 8 * base_size / 12
-  tick.len = 6 * base_size / 12
-  label.margin = 8 * fs.body / 12
-  name.gap = 48 * fs.body / 12
+  line.width = max(1, 3 * base_size / 36)
+  point.size = 7 * base_size / 12
+  tick.len = .pub.sp(20, base_size)
+  label.margin = .pub.sp(20, base_size)
+  name.gap = .pub.axis.name.gap(base_size)
 
   axis = list(
     axisLine = list(
@@ -250,7 +250,7 @@ pub.echarts.theme = function(base_size = 12,
     ),
     splitLine = list(
       show = TRUE,
-      lineStyle = list(color = publightgray, width = 1)
+      lineStyle = list(color = publightgray, width = max(1, 3 * base_size / 36))
     ),
     splitArea = list(show = FALSE)
   )
@@ -268,8 +268,8 @@ pub.echarts.theme = function(base_size = 12,
       color = pubtextgray
     ),
     title = list(
-      left = 50 * scale,
-      itemGap = 8 * fs.body / 12,
+      left = .pub.sp(50, base_size),
+      itemGap = .pub.sp(30, base_size),
       textStyle = list(
         fontFamily = family,
         fontSize = .pub.fs(50 * scale),
@@ -285,10 +285,10 @@ pub.echarts.theme = function(base_size = 12,
     ),
     legend = list(
       orient = "horizontal",
-      left = 50 * scale,
-      itemWidth = 14 * fs.body / 12,
-      itemHeight = 10 * fs.body / 12,
-      itemGap = 16 * fs.body / 12,
+      left = .pub.sp(50, base_size),
+      itemWidth = .pub.sp(36, base_size),
+      itemHeight = .pub.sp(30, base_size),
+      itemGap = .pub.sp(20, base_size),
       textStyle = list(
         color = pubtextgray,
         fontSize = fs.body,
@@ -317,7 +317,7 @@ pub.echarts.theme = function(base_size = 12,
     line = list(
       symbol = "circle",
       symbolSize = max(4, point.size / 2),
-      lineStyle = list(width = 3 * base_size / 12),
+      lineStyle = list(width = 3 * base_size / 36),
       smooth = FALSE
     ),
     bar = list(
@@ -378,6 +378,20 @@ pub.echarts.theme = function(base_size = 12,
 # theme_pub sizes are in pts. ECharts fontSize is CSS pixels (96 dpi).
 .pub.fs = function(size) size * 4 / 3
 
+# theme_pub: px = 1/1440 * 20 * base_size/36 inches. Those inches are
+# the same at any figure size; pubtheme figures are saved at 6in. Convert
+# n*px inches to CSS pixels on a 6in figure displayed at 720px.
+.pub.sp = function(n, base_size) {
+  n * (20 / 1440) * (base_size / 36) / 6 * 720
+}
+
+# Axis nameGap must clear ticks (20), tick-label margin (20), the label, and
+# the axis-title margin (30) — the same 20/20/30 tokens as theme_pub.
+.pub.axis.name.gap = function(base_size) {
+  .pub.sp(20, base_size) + .pub.sp(20, base_size) +
+    .pub.fs(base_size) + .pub.sp(30, base_size)
+}
+
 .pub.has.title = function(e) {
   titles = e$x$opts$title
   if (is.null(titles) || length(titles) == 0) return(FALSE)
@@ -414,7 +428,7 @@ pub.echarts.theme = function(base_size = 12,
       if (is.null(titles[[i]]$top) && is.null(titles[[i]]$bottom)) {
         titles[[i]]$top = title.top
       }
-      titles[[i]]$itemGap = 8 * .pub.fs(base_size) / 12
+      titles[[i]]$itemGap = .pub.sp(30, base_size)
       titles[[i]]$textStyle = list(
         fontFamily = family,
         fontSize = .pub.fs(50 * scale),
@@ -486,11 +500,10 @@ pub.echarts.theme = function(base_size = 12,
 
 .pub.axis.style = function(which, type, facet, family, base_size, scale) {
   fs.body = .pub.fs(base_size)
-  line.width = max(1, 2 * base_size / 12)
-  tick.len = 6 * base_size / 12
-  label.margin = 8 * fs.body / 12
-  # nameGap is from the axis line, so it must clear tick labels too
-  name.gap = if (which == "y") 56 * fs.body / 12 else 40 * fs.body / 12
+  line.width = max(1, 3 * base_size / 36)
+  tick.len = .pub.sp(20, base_size)
+  label.margin = .pub.sp(20, base_size)
+  name.gap = .pub.axis.name.gap(base_size)
 
   show.line = TRUE
   show.tick = TRUE
@@ -590,7 +603,7 @@ pub.echarts.theme = function(base_size = 12,
     ),
     splitLine = list(
       show = show.split,
-      lineStyle = list(color = publightgray, width = 1)
+      lineStyle = list(color = publightgray, width = max(1, 3 * base_size / 36))
     ),
     splitArea = list(show = FALSE)
   )
@@ -705,9 +718,9 @@ pub.echarts.theme = function(base_size = 12,
     legend$top = top
   }
   fs.body = .pub.fs(base_size)
-  legend$itemWidth = 14 * fs.body / 12
-  legend$itemHeight = 10 * fs.body / 12
-  legend$itemGap = 16 * fs.body / 12
+  legend$itemWidth = .pub.sp(36, base_size)
+  legend$itemHeight = .pub.sp(30, base_size)
+  legend$itemGap = .pub.sp(20, base_size)
   legend$icon = icon
   legend$textStyle = list(
     color = pubtextgray,
@@ -764,8 +777,8 @@ pub.echarts.theme = function(base_size = 12,
   series = e$x$opts$series
   if (is.null(series) || length(series) == 0) return(e)
 
-  line.width = 3 * base_size / 12
-  point.size = 8 * base_size / 12
+  line.width = 3 * base_size / 36
+  point.size = 7 * base_size / 12
 
   style.one = function(s) {
     if (is.null(s) || !is.list(s) || is.null(s$type)) return(s)
