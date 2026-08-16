@@ -4,7 +4,13 @@
 \alias{pub.echarts.theme}
 \title{pubtheme as an ECharts theme JSON}
 \usage{
-pub.echarts.theme(base_size = 12, base_family = "sans", colors = "default")
+pub.echarts.theme(
+  base_size = 12,
+  base_family = "sans",
+  base_line_size = base_size * 0.35/36 * 3,
+  base_rect_size = base_size * 0.35/36,
+  colors = "default"
+)
 }
 \arguments{
 \item{base_size}{Base font size, matching `theme_pub` (pts). Converted
@@ -12,9 +18,16 @@ to CSS pixels for ECharts (`1pt = 4/3px`). For viewing, 12 (the
 default) matches `theme_pub`. Use 36 for large exported images.}
 
 \item{base_family}{Base font family. The default is `'sans'`, mapped to
-CSS `'sans-serif'` so it is available cross-platform. `'serif'` and
-`'mono'` are mapped the same way; any other string is passed through
-(for example `'Arial'`).}
+`Arial, Helvetica, Liberation Sans, sans-serif` so it matches ggplot2
+`"sans"` (not the browser's default `sans-serif`, which is often
+Segoe UI and reads larger). `'serif'` and `'mono'` are mapped the
+same way; any other string is passed through.}
+
+\item{base_line_size}{Base size for line elements, in mm, matching
+`theme_pub`. Default is `base_size * 0.35 / 36 * 3`.}
+
+\item{base_rect_size}{Base size for rect elements, in mm, matching
+`theme_pub`. Default is `base_size * 0.35 / 36`.}
 
 \item{colors}{Color palette. `'default'` is the pubtheme reds, blues,
 and grays. `'cb14'` is the colorblind-friendly palette. A character

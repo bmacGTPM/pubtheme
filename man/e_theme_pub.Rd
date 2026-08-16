@@ -9,13 +9,18 @@ e_theme_pub(
   type = "scatter",
   base_size = 12,
   base_family = "sans",
+  base_line_size = base_size * 0.35/36 * 3,
+  base_rect_size = base_size * 0.35/36,
+  legend.shift = 0,
   facet = FALSE,
   colors = "default",
   caption = NULL,
   xlim = NULL,
   ylim = NULL,
   xbreaks = NULL,
-  ybreaks = NULL
+  ybreaks = NULL,
+  xlabels = NULL,
+  ylabels = NULL
 )
 }
 \arguments{
@@ -30,9 +35,20 @@ to CSS pixels for ECharts (`1pt = 4/3px`). For viewing, 12 (the
 default) matches `theme_pub`. Use 36 for large exported images.}
 
 \item{base_family}{Base font family. The default is `'sans'`, mapped to
-CSS `'sans-serif'` so it is available cross-platform. `'serif'` and
-`'mono'` are mapped the same way; any other string is passed through
-(for example `'Arial'`).}
+`Arial, Helvetica, Liberation Sans, sans-serif` so it matches ggplot2
+`"sans"` (not the browser's default `sans-serif`, which is often
+Segoe UI and reads larger). `'serif'` and `'mono'` are mapped the
+same way; any other string is passed through.}
+
+\item{base_line_size}{Base size for line elements, in mm, matching
+`theme_pub`. Default is `base_size * 0.35 / 36 * 3`.}
+
+\item{base_rect_size}{Base size for rect elements, in mm, matching
+`theme_pub`. Default is `base_size * 0.35 / 36`.}
+
+\item{legend.shift}{Amount to shift the legend to the right, in the
+same `theme_pub` pixel units (`px`). Used the same way `pub()`
+passes `legend.shift` into `theme_pub`.}
 
 \item{facet}{Indicates whether the chart uses [echarts4r::e_facet()]
 or should otherwise get a panel border. Default is `FALSE`.}
@@ -52,7 +68,13 @@ the two endpoints and the midpoint, matching `pub()`. Existing
 are left `NULL`.}
 
 \item{xbreaks, ybreaks}{Optional break locations. Overrides the
-three-line default when limits are set.}
+three-line default when limits are set. Dates are converted to
+UTC milliseconds for time axes.}
+
+\item{xlabels, ylabels}{Optional axis-label formatters. A character
+vector is used as category labels. An ECharts format string
+(for example `"{MMM} {yyyy}"`) is passed through. A function is
+ignored; convert it to a format string or JS formatter first.}
 }
 \value{
 The `echarts4r` object, with pubtheme styling applied.

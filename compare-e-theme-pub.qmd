@@ -1,27 +1,46 @@
 ---
 title: "theme_pub vs e_theme_pub"
-subtitle: "ggplot on the left, echarts4r on the right. base_size = 8. Both panels are 360×360 px."
+subtitle: "ggplot on the left, echarts4r on the right. base_size = 8. Panels are 360×360 px."
 format:
   html:
     embed-resources: true
-    toc: false
+    toc: true
+    toc-location: left
+    toc-depth: 2
     code-fold: true
     code-summary: "Show code"
-    fig-width: 4
-    fig-height: 4
+    fig-width: 3.75
+    fig-height: 3.75
     fig-dpi: 96
+    fig-retina: 1
 ---
 
 ```{=html}
 <style>
-div.columns { overflow-x: hidden; }
-div.column { overflow-x: hidden; }
-.compare-plot img,
-.compare-plot .html-widget,
-.compare-plot .echarts4r {
+html, body { overflow: auto !important; }
+/* Keep both panels at 360 CSS px so a retina ggplot is not
+   downscaled while the echarts canvas keeps a fixed fontSize. */
+div.columns {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+div.column {
+  flex: 0 0 360px;
+  width: 360px;
+  max-width: 360px;
+  overflow: visible;
+}
+div.column img,
+div.column .html-widget,
+div.column .echarts4r,
+div.column .html-widget-static-bound,
+div.column .quarto-figure,
+div.column .quarto-float {
   width: 360px !important;
   height: 360px !important;
-  max-width: 100% !important;
+  max-width: 360px !important;
 }
 </style>
 ```
@@ -32,66 +51,325 @@ div.column { overflow-x: hidden; }
 pkgload::load_all(".", quiet = TRUE)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
+library(tibble)
 library(echarts4r)
 library(scales)
+library(ggrepel)
+library(jsonlite)
 
 base_size = 8
 plot.px = 360
+cap = "Optional caption giving more info, X handle, or shameless promotion of pubtheme"
+sub = "Optional Subtitle In Upper Lower"
+ttl = "Title in Upper Lower"
+xlab = "Horizontal Axis Label in Upper Lower"
+ylab = "Vertical Axis Label in Upper Lower"
 
+# Scatter
 dg.sc = mtcars |>
   select(wt, mpg, cyl) |>
   mutate(Cylinders = as.factor(cyl)) |>
   rename(MPG = mpg)
 
+# Line (README: days + value01, all series)
 dg.ln = economics_long |>
-  filter(variable %in% c("unemploy", "uempmed", "psavert")) |>
-  mutate(name = toupper(variable))
+  mutate(
+    name = toupper(variable),
+    days = as.numeric(date - min(date)),
+    value = value01
+  ) |>
+  select(date, days, name, value)
+
+# Histogram
+dg.hist = economics |>
+  filter(date <= "2008-01-01") |>
+  rename(value = unemploy)
+
+# Bar
+dg.bar = mtcars |>
+  summarise(value = mean(mpg), .by = cyl) |>
+  mutate(
+    name = paste0(cyl, "-cylinder"),
+    name = factor(name, levels = c("8-cylinder", "6-cylinder", "4-cylinder"))
+  )
+x.max = 30
+
+# Grid / calendar month-day
+dg.grid = airquality |>
+  mutate(
+    Month = month.abb[Month],
+    Month = factor(Month, levels = rev(month.abb[month.abb %in% Month])),
+    Day = factor(Day, levels = 1:31)
+  ) |>
+  rename(x = Day, y = Month, value = Temp) |>
+  complete(x, y, fill = list(value = NA))
+
+# Correlation
+corr = round(cor(mtcars[, sort(colnames(mtcars))]), 2)
+dg.corr = corr |>
+  as.data.frame() |>
+  rownames_to_column(var = "x") |>
+  pivot_longer(cols = -x, names_to = "y", values_to = "value") |>
+  mutate(
+    x = factor(x, levels = rev(sort(unique(x)))),
+    y = factor(y, levels = sort(unique(y)))
+  )
+
+# Calendar
+df.cal = data.frame(
+  date = seq.Date(as.Date("2024-01-01"), as.Date("2024-12-31"), by = "day"),
+  value = rep(1:7, length.out = 366)
+)
+
+# Slope
+dg.slope = economics_long |>
+  mutate(
+    name = toupper(variable),
+    x = as.character(date),
+    y = value01
+  ) |>
+  select(x, name, y) |>
+  filter(x %in% range(x), name != "PCE") |>
+  mutate(time = ifelse(x == min(x), "", "end")) |>
+  pivot_wider(names_from = time, values_from = c(x, y), names_sep = "") |>
+  mutate(
+    diff = yend - y,
+    label1 = paste0(name, ", ", round(y, 2)),
+    label2 = paste0(round(yend, 2), " (", sprintf("%+.2f", diff), "), ", name)
+  )
+dg.slope.long = bind_rows(
+  dg.slope |> transmute(name, x = x, y = y, label = label1),
+  dg.slope |> transmute(name, x = xend, y = yend, label = label2)
+)
+
+# Lollipop
+dg.pop = airquality |>
+  mutate(Month = factor(month.abb[Month], levels = rev(month.abb))) |>
+  summarise(value = mean(Temp), .by = Month) |>
+  rename(name = Month)
+
+# Discrete lollipop
+dg.popd = data.frame(name = 0:10, value = dbinom(0:10, 10, 0.5))
+
+# Barbell
+dg.barb = airquality |>
+  mutate(Month = factor(month.abb[Month], levels = rev(month.abb))) |>
+  summarise(x = min(Temp), xend = max(Temp), .by = Month) |>
+  rename(name = Month)
+
+# Dot / errorbar
+d.std = mtcars |>
+  mutate(wt = scale(wt), cyl = scale(cyl), disp = scale(disp), hp = scale(hp))
+m1 = lm(mpg ~ wt + cyl + disp + hp, data = d.std)
+dg.dot = summary(m1)$coefficients |>
+  as.data.frame() |>
+  rownames_to_column(var = "var") |>
+  rename(coef = Estimate, se = `Std. Error`) |>
+  filter(var != "(Intercept)") |>
+  mutate(
+    var = toupper(var),
+    lo = coef - se,
+    hi = coef + se,
+    label.se = paste0(sprintf("%.1f", coef), " \u00B1 ", sprintf("%.1f", se))
+  )
+
+# Facet
+dg.facet = mtcars |>
+  select(wt, mpg, cyl) |>
+  mutate(name = paste0(cyl, "-cylinder"))
+
+# Timeline
+current.year = as.numeric(format(Sys.Date(), "%Y"))
+dg.time = data.frame(
+  date = as.Date(c(
+    paste0(current.year, c("-01-01", "-07-04", "-12-25", "-12-31")),
+    paste0(current.year + 1, c("-01-01", "-07-04", "-12-25", "-12-31"))
+  )),
+  text = rep(
+    c("New Year's Day", "Independence Day", "Christmas Day", "New Year's Eve"),
+    2
+  )
+) |>
+  mutate(
+    text = paste0(text, ", ", date),
+    name = case_when(
+      grepl("Christmas", text) ~ "Christmas",
+      grepl("Indep", text) ~ "Indep",
+      TRUE ~ "Other"
+    ),
+    name = factor(name, levels = c("Christmas", "Indep", "Other")),
+    x = 0
+  )
+time.breaks = as.Date(paste0(current.year + 0:2, "-01-01"))
+
+# Map
+dg.map = data.frame(
+  city = c("New York", "Los Angeles"),
+  lat = c(40.7128, 34.0522),
+  lon = c(-74.0060, -118.2437)
+)
+
+# Hex
+dg.hex = economics
+
+# Colors / facet grid
+dg.col = mtcars |>
+  mutate(
+    gear = paste0(gear, " gear"),
+    cyl = paste0(cyl, " cyl"),
+    name = paste0(gear, ", ", cyl)
+  )
+
+# Horizontal category plots (lollipop, barbell, dot, errorbar) without
+# e_flip_coords(), which breaks e_error_bar's custom renderer.
+hcat.cats = function(x) {
+  if (is.factor(x)) as.character(levels(droplevels(x))) else unique(as.character(x))
+}
+hcat.yval = function(y) {
+  if (is.numeric(y)) as.numeric(y) else as.character(y)
+}
+hcat.init = function(df, xcol, ycol, xlim = NULL, xname = NULL) {
+  cats = hcat.cats(df[[ycol]])
+  e = echarts4r::e_charts_(df, xcol, width = plot.px, height = plot.px)
+  e$x$opts$xAxis = list(type = "value")
+  if (!is.null(xname)) e$x$opts$xAxis$name = xname
+  if (!is.null(xlim)) {
+    e$x$opts$xAxis$min = min(xlim)
+    e$x$opts$xAxis$max = max(xlim)
+  }
+  # Category y so stems sit on the same row as the label and grid
+  # line. Leading "" keeps the first level off the x-axis.
+  e$x$opts$yAxis = list(
+    type = "category",
+    data = c("", cats),
+    boundaryGap = FALSE
+  )
+  e
+}
+hcat.seg = function(e, x0, y, x1, color, lwd, symbol = "none", size = 8) {
+  extra = lapply(seq_along(x0), function(i) {
+    yi = hcat.yval(y[i])
+    list(
+      type = "line",
+      data = list(
+        list(as.numeric(x0[i]), yi),
+        list(as.numeric(x1[i]), yi)
+      ),
+      symbol = symbol,
+      symbolSize = size,
+      showSymbol = !identical(symbol, "none"),
+      lineStyle = list(color = color, width = lwd),
+      itemStyle = list(color = color),
+      legendHoverLink = FALSE,
+      silent = TRUE,
+      z = 2
+    )
+  })
+  e$x$opts$series = c(e$x$opts$series, extra)
+  e
+}
+hcat.pts = function(e, x, y, color, size, labels = NULL) {
+  dat = lapply(seq_along(x), function(i) {
+    pt = list(value = list(as.numeric(x[i]), hcat.yval(y[i])))
+    if (!is.null(labels)) {
+      pt$label = list(
+        show = TRUE,
+        position = "right",
+        formatter = as.character(labels[i]),
+        color = pubtextgray
+      )
+    }
+    pt
+  })
+  s = list(
+    type = "scatter",
+    data = dat,
+    symbol = "circle",
+    symbolSize = size,
+    itemStyle = list(color = color),
+    z = 3
+  )
+  e$x$opts$series = c(e$x$opts$series, list(s))
+  e
+}
+hcat.cap = function(e, x, y, half = 0.15, color, lwd) {
+  dat = lapply(seq_along(x), function(i) {
+    list(value = list(as.numeric(x[i]), hcat.yval(y[i])))
+  })
+  s = list(
+    type = "scatter",
+    data = dat,
+    symbol = "rect",
+    symbolSize = c(max(lwd, 1), 8),
+    itemStyle = list(color = color),
+    silent = TRUE,
+    legendHoverLink = FALSE,
+    z = 2
+  )
+  e$x$opts$series = c(e$x$opts$series, list(s))
+  e
+}
+hcat.vline = function(e, x, cats, color = pubmediumgray, lwd = 1) {
+  s = list(
+    type = "line",
+    data = list(
+      list(as.numeric(x), cats[1]),
+      list(as.numeric(x), cats[length(cats)])
+    ),
+    symbol = "none",
+    lineStyle = list(color = color, width = lwd),
+    silent = TRUE,
+    legendHoverLink = FALSE,
+    z = 1
+  )
+  e$x$opts$series = c(e$x$opts$series, list(s))
+  e
+}
+usa.states.geo = function() {
+  md = ggplot2::map_data("state")
+  rings = split(md, md$group)
+  features = lapply(unname(rings), function(d) {
+    coords = Map(function(lon, lat) c(as.numeric(lon), as.numeric(lat)), d$long, d$lat)
+    if (!identical(coords[[1]], coords[[length(coords)]])) {
+      coords = c(coords, coords[1])
+    }
+    list(
+      type = "Feature",
+      properties = list(name = as.character(d$region[1])),
+      geometry = list(type = "Polygon", coordinates = list(unname(coords)))
+    )
+  })
+  list(type = "FeatureCollection", features = unname(features))
+}
+hex.symbol = "path://M0,-1L0.866,-0.5L0.866,0.5L0,1L-0.866,0.5L-0.866,-0.5Z"
 ```
 
-Compare the ggplot `theme_pub` / `pub()` look to `e_theme_pub()` at `base_size = 8`. Both figures are 360×360 squares so they sit side by side without a horizontal scroll. Code is hidden; expand a chunk if you want the source.
+Use the table of contents to jump to a plot type. Every README `theme_pub` type is here. Code is folded; expand a chunk if you want the source.
+
+The line, bar, histogram, grid, calendar, slope, lollipop, barbell, dot, error bar, facet, timeline, map, hex, pairs, and correlation examples match the README templates as closely as echarts4r allows.
 
 ## Scatter
 
 :::: {.columns}
 ::: {.column width="50%"}
-
-**ggplot + `pub()`**
-
-::: {.compare-plot}
+**ggplot + `pub(type = "scatter")`**
 
 ```{r}
 #| label: fig-gg-scatter
-#| fig-width: 4
-#| fig-height: 4
+#| fig-width: 3.75
+#| fig-height: 3.75
 #| out-width: "360px"
 #| out-height: "360px"
-g.sc = ggplot(dg.sc, aes(x = wt, y = MPG, color = Cylinders)) +
+g = ggplot(dg.sc, aes(x = wt, y = MPG, color = Cylinders)) +
   geom_point() +
-  labs(
-    title = "Title in Upper Lower",
-    subtitle = "Optional Subtitle In Upper Lower",
-    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
-    x = "Horizontal Axis Label in Upper Lower",
-    y = "Vertical Axis Label in Upper Lower"
-  )
-g.sc = pub(
-  g.sc,
-  type = "scatter",
-  base_size = base_size,
-  xlim = c(0, 6),
-  ylim = c(0, 40)
-)
-g.sc
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = ylab)
+pub(g, type = "scatter", base_size = base_size, xlim = c(0, 6), ylim = c(0, 40))
 ```
 
 :::
-
-:::
 ::: {.column width="50%"}
-
-**echarts4r + `e_theme_pub()`**
-
-::: {.compare-plot}
+**echarts4r + `e_theme_pub(type = "scatter")`**
 
 ```{r}
 #| label: fig-ec-scatter
@@ -99,77 +377,1008 @@ dg.sc |>
   group_by(Cylinders) |>
   e_charts(wt, width = plot.px, height = plot.px) |>
   e_scatter(MPG) |>
-  e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
-  e_x_axis(name = "Horizontal Axis Label in Upper Lower") |>
-  e_y_axis(name = "Vertical Axis Label in Upper Lower") |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
   e_theme_pub(
     type = "scatter",
     base_size = base_size,
-    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
+    caption = cap,
     xlim = c(0, 6),
     ylim = c(0, 40)
   )
 ```
 
 :::
-
-:::
 ::::
 
 ## Line
 
+README line plot: `days` on x, `value01` on y, all series, `ylim = c(0, 1)`.
+
 :::: {.columns}
 ::: {.column width="50%"}
-
-**ggplot + `pub()`**
-
-::: {.compare-plot}
+**ggplot + `pub(type = "line")`**
 
 ```{r}
 #| label: fig-gg-line
-#| fig-width: 4
-#| fig-height: 4
+#| fig-width: 3.75
+#| fig-height: 3.75
 #| out-width: "360px"
 #| out-height: "360px"
-g.ln = ggplot(dg.ln, aes(x = date, y = value01, color = name)) +
-  geom_line(linewidth = 3 * base_size / 36) +
-  labs(
-    title = "Title in Upper Lower",
-    subtitle = "Optional Subtitle In Upper Lower",
-    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme",
-    x = "Date",
-    y = "Index (0-1)"
-  )
-g.ln = pub(g.ln, type = "line", base_size = base_size)
-g.ln
+g = ggplot(dg.ln, aes(x = days, y = value, color = name)) +
+  geom_line() +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = ylab, color = "Legend Label") +
+  guides(color = guide_legend(nrow = 2))
+pub(g, type = "line", base_size = base_size, ylim = c(0, 1))
 ```
 
 :::
-
-:::
 ::: {.column width="50%"}
-
-**echarts4r + `e_theme_pub()`**
-
-::: {.compare-plot}
+**echarts4r + `e_theme_pub(type = "line")`**
 
 ```{r}
 #| label: fig-ec-line
 dg.ln |>
   group_by(name) |>
-  e_charts(date, width = plot.px, height = plot.px) |>
-  e_line(value01) |>
-  e_title("Title in Upper Lower", "Optional Subtitle In Upper Lower") |>
-  e_x_axis(name = "Date") |>
-  e_y_axis(name = "Index (0-1)") |>
+  e_charts(days, width = plot.px, height = plot.px) |>
+  e_line(value) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
   e_theme_pub(
     type = "line",
     base_size = base_size,
-    caption = "Optional caption with more info, X handle, or shameless promotion of pubtheme"
+    caption = cap,
+    ylim = c(0, 1)
   )
 ```
 
 :::
+::::
+
+## Line with date
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "line")`**
+
+```{r}
+#| label: fig-gg-linedate
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.ln, aes(x = date, y = value, color = name)) +
+  geom_line() +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = ylab, color = "Legend Label") +
+  guides(color = guide_legend(nrow = 2))
+pub(
+  g,
+  type = "line",
+  base_size = base_size,
+  ylim = c(0, 1),
+  xbreaks = as.Date(c("1970-01-01", "1990-01-01", "2010-01-01")),
+  xlabels = function(x) format(x, "%b%e, %Y")
+)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "line")`**
+
+```{r}
+#| label: fig-ec-linedate
+dg.ln |>
+  group_by(name) |>
+  e_charts(date, width = plot.px, height = plot.px) |>
+  e_line(value) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
+  e_theme_pub(
+    type = "line",
+    base_size = base_size,
+    caption = cap,
+    ylim = c(0, 1),
+    xbreaks = as.Date(c("1970-01-01", "1990-01-01", "2010-01-01")),
+    xlabels = "{MMM}{d}, {yyyy}"
+  )
+```
 
 :::
 ::::
+
+## Histogram
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "hist")`**
+
+```{r}
+#| label: fig-gg-hist
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.hist, aes(x = value)) +
+  geom_histogram(fill = pubblue, color = pubbackgray, binwidth = 500) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = "Count")
+pub(g, type = "hist", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "hist")`**
+
+```{r}
+#| label: fig-ec-hist
+dg.hist |>
+  e_charts(width = plot.px, height = plot.px) |>
+  e_histogram(
+    value,
+    breaks = seq(
+      floor(min(dg.hist$value) / 500) * 500,
+      ceiling(max(dg.hist$value) / 500) * 500,
+      by = 500
+    ),
+    legend = FALSE
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = "Count") |>
+  e_theme_pub(type = "hist", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Bar
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "bar")`**
+
+```{r}
+#| label: fig-gg-bar
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.bar, aes(x = value, y = name, label = round(value, 2))) +
+  geom_col(aes(x = x.max), fill = publightgray, width = 0.8) +
+  geom_col(width = 0.8) +
+  geom_text(hjust = -0.1) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = NULL)
+pub(g, type = "bar", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "bar")`**
+
+```{r}
+#| label: fig-ec-bar
+dg.bar |>
+  mutate(bg = x.max) |>
+  arrange(name) |>
+  e_charts(name, width = plot.px, height = plot.px) |>
+  e_bar(
+    bg,
+    legend = FALSE,
+    barWidth = "80%",
+    barGap = "-100%",
+    z = 1,
+    itemStyle = list(color = publightgray)
+  ) |>
+  e_bar(
+    value,
+    legend = FALSE,
+    barWidth = "80%",
+    barGap = "-100%",
+    z = 2,
+    itemStyle = list(color = pubblue)
+  ) |>
+  e_flip_coords() |>
+  e_labels(position = "right", formatter = htmlwidgets::JS(
+    "function(p){ var v=p.value; var n=Array.isArray(v)?Number(v[0]):Number(v); if(!isFinite(n)) n=Array.isArray(v)?Number(v[v.length-1]):NaN; return (p.seriesIndex===1 && isFinite(n)) ? (Math.round(n*100)/100).toString() : ''; }"
+  )) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_theme_pub(
+    type = "bar",
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, x.max)
+  )
+```
+
+:::
+::::
+
+## Grid
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "grid")`**
+
+```{r}
+#| label: fig-gg-grid
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.grid, aes(x = x, y = y, fill = value)) +
+  geom_tile(linewidth = 0.4, color = pubdarkgray) +
+  scale_fill_gradient(low = pubgradgray, high = pubblue, na.value = pubmediumgray, oob = squish, breaks = c(60, 75, 90)) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "Day", y = NULL, fill = "Value")
+pub(g, type = "grid", base_size = base_size, xbreaks = seq(2, 32, by = 2))
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "grid")`**
+
+```{r}
+#| label: fig-ec-grid
+dg.grid |>
+  mutate(x = as.character(x), y = as.character(y)) |>
+  e_charts(x, width = plot.px, height = plot.px) |>
+  e_heatmap(y, value) |>
+  e_visual_map(
+    value,
+    orient = "horizontal",
+    inRange = list(color = c(pubgradgray, pubblue))
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = "Day") |>
+  e_theme_pub(type = "grid", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Correlation
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "grid")`**
+
+```{r}
+#| label: fig-gg-corr
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.corr, aes(x = x, y = y, fill = value)) +
+  geom_tile(linewidth = 0.4, color = pubdarkgray) +
+  scale_fill_gradientn(
+    colors = c("red4", pubred, publightred, "white", publightblue, pubblue, "navy"),
+    na.value = pubmediumgray,
+    oob = squish,
+    breaks = c(-1, 0, 1),
+    limits = c(-1, 1)
+  ) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "Variable", y = NULL, fill = "Value")
+pub(g, type = "grid", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "grid")`**
+
+```{r}
+#| label: fig-ec-corr
+dg.corr |>
+  mutate(x = as.character(x), y = as.character(y)) |>
+  e_charts(x, width = plot.px, height = plot.px) |>
+  e_heatmap(y, value) |>
+  e_visual_map(
+    value,
+    min = -1,
+    max = 1,
+    orient = "horizontal",
+    inRange = list(color = c("red4", pubred, publightred, "#ffffff", publightblue, pubblue, "navy"))
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = "Variable") |>
+  e_theme_pub(type = "grid", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Pairs
+
+`ggpairs` is not an echarts chart. The right panel is one scatter with `type = "pairs"` so you can check the panel border and both grids.
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `theme_pub(type = "pairs")`**
+
+```{r}
+#| label: fig-gg-pairs
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+library(GGally)
+dg.pairs = mtcars |>
+  select(mpg, cyl, wt, carb) |>
+  mutate(Cylinders = factor(cyl))
+ggpairs(
+  dg.pairs,
+  aes(color = Cylinders, fill = Cylinders),
+  columns = c("mpg", "wt", "carb"),
+  diag = list(continuous = pub.density),
+  title = ttl,
+  xlab = xlab,
+  ylab = ylab
+) +
+  theme_pub(type = "pairs", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "pairs")`**
+
+```{r}
+#| label: fig-ec-pairs
+dg.sc |>
+  group_by(Cylinders) |>
+  e_charts(wt, width = plot.px, height = plot.px) |>
+  e_scatter(MPG) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
+  e_theme_pub(
+    type = "pairs",
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, 6),
+    ylim = c(0, 40)
+  )
+```
+
+:::
+::::
+
+## Calendar
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "cal")`**
+
+```{r}
+#| label: fig-gg-cal
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+dg.cal = df.cal |>
+  complete(
+    date = seq.Date(lubridate::floor_date(min(date), "month"), lubridate::ceiling_date(max(date), "month") - 1, by = "day"),
+    fill = list(value = 0)
+  ) |>
+  mutate(
+    month = factor(months(date, abbreviate = FALSE), levels = month.name),
+    day.of.week = factor(
+      weekdays(date, abbreviate = TRUE),
+      levels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+    ),
+    day = lubridate::day(date),
+    year = lubridate::year(date)
+  ) |>
+  group_by(month, year) |>
+  mutate(
+    week = ifelse(day == 1 | day.of.week == "Sun", 1, 0),
+    week = cumsum(week),
+    day = as.character(day)
+  ) |>
+  complete(week, day.of.week, fill = list(value = NA, day = ""))
+
+g = ggplot(dg.cal, aes(x = day.of.week, y = week, fill = value)) +
+  geom_tile(linewidth = 0.4, color = pubdarkgray) +
+  facet_wrap(~month, scales = "free_x", ncol = 4) +
+  scale_fill_gradient(low = pubgradgray, high = pubblue, na.value = pubbackgray, oob = squish) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = NULL, y = NULL, fill = "Value")
+pub(g, type = "cal", base_size = base_size, ytrans = "reverse")
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "cal")`**
+
+```{r}
+#| label: fig-ec-cal
+df.cal |>
+  e_charts(date, width = plot.px, height = plot.px) |>
+  e_calendar(range = "2024") |>
+  e_heatmap(value, coord_system = "calendar") |>
+  e_visual_map(
+    value,
+    orient = "horizontal",
+    inRange = list(color = c(pubgradgray, pubblue))
+  ) |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "cal", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Slope
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "slope")`**
+
+```{r}
+#| label: fig-gg-slope
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.slope, aes(x = x, y = y, color = name, size = 4, linewidth = 0.25)) +
+  geom_segment(aes(xend = xend, yend = yend)) +
+  geom_point(show.legend = FALSE) +
+  geom_point(aes(x = xend, y = yend), show.legend = FALSE) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = NULL) +
+  guides(size = "none", linewidth = "none", color = "none")
+pub(g, type = "slope", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "slope")`**
+
+```{r}
+#| label: fig-ec-slope
+dg.slope.long |>
+  group_by(name) |>
+  e_charts(x, width = plot.px, height = plot.px) |>
+  e_line(y, legend = FALSE) |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "slope", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Lollipop
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "pop")`**
+
+```{r}
+#| label: fig-gg-pop
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.pop, aes(x = value, y = name, label = round(value, 2), size = 1, linewidth = 0.75)) +
+  geom_segment(aes(x = 0, xend = value, y = name, yend = name), color = pubred) +
+  geom_point(color = pubred, show.legend = FALSE) +
+  geom_text(hjust = -0.3) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = NULL) +
+  guides(size = "none", linewidth = "none")
+pub(g, type = "pop", base_size = base_size, xlim = c(0, 120))
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "pop")`**
+
+```{r}
+#| label: fig-ec-pop
+dp = dg.pop |>
+  mutate(name = droplevels(name))
+e = hcat.init(dp, "value", "name", xlim = c(0, 120), xname = xlab)
+e = hcat.seg(e, rep(0, nrow(dp)), as.character(dp$name), dp$value, pubred, 1.5)
+e = hcat.pts(e, dp$value, as.character(dp$name), pubred, 8, labels = round(dp$value, 2))
+e |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "pop", base_size = base_size, caption = cap, xlim = c(0, 120))
+```
+
+:::
+::::
+
+## Lollipop discrete
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "pop")`**
+
+```{r}
+#| label: fig-gg-popd
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.popd, aes(x = name, y = value, label = round(value, 2), size = 5, linewidth = 0.5)) +
+  geom_point(color = pubred) +
+  geom_segment(aes(x = name, xend = name, y = 0, yend = value), color = pubred) +
+  geom_text(vjust = -1) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = NULL) +
+  guides(size = "none", linewidth = "none")
+pub(g, type = "pop", base_size = base_size, xlim = c(0, 10), ylim = c(0, 0.3), xbreaks = 0:10)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "pop")`**
+
+```{r}
+#| label: fig-ec-popd
+dg.popd |>
+  mutate(name = as.character(name)) |>
+  e_charts(name, width = plot.px, height = plot.px) |>
+  e_bar(value, legend = FALSE, itemStyle = list(color = pubred)) |>
+  e_scatter(value, legend = FALSE, color = pubred) |>
+  e_labels(position = "top", formatter = htmlwidgets::JS(
+    "function(p){ if(p.seriesType!=='scatter') return ''; var v=p.value; var n=Array.isArray(v)?Number(v[v.length-1]):Number(v); return isFinite(n)?n.toFixed(2):''; }"
+  )) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_theme_pub(
+    type = "pop",
+    base_size = base_size,
+    caption = cap,
+    ylim = c(0, 0.3)
+  )
+```
+
+:::
+::::
+
+## Barbell
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "pop")`**
+
+```{r}
+#| label: fig-gg-barb
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.barb, aes(x = x, y = name, size = 4, linewidth = 0.5)) +
+  geom_point(color = pubred) +
+  geom_point(aes(x = xend), color = pubred) +
+  geom_segment(aes(xend = xend, yend = name), color = pubred) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = NULL) +
+  guides(size = "none", linewidth = "none")
+pub(g, type = "pop", base_size = base_size, xlim = c(0, 120))
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "pop")`**
+
+```{r}
+#| label: fig-ec-barb
+db = dg.barb |>
+  mutate(name = droplevels(name))
+e = hcat.init(db, "x", "name", xlim = c(0, 120), xname = xlab)
+e = hcat.seg(e, db$x, as.character(db$name), db$xend, pubred, 1.5, symbol = "circle", size = 8)
+e |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "pop", base_size = base_size, caption = cap, xlim = c(0, 120))
+```
+
+:::
+::::
+
+## Dot and whiskers
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "dot")`**
+
+```{r}
+#| label: fig-gg-dot
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.dot, aes(x = coef, y = var, size = 4, linewidth = 0.5)) +
+  geom_segment(aes(x = lo, xend = hi, y = var, yend = var), color = pubred) +
+  geom_point(color = pubred) +
+  geom_vline(xintercept = 0, color = pubmediumgray) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "Coefficient", y = NULL) +
+  guides(size = "none", linewidth = "none")
+pub(g, type = "dot", base_size = base_size, xlim = c(-5, 5))
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "dot")`**
+
+```{r}
+#| label: fig-ec-dot
+dd = dg.dot |>
+  mutate(var = factor(var, levels = sort(unique(var))))
+e = hcat.init(dd, "coef", "var", xlim = c(-5, 5), xname = "Coefficient")
+e = hcat.seg(e, dd$lo, as.character(dd$var), dd$hi, pubred, 1.5)
+e = hcat.pts(e, dd$coef, as.character(dd$var), pubred, 8)
+e = hcat.vline(e, 0, levels(dd$var))
+e |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "dot", base_size = base_size, caption = cap, xlim = c(-5, 5))
+```
+
+:::
+::::
+
+## Error bars
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "dot")`**
+
+```{r}
+#| label: fig-gg-err
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.dot, aes(x = coef, y = var, size = 4, linewidth = 0.5)) +
+  geom_errorbar(aes(xmin = lo, xmax = hi), color = pubred, orientation = "y", width = 0.2) +
+  geom_point(color = pubred) +
+  geom_vline(xintercept = 0, color = pubmediumgray) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "Coefficient", y = NULL) +
+  guides(size = "none", linewidth = "none")
+pub(g, type = "dot", base_size = base_size, xlim = c(-5, 5))
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "dot")`**
+
+```{r}
+#| label: fig-ec-err
+de = dg.dot |>
+  mutate(var = factor(var, levels = sort(unique(var))))
+e = hcat.init(de, "coef", "var", xlim = c(-5, 5), xname = "Coefficient")
+e = hcat.seg(e, de$lo, as.character(de$var), de$hi, pubred, 1.5)
+e = hcat.cap(e, de$lo, as.character(de$var), half = 0.15, color = pubred, lwd = 1.5)
+e = hcat.cap(e, de$hi, as.character(de$var), half = 0.15, color = pubred, lwd = 1.5)
+e = hcat.pts(e, de$coef, as.character(de$var), pubred, 8)
+e = hcat.vline(e, 0, levels(de$var))
+e |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "dot", base_size = base_size, caption = cap, xlim = c(-5, 5))
+```
+
+:::
+::::
+
+## Facet
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(facet = TRUE)`**
+
+```{r}
+#| label: fig-gg-facet
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.facet, aes(x = wt, y = mpg, color = name)) +
+  geom_point(show.legend = FALSE) +
+  facet_wrap(~name, nrow = 1) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = ylab)
+pub(g, base_size = base_size, xlim = c(0, 6), ylim = c(0, 40), facet = TRUE)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(facet = TRUE)`**
+
+```{r}
+#| label: fig-ec-facet
+dg.facet |>
+  group_by(name) |>
+  e_charts(wt, width = plot.px, height = plot.px) |>
+  e_scatter(mpg, legend = FALSE) |>
+  e_facet(
+    rows = 1,
+    cols = 3,
+    legend_space = 0,
+    margin_trbl = c(t = 2, r = 2, b = 8, l = 10),
+    h_panel_space = 4
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
+  e_theme_pub(
+    type = "scatter",
+    facet = TRUE,
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, 6),
+    ylim = c(0, 40)
+  )
+```
+
+:::
+::::
+
+## Timeline
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "timeline")`**
+
+```{r}
+#| label: fig-gg-time
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.time, aes(x = 0, y = date, color = name, label = text)) +
+  geom_segment(
+    aes(x = 0, xend = 0, y = min(date), yend = max(date)),
+    show.legend = FALSE,
+    color = publightgray
+  ) +
+  geom_point(show.legend = FALSE) +
+  geom_label_repel(nudge_x = 1, hjust = 0, direction = "y", show.legend = FALSE) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "", y = "")
+pub(
+  g,
+  type = "timeline",
+  base_size = base_size,
+  xlim = c(0, 5),
+  ybreaks = time.breaks,
+  ytrans = "reverse2"
+)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "timeline")`**
+
+```{r}
+#| label: fig-ec-time
+dt = dg.time |>
+  mutate(x = 0.3, y = as.numeric(date))
+e = dt |>
+  group_by(name) |>
+  e_charts(x, width = plot.px, height = plot.px) |>
+  e_scatter(y, bind = text, legend = FALSE)
+e$x$opts$series = c(
+  list(list(
+    type = "line",
+    data = list(c(0, min(dt$y)), c(0, max(dt$y))),
+    symbol = "none",
+    lineStyle = list(color = publightgray, width = 2),
+    silent = TRUE,
+    z = 1
+  )),
+  e$x$opts$series
+)
+for (i in seq_along(e$x$opts$series)) {
+  if (!identical(e$x$opts$series[[i]]$type, "scatter")) next
+  e$x$opts$series[[i]]$label = list(
+    show = TRUE,
+    position = "right",
+    formatter = htmlwidgets::JS("function(p){ return p.name || ''; }")
+  )
+}
+e$x$opts$yAxis = list(
+  type = "value",
+  inverse = TRUE,
+  min = min(dt$y),
+  max = max(dt$y),
+  axisLabel = list(
+    formatter = htmlwidgets::JS(
+      "function(v){ var d=new Date(v*86400*1000); var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return m[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }"
+    )
+  )
+)
+e |>
+  e_title(ttl, sub) |>
+  e_theme_pub(
+    type = "timeline",
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, 5),
+    ybreaks = as.numeric(time.breaks)
+  )
+```
+
+:::
+::::
+
+## Map
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(type = "map")`**
+
+```{r}
+#| label: fig-gg-map
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.map, aes(x = lon, y = lat)) +
+  annotation_borders("state", colour = publightgray) +
+  geom_point(color = pubred) +
+  labs(title = ttl, subtitle = sub, caption = cap)
+pub(g, type = "map", base_size = base_size)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "map")`**
+
+```{r}
+#| label: fig-ec-map
+usa.json = jsonlite::toJSON(usa.states.geo(), auto_unbox = TRUE)
+dg.map |>
+  e_charts(lon, width = plot.px, height = plot.px) |>
+  e_map_register("usa_states", usa.json) |>
+  e_geo(
+    map = "usa_states",
+    roam = FALSE,
+    boundingCoords = list(c(-127, 23.5), c(-65.5, 50.5)),
+    itemStyle = list(areaColor = pubbackgray, borderColor = publightgray),
+    emphasis = list(itemStyle = list(areaColor = pubbackgray))
+  ) |>
+  e_scatter(lat, coord_system = "geo", legend = FALSE, color = pubred) |>
+  e_title(ttl, sub) |>
+  e_theme_pub(type = "map", base_size = base_size, caption = cap)
+```
+
+:::
+::::
+
+## Hex bins
+
+`pub()` uses the default scatter type for hex bins.
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub()` + `geom_hex`**
+
+```{r}
+#| label: fig-gg-hex
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g.hex = ggplot(dg.hex, aes(x = psavert, y = uempmed)) +
+  geom_hex(color = pubbackgray, bins = 20) +
+  scale_fill_gradient(low = pubbackgray, high = pubblue, na.value = pubmediumgray, oob = squish, limits = c(0, 20), breaks = c(0, 10, 20)) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = "Personal Savings Rate", y = "Median Duration of Unemployment", fill = "Observations")
+g.hex = pub(g.hex, base_size = base_size, xlim = c(0, 20), ylim = c(0, 30))
+dg.hex.bins = ggplot_build(g.hex)$data[[1]] |>
+  select(x, y, count, width, height)
+g.hex
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(type = "scatter")`**
+
+```{r}
+#| label: fig-ec-hex
+e = dg.hex.bins |>
+  e_charts(x, width = plot.px, height = plot.px) |>
+  e_scatter(y, count, legend = FALSE, symbol = hex.symbol) |>
+  e_visual_map(
+    count,
+    min = 0,
+    max = 20,
+    orient = "horizontal",
+    inRange = list(color = c(pubbackgray, pubblue))
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = "Personal Savings Rate") |>
+  e_y_axis(name = "Median Duration of Unemployment") |>
+  e_theme_pub(
+    type = "scatter",
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, 20),
+    ylim = c(0, 30)
+  )
+gr = e$x$opts$grid[[1]]
+hex.w = unique(dg.hex.bins$width)[1]
+hex.h = unique(dg.hex.bins$height)[1]
+sx = hex.w / 20 * (plot.px - gr$left - gr$right)
+sy = hex.h / 30 * (plot.px - gr$top - gr$bottom)
+# Path bbox width 2; height 2*sy/sx. Uniform scale to sx then
+# matches ggplot's data-unit hex size on this panel.
+a = sy / sx
+hex.path = sprintf(
+  "path://M0,%.4fL1,%.4fL1,%.4fL0,%.4fL-1,%.4fL-1,%.4fZ",
+  a, a / 2, -a / 2, -a, -a / 2, a / 2
+)
+e$x$opts$series = lapply(e$x$opts$series, function(s) {
+  if (is.list(s) && identical(s$type, "scatter")) {
+    s$symbol = hex.path
+    s$symbolSize = sx
+    if (is.null(s$itemStyle)) s$itemStyle = list()
+    s$itemStyle$borderColor = pubbackgray
+    s$itemStyle$borderWidth = 0.5
+  }
+  s
+})
+vm = e$x$opts$visualMap
+if (!is.null(vm$min) || !is.null(vm$type)) {
+  e$x$opts$visualMap$min = 0
+  e$x$opts$visualMap$max = 20
+} else if (length(vm) > 0 && is.list(vm[[1]])) {
+  e$x$opts$visualMap[[1]]$min = 0
+  e$x$opts$visualMap[[1]]$max = 20
+}
+e
+```
+
+:::
+::::
+
+## Colors (`cb.pal`)
+
+:::: {.columns}
+::: {.column width="50%"}
+**ggplot + `pub(facet = TRUE)` + `cb.pal`**
+
+```{r}
+#| label: fig-gg-colors
+#| fig-width: 3.75
+#| fig-height: 3.75
+#| out-width: "360px"
+#| out-height: "360px"
+g = ggplot(dg.col, aes(x = wt, y = mpg, color = name)) +
+  geom_point() +
+  facet_grid(cyl ~ gear) +
+  labs(title = ttl, subtitle = sub, caption = cap, x = xlab, y = ylab, color = "Gears and Cylinders") +
+  scale_color_manual(values = cb.pal) +
+  guides(color = guide_legend(nrow = 3))
+pub(g, base_size = base_size, xlim = c(0, 6), ylim = c(0, 40), facet = TRUE)
+```
+
+:::
+::: {.column width="50%"}
+**echarts4r + `e_theme_pub(colors = "cb14")`**
+
+```{r}
+#| label: fig-ec-colors
+dg.col |>
+  group_by(cyl, gear) |>
+  e_charts(wt, width = plot.px, height = plot.px) |>
+  e_scatter(mpg) |>
+  e_facet(
+    rows = 3,
+    cols = 3,
+    legend_space = 0,
+    margin_trbl = c(t = 2, r = 2, b = 8, l = 10),
+    h_panel_space = 4,
+    v_panel_space = 5
+  ) |>
+  e_title(ttl, sub) |>
+  e_x_axis(name = xlab) |>
+  e_y_axis(name = ylab) |>
+  e_theme_pub(
+    type = "scatter",
+    facet = TRUE,
+    colors = "cb14",
+    base_size = base_size,
+    caption = cap,
+    xlim = c(0, 6),
+    ylim = c(0, 40)
+  )
+```
+
+:::
+::::
+
+Images-as-labels from the README are ggplot/`ggtext` only, so they are not repeated here.
